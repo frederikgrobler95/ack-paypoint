@@ -22,6 +22,11 @@
     /* React specific settings */
     "jsx": "react-jsx",
 
+    /* Type definitions */
+    "types": [
+      "vite-plugin-pwa/react"
+    ],
+
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,

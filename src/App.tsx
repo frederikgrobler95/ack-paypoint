@@ -5,9 +5,14 @@ import AuthPage from './routes/auth/AuthPage'
 import Home from './routes/home/Home'
 import RegistrationPage from './routes/home/registration/RegistrationPage'
 import SalesPage from './routes/home/sales/SalesPage'
+import SalesStep1Page from './routes/home/sales/step1/SalesStep1Page'
+import SalesStep2Page from './routes/home/sales/step2/SalesStep2Page'
+import SalesStep3Page from './routes/home/sales/step3/SalesStep3Page'
 import CheckoutPage from './routes/home/checkout/CheckoutPage'
 import AdminPage from './routes/admin/AdminPage'
 import RefundsPage from './routes/home/sales/refunds/RefundsPage'
+import RefundsStep1Page from './routes/home/sales/refunds/step1/RefundsStep1Page'
+import RefundsStep2Page from './routes/home/sales/refunds/step2/RefundsStep2Page'
 import DashboardPage from './routes/admin/dashboard/DashboardPage'
 import UsersPage from './routes/admin/users/UsersPage'
 import StallsPage from './routes/admin/stalls/StallsPage'
@@ -62,7 +67,12 @@ function App(): React.JSX.Element {
           
           <Route path="/registration" element={<RegistrationPage />} />
           <Route path="/sales" element={<SalesPage />} />
+          <Route path="/sales/salesstep1" element={<SalesStep1Page />} />
+          <Route path="/sales/salesstep2" element={<SalesStep2Page />} />
+          <Route path="/sales/salesstep3" element={<SalesStep3Page />} />
           <Route path="/sales/refunds" element={<RefundsPage />} />
+          <Route path="/sales/refunds/refundsstep1" element={<RefundsStep1Page />} />
+          <Route path="/sales/refunds/refundsstep2" element={<RefundsStep2Page />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/admin" element={<AdminPage />}>
             <Route path="dashboard" element={<DashboardPage />} />

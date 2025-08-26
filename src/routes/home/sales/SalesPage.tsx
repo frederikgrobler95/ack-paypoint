@@ -83,6 +83,19 @@ function SalesPage(): React.JSX.Element {
           <TransactionCard key={transaction.id} transaction={transaction} />
         ))}
       </div>
+      
+      {/* FAB Button */}
+      <div className="fixed bottom-20 right-6">
+        <button
+          className="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
+          onClick={() => {
+            // Navigation to sales flow would go here
+            console.log('Initiate sales flow');
+          }}
+        >
+          <span className="text-xl">+</span>
+        </button>
+      </div>
     </div>
   );
 }
