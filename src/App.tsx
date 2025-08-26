@@ -1,4 +1,4 @@
-import { Routes, Route, Link } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 import React from 'react'
 import { useAuth } from './contexts/AuthContext'
 import AuthPage from './routes/auth/AuthPage'
@@ -22,6 +22,8 @@ import BatchesPage from './routes/admin/qrcodes/batches/BatchesPage'
 import BatchDetailsPage from './routes/admin/qrcodes/batches/batchdetails/BatchDetailsPage'
 import CreateBatchPage from './routes/admin/qrcodes/batches/create/CreateBatchPage'
 import BottomNavigation from './shared/ui/BottomNavigation'
+import Header from './shared/ui/Header'
+import { PWANotification } from './components'
 
 function App(): React.JSX.Element {
   const { currentUser, loading } = useAuth();
@@ -51,16 +53,9 @@ function App(): React.JSX.Element {
   // Show main app if user is authenticated
   return (
     <>
-      <nav className="bg-gray-800 text-white p-4">
-        <div className="container mx-auto flex space-x-4">
-          <Link to="/" className="bg-blue-500 hover:text-gray-300 transition-colors">Home</Link>
-          <Link to="/about" className="hover:text-gray-300 transition-colors">About</Link>
-          <Link to="/registration" className="hover:text-gray-300 transition-colors">Registration</Link>
-          <Link to="/sales" className="hover:text-gray-300 transition-colors">Sales</Link>
-          <Link to="/checkout" className="hover:text-gray-300 transition-colors">Checkout</Link>
-          <Link to="/admin" className="hover:text-gray-300 transition-colors">Admin</Link>
-        </div>
-      </nav>
+      <Header />
+      <PWANotification />
+      
       <div className="pb-16"> {/* Add padding to prevent content from being hidden behind bottom nav */}
         <Routes>
           <Route path="/" element={<Home />} />

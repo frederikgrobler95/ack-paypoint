@@ -1,85 +1,70 @@
-import { useState } from 'react'
-import { useToast } from '../../contexts/ToastContext'
-import { useLoading } from '../../contexts/LoadingContext'
+import React from 'react'
+import { useMyAssignment } from '../../contexts/MyAssignmentContext'
+import RegistrationPage from './registration/RegistrationPage'
+import SalesPage from './sales/SalesPage'
+import CheckoutPage from './checkout/CheckoutPage'
 
 function Home(): React.JSX.Element {
-  const [count, setCount] = useState(0)
-  const { showToast } = useToast()
-  const { showLoading, hideLoading, setCancelHandler } = useLoading()
+  const { stall, isLoading, error } = useMyAssignment()
 
-  const simulateAsyncOperation = () => {
-    showLoading('Processing your request...')
-    
-    // Set up cancel handler
-    setCancelHandler(() => {
-      console.log('Operation cancelled by user')
-      showToast('Operation cancelled', 'warning')
-    })
-    
-    // Simulate async operation
-    const timer = setTimeout(() => {
-      hideLoading()
-      showToast('Operation completed successfully!', 'success')
-      setCount((count) => count + 1)
-    }, 3000)
-    
-    // Update cancel handler to clear timeout
-    setCancelHandler(() => {
-      clearTimeout(timer)
-      console.log('Operation cancelled by user')
-      showToast('Operation cancelled', 'warning')
-    })
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mb-4"></div>
+          <p className="text-gray-600">Loading your assignment...</p>
+        </div>
+      </div>
+    )
   }
 
-  return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">Vite + React + Tailwind CSS</h1>
-      <div className="bg-white rounded-lg shadow-md p-6 max-w-md w-full">
-        <div className="space-y-4">
-          <button
-            onClick={() => setCount((count) => count + 1)}
-            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition-colors duration-200"
-          >
-            count is {count}
-          </button>
-          
-          <button
-            onClick={simulateAsyncOperation}
-            className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition-colors duration-200"
-          >
-            Test Toast & Loading
-          </button>
-          
-          <button
-            onClick={() => showToast('This is an info message', 'info')}
-            className="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded transition-colors duration-200"
-          >
-            Show Info Toast
-          </button>
-          
-          <button
-            onClick={() => showToast('This is a warning message', 'warning')}
-            className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded transition-colors duration-200"
-          >
-            Show Warning Toast
-          </button>
-          
-          <button
-            onClick={() => showToast('This is an error message', 'error')}
-            className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition-colors duration-200"
-          >
-            Show Error Toast
-          </button>
+  // Show error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
+        <div className="bg-white rounded-lg shadow-md p-6 max-w-md w-full text-center">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Error</h1>
+          <p className="text-gray-700 mb-4">{error}</p>
+          <p className="text-gray-500">Please contact support if this issue persists.</p>
         </div>
-        <p className="mt-4 text-gray-600">
-          Edit <code className="bg-gray-200 rounded px-1">src/App.tsx</code> and save to test HMR
-        </p>
       </div>
-      <p className="mt-6 text-gray-500">
-        Click on the Vite and React logos to learn more
-      </p>
-    </div>
-  )
+    )
+  }
+
+  // Show message if user has no assignment
+  if (!stall) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
+        <div className="bg-white rounded-lg shadow-md p-6 max-w-md w-full text-center">
+          <h1 className="text-2xl font-bold text-gray-800 mb-4">No Assignment</h1>
+          <p className="text-gray-700 mb-4">You are not currently assigned to any stall.</p>
+          <p className="text-gray-500">Please contact your administrator to get assigned to a stall.</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Show the appropriate page based on stall type
+  switch (stall.type) {
+    case 'registration':
+      return <RegistrationPage />
+    case 'commerce':
+      return <SalesPage />
+    case 'checkout':
+      return <CheckoutPage />
+    default:
+      return (
+        <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-md p-6 max-w-md w-full text-center">
+            <h1 className="text-2xl font-bold text-gray-800 mb-4">Unknown Assignment</h1>
+            <p className="text-gray-700 mb-4">Your stall assignment type is not recognized.</p>
+            <p className="text-gray-500">Stall type: {stall.type}</p>
+            <p className="text-gray-500">Please contact support.</p>
+          </div>
+        </div>
+      )
+  }
 }
 
 export default Home

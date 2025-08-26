@@ -1,1 +1,136 @@
 @import "tailwindcss";
+
+/* Mobile-first responsive utilities */
+@layer utilities {
+  /* Responsive padding utilities for mobile-first design */
+  .p-safe {
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  /* Touch target minimum sizes for better mobile usability */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .touch-target-lg {
+    min-height: 48px;
+    min-width: 48px;
+  }
+  
+  /* Responsive spacing utilities */
+  .space-y-mobile > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-y-reverse: 0;
+    margin-top: calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));
+    margin-bottom: calc(0.75rem * var(--tw-space-y-reverse));
+  }
+  
+  /* Mobile-first grid utilities */
+  .grid-mobile {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+  
+  /* Responsive text utilities */
+  .text-mobile-title {
+    font-size: 1.25rem;
+    line-height: 1.5rem;
+    font-weight: 600;
+  }
+  
+  .text-mobile-subtitle {
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 500;
+  }
+  
+  .text-mobile-body {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+  
+  /* Mobile card styles */
+  .card-mobile {
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    background-color: #fff;
+    padding: 1.25rem;
+  }
+  
+  /* Responsive button styles */
+  .btn-mobile {
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  
+  .btn-mobile-lg {
+    padding: 1rem 1.25rem;
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+  
+  /* Mobile navigation styles */
+  .nav-mobile {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #fff;
+    border-top-width: 1px;
+    border-color: #e5e7eb;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    z-index: 50;
+  }
+  
+  /* Responsive container for mobile */
+  .container-mobile {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  @media (min-width: 640px) {
+    .container-mobile {
+      max-width: 640px;
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+  
+  @media (min-width: 768px) {
+    .container-mobile {
+      max-width: 768px;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .container-mobile {
+      max-width: 1024px;
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+  }
+  
+  @media (min-width: 1280px) {
+    .container-mobile {
+      max-width: 1280px;
+    }
+  }
+}

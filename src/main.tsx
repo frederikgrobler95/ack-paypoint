@@ -7,6 +7,7 @@ import { FirebaseProvider } from './firebase/FirebaseContext'
 import { AuthProvider } from './contexts/AuthContext'
 import { ToastProvider } from './contexts/ToastContext'
 import { LoadingProvider } from './contexts/LoadingContext'
+import { MyAssignmentProvider } from './contexts/MyAssignmentContext'
 import { auth } from './firebase'
 import { onAuthStateChanged } from 'firebase/auth'
 import App from './App'
@@ -39,14 +40,16 @@ authInitializedPromise.then(() => {
       <QueryClientProvider client={queryClient}>
         <FirebaseProvider currentUser={initialUser}>
           <AuthProvider>
-            <ToastProvider>
-              <LoadingProvider>
-                <BrowserRouter>
-                  <App />
-                  <ToastContainer />
-                </BrowserRouter>
-              </LoadingProvider>
-            </ToastProvider>
+            <MyAssignmentProvider>
+              <ToastProvider>
+                <LoadingProvider>
+                  <BrowserRouter>
+                    <App />
+                    <ToastContainer />
+                  </BrowserRouter>
+                </LoadingProvider>
+              </ToastProvider>
+            </MyAssignmentProvider>
           </AuthProvider>
         </FirebaseProvider>
       </QueryClientProvider>
