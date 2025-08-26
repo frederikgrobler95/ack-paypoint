@@ -1,5 +1,5 @@
 import { useQuery, useSuspenseQuery, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
-import { fetchDocument, fetchDocuments, fetchDocumentsPaginated } from '../services/queryService';
+import { fetchDocument, fetchDocumentsPaginated } from '../services/queryService';
 import { where } from 'firebase/firestore';
 import { Customer } from '../shared/contracts/customer';
 
@@ -10,6 +10,7 @@ export const customerKeys = {
   list: (filters: string) => [...customerKeys.lists(), { filters }] as const,
   details: () => [...customerKeys.all, 'detail'] as const,
   detail: (id: string) => [...customerKeys.details(), id] as const,
+  byQRCode: (qrCodeId: string | null) => [...customerKeys.lists(), 'qrCode', qrCodeId] as const,
 };
 
 // Fetch a single customer by ID
@@ -17,9 +18,12 @@ export const fetchCustomer = async (id: string): Promise<Customer | null> => {
   return fetchDocument<Customer>('customers', id);
 };
 
-// Fetch customers by QR code ID
-export const fetchCustomersByQrCode = async (qrCodeId: string): Promise<Customer[]> => {
-  return fetchDocuments<Customer>('customers', [where('qrCodeId', '==', qrCodeId)]);
+// Fetch customers by QR code ID with pagination
+export const fetchCustomersByQRCode = async (qrCodeId: string | null, pageSize: number = 20, lastDocument?: any): Promise<{ data: Customer[]; lastDoc: any }> => {
+  if (qrCodeId) {
+    return fetchDocumentsPaginated<Customer>('customers', pageSize, lastDocument, [where('qrCodeId', '==', qrCodeId)]);
+  }
+  return fetchDocumentsPaginated<Customer>('customers', pageSize, lastDocument, [where('qrCodeId', '==', null)]);
 };
 
 // Fetch all customers with pagination
@@ -46,20 +50,28 @@ export const useSuspenseCustomer = (id: string) => {
   });
 };
 
-// Get customers by QR code ID
-export const useCustomersByQrCode = (qrCodeId: string) => {
-  return useQuery({
-    queryKey: [...customerKeys.list(`qrCode-${qrCodeId}`), qrCodeId],
-    queryFn: () => fetchCustomersByQrCode(qrCodeId),
-    enabled: !!qrCodeId,
+// Get customers by QR code ID with pagination
+export const useCustomersByQRCode = (qrCodeId: string | null, pageSize: number = 20) => {
+  return useInfiniteQuery({
+    queryKey: customerKeys.byQRCode(qrCodeId),
+    queryFn: async ({ pageParam }) => {
+      const result = await fetchCustomersByQRCode(qrCodeId, pageSize, pageParam);
+      return result;
+    },
+    getNextPageParam: (lastPage) => lastPage.lastDoc,
+    initialPageParam: undefined,
+    enabled: qrCodeId !== undefined,
   });
 };
 
-// Get customers by QR code ID (suspense version)
-export const useSuspenseCustomersByQrCode = (qrCodeId: string) => {
+// Get customers by QR code ID (suspense version) with pagination
+export const useSuspenseCustomersByQRCode = (qrCodeId: string | null, pageSize: number = 20) => {
   return useSuspenseQuery({
-    queryKey: [...customerKeys.list(`qrCode-${qrCodeId}`), qrCodeId],
-    queryFn: () => fetchCustomersByQrCode(qrCodeId),
+    queryKey: customerKeys.byQRCode(qrCodeId),
+    queryFn: async () => {
+      const result = await fetchCustomersByQRCode(qrCodeId, pageSize);
+      return result.data;
+    },
   });
 };
 

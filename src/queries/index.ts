@@ -1,8 +1,5 @@
 // Export all query hooks and functions
 
-// Account queries
-export * from './accounts';
-
 // Assignment queries
 export * from './assignments';
 

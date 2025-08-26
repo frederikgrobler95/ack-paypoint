@@ -19,20 +19,20 @@ export const fetchQRCode = async (id: string): Promise<QRCode | null> => {
   return fetchDocument<QRCode>('qrCodes', id);
 };
 
-// Fetch QR codes by assigned customer ID
-export const fetchQRCodesByCustomer = async (customerId: string | null): Promise<QRCode[]> => {
+// Fetch QR codes by assigned customer ID with pagination
+export const fetchQRCodesByCustomer = async (customerId: string | null, pageSize: number = 20, lastDocument?: any): Promise<{ data: QRCode[]; lastDoc: any }> => {
   if (customerId) {
-    return fetchDocuments<QRCode>('qrCodes', [where('assignedCustomerId', '==', customerId)]);
+    return fetchDocumentsPaginated<QRCode>('qrCodes', pageSize, lastDocument, [where('assignedCustomerId', '==', customerId)]);
   }
-  return fetchDocuments<QRCode>('qrCodes', [where('assignedCustomerId', '==', null)]);
+  return fetchDocumentsPaginated<QRCode>('qrCodes', pageSize, lastDocument, [where('assignedCustomerId', '==', null)]);
 };
 
-// Fetch QR codes by batch ID
-export const fetchQRCodesByBatch = async (batchId: string | null): Promise<QRCode[]> => {
+// Fetch QR codes by batch ID with pagination
+export const fetchQRCodesByBatch = async (batchId: string | null, pageSize: number = 20, lastDocument?: any): Promise<{ data: QRCode[]; lastDoc: any }> => {
   if (batchId) {
-    return fetchDocuments<QRCode>('qrCodes', [where('batchId', '==', batchId)]);
+    return fetchDocumentsPaginated<QRCode>('qrCodes', pageSize, lastDocument, [where('batchId', '==', batchId)]);
   }
-  return fetchDocuments<QRCode>('qrCodes', [where('batchId', '==', null)]);
+  return fetchDocumentsPaginated<QRCode>('qrCodes', pageSize, lastDocument, [where('batchId', '==', null)]);
 };
 
 // Fetch all QR codes with pagination
@@ -69,37 +69,53 @@ export const useSuspenseQRCode = (id: string) => {
   });
 };
 
-// Get QR codes by assigned customer ID
-export const useQRCodesByCustomer = (customerId: string | null) => {
-  return useQuery({
+// Get QR codes by assigned customer ID with pagination
+export const useQRCodesByCustomer = (customerId: string | null, pageSize: number = 20) => {
+  return useInfiniteQuery({
     queryKey: [...qrCodeKeys.list(`customer-${customerId}`), customerId],
-    queryFn: () => fetchQRCodesByCustomer(customerId),
+    queryFn: async ({ pageParam }) => {
+      const result = await fetchQRCodesByCustomer(customerId, pageSize, pageParam);
+      return result;
+    },
+    getNextPageParam: (lastPage) => lastPage.lastDoc,
+    initialPageParam: undefined,
     enabled: customerId !== undefined,
   });
 };
 
-// Get QR codes by assigned customer ID (suspense version)
-export const useSuspenseQRCodesByCustomer = (customerId: string | null) => {
+// Get QR codes by assigned customer ID (suspense version) with pagination
+export const useSuspenseQRCodesByCustomer = (customerId: string | null, pageSize: number = 20) => {
   return useSuspenseQuery({
     queryKey: [...qrCodeKeys.list(`customer-${customerId}`), customerId],
-    queryFn: () => fetchQRCodesByCustomer(customerId),
+    queryFn: async () => {
+      const result = await fetchQRCodesByCustomer(customerId, pageSize);
+      return result.data;
+    },
   });
 };
 
-// Get QR codes by batch ID
-export const useQRCodesByBatch = (batchId: string | null) => {
-  return useQuery({
+// Get QR codes by batch ID with pagination
+export const useQRCodesByBatch = (batchId: string | null, pageSize: number = 20) => {
+  return useInfiniteQuery({
     queryKey: [...qrCodeKeys.list(`batch-${batchId}`), batchId],
-    queryFn: () => fetchQRCodesByBatch(batchId),
+    queryFn: async ({ pageParam }) => {
+      const result = await fetchQRCodesByBatch(batchId, pageSize, pageParam);
+      return result;
+    },
+    getNextPageParam: (lastPage) => lastPage.lastDoc,
+    initialPageParam: undefined,
     enabled: batchId !== undefined,
   });
 };
 
-// Get QR codes by batch ID (suspense version)
-export const useSuspenseQRCodesByBatch = (batchId: string | null) => {
+// Get QR codes by batch ID (suspense version) with pagination
+export const useSuspenseQRCodesByBatch = (batchId: string | null, pageSize: number = 20) => {
   return useSuspenseQuery({
     queryKey: [...qrCodeKeys.list(`batch-${batchId}`), batchId],
-    queryFn: () => fetchQRCodesByBatch(batchId),
+    queryFn: async () => {
+      const result = await fetchQRCodesByBatch(batchId, pageSize);
+      return result.data;
+    },
   });
 };
 

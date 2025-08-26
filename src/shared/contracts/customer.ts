@@ -3,5 +3,14 @@ export type Customer = {
   name: string;
   phoneE164: string;
   phoneRaw: string;
-  qrCodeId?: string;
+  qrCodeId: string;
+  Account: Account;
+};
+
+export type AccountStatus = 'clean' |'unpaid' | 'paid';
+
+export type Account = {
+  balanceCents: number;
+  status: AccountStatus;
+  lastPaidAt: Date;
 };

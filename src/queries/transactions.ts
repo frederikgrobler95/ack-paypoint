@@ -10,6 +10,11 @@ export const transactionKeys = {
   list: (filters: string) => [...transactionKeys.lists(), { filters }] as const,
   details: () => [...transactionKeys.all, 'detail'] as const,
   detail: (id: string) => [...transactionKeys.details(), id] as const,
+  byStall: (stallId: string) => [...transactionKeys.lists(), 'stall', stallId] as const,
+  byOperator: (operatorId: string) => [...transactionKeys.lists(), 'operator', operatorId] as const,
+  byCustomer: (customerId: string) => [...transactionKeys.lists(), 'customer', customerId] as const,
+  refunds: () => [...transactionKeys.all, 'refunds'] as const,
+  sales: () => [...transactionKeys.all, 'sales'] as const,
 };
 
 // Fetch a single transaction by ID
@@ -17,25 +22,36 @@ export const fetchTransaction = async (id: string): Promise<Transaction | null> 
   return fetchDocument<Transaction>('transactions', id);
 };
 
-// Fetch transactions by account ID
-export const fetchTransactionsByAccount = async (accountId: string): Promise<Transaction[]> => {
-  return fetchDocuments<Transaction>('transactions', [where('accountId', '==', accountId)]);
+// Fetch transactions by stall ID with pagination
+export const fetchTransactionsByStall = async (stallId: string, pageSize: number = 20, lastDocument?: any): Promise<{ data: Transaction[]; lastDoc: any }> => {
+  return fetchDocumentsPaginated<Transaction>('transactions', pageSize, lastDocument, [where('stallId', '==', stallId)]);
 };
 
-// Fetch transactions by stall ID
-export const fetchTransactionsByStall = async (stallId: string): Promise<Transaction[]> => {
-  return fetchDocuments<Transaction>('transactions', [where('stallId', '==', stallId)]);
+// Fetch transactions by operator ID with pagination
+export const fetchTransactionsByOperator = async (operatorId: string, pageSize: number = 20, lastDocument?: any): Promise<{ data: Transaction[]; lastDoc: any }> => {
+  return fetchDocumentsPaginated<Transaction>('transactions', pageSize, lastDocument, [where('operatorId', '==', operatorId)]);
 };
 
-// Fetch transactions by operator ID
-export const fetchTransactionsByOperator = async (operatorId: string): Promise<Transaction[]> => {
-  return fetchDocuments<Transaction>('transactions', [where('operatorId', '==', operatorId)]);
+// Fetch transactions by customer ID with pagination
+export const fetchTransactionsByCustomer = async (customerId: string, pageSize: number = 20, lastDocument?: any): Promise<{ data: Transaction[]; lastDoc: any }> => {
+  return fetchDocumentsPaginated<Transaction>('transactions', pageSize, lastDocument, [where('customerId', '==', customerId)]);
+};
+
+// Fetch refund transactions
+export const fetchRefundTransactions = async (): Promise<Transaction[]> => {
+  return fetchDocuments<Transaction>('transactions', [where('type', '==', 'refund')]);
+};
+
+// Fetch sale transactions
+export const fetchSaleTransactions = async (): Promise<Transaction[]> => {
+  return fetchDocuments<Transaction>('transactions', [where('type', '==', 'sale')]);
 };
 
 // Fetch all transactions with pagination
 export const fetchTransactions = async (pageSize: number = 20, lastDocument?: any) => {
   return fetchDocumentsPaginated<Transaction>('transactions', pageSize, lastDocument);
 };
+
 
 // React Query hooks for transactions
 
@@ -56,54 +72,110 @@ export const useSuspenseTransaction = (id: string) => {
   });
 };
 
-// Get transactions by account ID
-export const useTransactionsByAccount = (accountId: string) => {
-  return useQuery({
-    queryKey: [...transactionKeys.list(`account-${accountId}`), accountId],
-    queryFn: () => fetchTransactionsByAccount(accountId),
-    enabled: !!accountId,
-  });
-};
-
-// Get transactions by account ID (suspense version)
-export const useSuspenseTransactionsByAccount = (accountId: string) => {
-  return useSuspenseQuery({
-    queryKey: [...transactionKeys.list(`account-${accountId}`), accountId],
-    queryFn: () => fetchTransactionsByAccount(accountId),
-  });
-};
-
-// Get transactions by stall ID
-export const useTransactionsByStall = (stallId: string) => {
-  return useQuery({
-    queryKey: [...transactionKeys.list(`stall-${stallId}`), stallId],
-    queryFn: () => fetchTransactionsByStall(stallId),
+// Get transactions by stall ID with pagination
+export const useTransactionsByStall = (stallId: string, pageSize: number = 20) => {
+  return useInfiniteQuery({
+    queryKey: transactionKeys.byStall(stallId),
+    queryFn: async ({ pageParam }) => {
+      const result = await fetchTransactionsByStall(stallId, pageSize, pageParam);
+      return result;
+    },
+    getNextPageParam: (lastPage) => lastPage.lastDoc,
+    initialPageParam: undefined,
     enabled: !!stallId,
   });
 };
 
-// Get transactions by stall ID (suspense version)
-export const useSuspenseTransactionsByStall = (stallId: string) => {
+// Get transactions by stall ID (suspense version) with pagination
+export const useSuspenseTransactionsByStall = (stallId: string, pageSize: number = 20) => {
   return useSuspenseQuery({
-    queryKey: [...transactionKeys.list(`stall-${stallId}`), stallId],
-    queryFn: () => fetchTransactionsByStall(stallId),
+    queryKey: transactionKeys.byStall(stallId),
+    queryFn: async () => {
+      const result = await fetchTransactionsByStall(stallId, pageSize);
+      return result.data;
+    },
   });
 };
 
-// Get transactions by operator ID
-export const useTransactionsByOperator = (operatorId: string) => {
-  return useQuery({
-    queryKey: [...transactionKeys.list(`operator-${operatorId}`), operatorId],
-    queryFn: () => fetchTransactionsByOperator(operatorId),
+// Get transactions by operator ID with pagination
+export const useTransactionsByOperator = (operatorId: string, pageSize: number = 20) => {
+  return useInfiniteQuery({
+    queryKey: transactionKeys.byOperator(operatorId),
+    queryFn: async ({ pageParam }) => {
+      const result = await fetchTransactionsByOperator(operatorId, pageSize, pageParam);
+      return result;
+    },
+    getNextPageParam: (lastPage) => lastPage.lastDoc,
+    initialPageParam: undefined,
     enabled: !!operatorId,
   });
 };
 
-// Get transactions by operator ID (suspense version)
-export const useSuspenseTransactionsByOperator = (operatorId: string) => {
+// Get transactions by operator ID (suspense version) with pagination
+export const useSuspenseTransactionsByOperator = (operatorId: string, pageSize: number = 20) => {
   return useSuspenseQuery({
-    queryKey: [...transactionKeys.list(`operator-${operatorId}`), operatorId],
-    queryFn: () => fetchTransactionsByOperator(operatorId),
+    queryKey: transactionKeys.byOperator(operatorId),
+    queryFn: async () => {
+      const result = await fetchTransactionsByOperator(operatorId, pageSize);
+      return result.data;
+    },
+  });
+};
+
+// Get transactions by customer ID with pagination
+export const useTransactionsByCustomer = (customerId: string, pageSize: number = 20) => {
+  return useInfiniteQuery({
+    queryKey: transactionKeys.byCustomer(customerId),
+    queryFn: async ({ pageParam }) => {
+      const result = await fetchTransactionsByCustomer(customerId, pageSize, pageParam);
+      return result;
+    },
+    getNextPageParam: (lastPage) => lastPage.lastDoc,
+    initialPageParam: undefined,
+    enabled: !!customerId,
+  });
+};
+
+// Get transactions by customer ID (suspense version) with pagination
+export const useSuspenseTransactionsByCustomer = (customerId: string, pageSize: number = 20) => {
+  return useSuspenseQuery({
+    queryKey: transactionKeys.byCustomer(customerId),
+    queryFn: async () => {
+      const result = await fetchTransactionsByCustomer(customerId, pageSize);
+      return result.data;
+    },
+  });
+};
+
+// Get refund transactions
+export const useRefundTransactions = () => {
+  return useQuery({
+    queryKey: transactionKeys.refunds(),
+    queryFn: fetchRefundTransactions,
+  });
+};
+
+// Get refund transactions (suspense version)
+export const useSuspenseRefundTransactions = () => {
+  return useSuspenseQuery({
+    queryKey: transactionKeys.refunds(),
+    queryFn: fetchRefundTransactions,
+  });
+};
+
+// Get sale transactions
+export const useSaleTransactions = () => {
+  return useQuery({
+    queryKey: transactionKeys.sales(),
+    queryFn: fetchSaleTransactions,
+  });
+};
+
+// Get sale transactions (suspense version)
+export const useSuspenseSaleTransactions = () => {
+  return useSuspenseQuery({
+    queryKey: transactionKeys.sales(),
+    queryFn: fetchSaleTransactions,
   });
 };
 
@@ -119,6 +191,7 @@ export const useTransactions = (pageSize: number = 20) => {
     initialPageParam: undefined,
   });
 };
+
 
 // Prefetch transaction data
 export const usePrefetchTransaction = () => {

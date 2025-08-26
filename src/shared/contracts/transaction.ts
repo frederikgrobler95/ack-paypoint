@@ -1,13 +1,15 @@
 import { Timestamp } from 'firebase/firestore';
 
-export type TransactionType = 'debit' | 'credit' | 'refund';
+export type TransactionType = 'sale' | 'refund';
 
 export type Transaction = {
   id: string;
-  accountId: string;
   stallId: string;
+  stallName?: string;
   operatorId: string;
   operatorName: string;
+  customerId: string;
+  customerName?: string;
   amountCents: number;
   type: TransactionType;
   refundOfTxnId?: string;

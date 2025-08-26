@@ -1,4 +1,4 @@
-import { firestore } from './firebase';
+import { db as firestore } from './firebase';
 import { doc, getDoc, collection, query, getDocs, orderBy, limit, startAfter, QueryConstraint } from 'firebase/firestore';
 import { Timestamp } from 'firebase/firestore';
 

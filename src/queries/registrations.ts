@@ -1,5 +1,5 @@
 import { useQuery, useSuspenseQuery, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
-import { fetchDocument, fetchDocuments, fetchDocumentsPaginated } from '../services/queryService';
+import { fetchDocument, fetchDocumentsPaginated } from '../services/queryService';
 import { where } from 'firebase/firestore';
 import { Registration } from '../shared/contracts/registration';
 
@@ -10,6 +10,9 @@ export const registrationKeys = {
   list: (filters: string) => [...registrationKeys.lists(), { filters }] as const,
   details: () => [...registrationKeys.all, 'detail'] as const,
   detail: (id: string) => [...registrationKeys.details(), id] as const,
+  byOperator: (operatorName: string) => [...registrationKeys.lists(), 'operator', operatorName] as const,
+  byCustomer: (customerId: string) => [...registrationKeys.lists(), 'customer', customerId] as const,
+  byQRCode: (qrCodeId: string) => [...registrationKeys.lists(), 'qrCode', qrCodeId] as const,
 };
 
 // Fetch a single registration by ID
@@ -17,14 +20,19 @@ export const fetchRegistration = async (id: string): Promise<Registration | null
   return fetchDocument<Registration>('registrations', id);
 };
 
-// Fetch registrations by customer ID
-export const fetchRegistrationsByCustomer = async (customerId: string): Promise<Registration[]> => {
-  return fetchDocuments<Registration>('registrations', [where('customerId', '==', customerId)]);
+// Fetch registrations by operator name with pagination
+export const fetchRegistrationsByOperator = async (operatorName: string, pageSize: number = 20, lastDocument?: any): Promise<{ data: Registration[]; lastDoc: any }> => {
+  return fetchDocumentsPaginated<Registration>('registrations', pageSize, lastDocument, [where('operatorName', '==', operatorName)]);
 };
 
-// Fetch registrations by QR code ID
-export const fetchRegistrationsByQrCode = async (qrCodeId: string): Promise<Registration[]> => {
-  return fetchDocuments<Registration>('registrations', [where('qrCodeId', '==', qrCodeId)]);
+// Fetch registrations by customer ID with pagination
+export const fetchRegistrationsByCustomer = async (customerId: string, pageSize: number = 20, lastDocument?: any): Promise<{ data: Registration[]; lastDoc: any }> => {
+  return fetchDocumentsPaginated<Registration>('registrations', pageSize, lastDocument, [where('customerId', '==', customerId)]);
+};
+
+// Fetch registrations by QR code ID with pagination
+export const fetchRegistrationsByQRCode = async (qrCodeId: string, pageSize: number = 20, lastDocument?: any): Promise<{ data: Registration[]; lastDoc: any }> => {
+  return fetchDocumentsPaginated<Registration>('registrations', pageSize, lastDocument, [where('qrCodeId', '==', qrCodeId)]);
 };
 
 // Fetch all registrations with pagination
@@ -51,37 +59,78 @@ export const useSuspenseRegistration = (id: string) => {
   });
 };
 
-// Get registrations by customer ID
-export const useRegistrationsByCustomer = (customerId: string) => {
-  return useQuery({
-    queryKey: [...registrationKeys.list(`customer-${customerId}`), customerId],
-    queryFn: () => fetchRegistrationsByCustomer(customerId),
+// Get registrations by operator name with pagination
+export const useRegistrationsByOperator = (operatorName: string, pageSize: number = 20) => {
+  return useInfiniteQuery({
+    queryKey: registrationKeys.byOperator(operatorName),
+    queryFn: async ({ pageParam }) => {
+      const result = await fetchRegistrationsByOperator(operatorName, pageSize, pageParam);
+      return result;
+    },
+    getNextPageParam: (lastPage) => lastPage.lastDoc,
+    initialPageParam: undefined,
+    enabled: !!operatorName,
+  });
+};
+
+// Get registrations by operator name (suspense version) with pagination
+export const useSuspenseRegistrationsByOperator = (operatorName: string, pageSize: number = 20) => {
+  return useSuspenseQuery({
+    queryKey: registrationKeys.byOperator(operatorName),
+    queryFn: async () => {
+      const result = await fetchRegistrationsByOperator(operatorName, pageSize);
+      return result.data;
+    },
+  });
+};
+
+// Get registrations by customer ID with pagination
+export const useRegistrationsByCustomer = (customerId: string, pageSize: number = 20) => {
+  return useInfiniteQuery({
+    queryKey: registrationKeys.byCustomer(customerId),
+    queryFn: async ({ pageParam }) => {
+      const result = await fetchRegistrationsByCustomer(customerId, pageSize, pageParam);
+      return result;
+    },
+    getNextPageParam: (lastPage) => lastPage.lastDoc,
+    initialPageParam: undefined,
     enabled: !!customerId,
   });
 };
 
-// Get registrations by customer ID (suspense version)
-export const useSuspenseRegistrationsByCustomer = (customerId: string) => {
+// Get registrations by customer ID (suspense version) with pagination
+export const useSuspenseRegistrationsByCustomer = (customerId: string, pageSize: number = 20) => {
   return useSuspenseQuery({
-    queryKey: [...registrationKeys.list(`customer-${customerId}`), customerId],
-    queryFn: () => fetchRegistrationsByCustomer(customerId),
+    queryKey: registrationKeys.byCustomer(customerId),
+    queryFn: async () => {
+      const result = await fetchRegistrationsByCustomer(customerId, pageSize);
+      return result.data;
+    },
   });
 };
 
-// Get registrations by QR code ID
-export const useRegistrationsByQrCode = (qrCodeId: string) => {
-  return useQuery({
-    queryKey: [...registrationKeys.list(`qrCode-${qrCodeId}`), qrCodeId],
-    queryFn: () => fetchRegistrationsByQrCode(qrCodeId),
+// Get registrations by QR code ID with pagination
+export const useRegistrationsByQRCode = (qrCodeId: string, pageSize: number = 20) => {
+  return useInfiniteQuery({
+    queryKey: registrationKeys.byQRCode(qrCodeId),
+    queryFn: async ({ pageParam }) => {
+      const result = await fetchRegistrationsByQRCode(qrCodeId, pageSize, pageParam);
+      return result;
+    },
+    getNextPageParam: (lastPage) => lastPage.lastDoc,
+    initialPageParam: undefined,
     enabled: !!qrCodeId,
   });
 };
 
-// Get registrations by QR code ID (suspense version)
-export const useSuspenseRegistrationsByQrCode = (qrCodeId: string) => {
+// Get registrations by QR code ID (suspense version) with pagination
+export const useSuspenseRegistrationsByQRCode = (qrCodeId: string, pageSize: number = 20) => {
   return useSuspenseQuery({
-    queryKey: [...registrationKeys.list(`qrCode-${qrCodeId}`), qrCodeId],
-    queryFn: () => fetchRegistrationsByQrCode(qrCodeId),
+    queryKey: registrationKeys.byQRCode(qrCodeId),
+    queryFn: async () => {
+      const result = await fetchRegistrationsByQRCode(qrCodeId, pageSize);
+      return result.data;
+    },
   });
 };
 

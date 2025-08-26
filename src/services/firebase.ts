@@ -20,7 +20,7 @@ export const app = initializeApp(firebaseConfig)
 
 // Initialize Firebase services
 export const auth = getAuth(app)
-export const firestore = getFirestore(app)
+export const db = getFirestore(app)
 export const functions = getFunctions(app)
 
 // For local development with Firebase Functions emulator

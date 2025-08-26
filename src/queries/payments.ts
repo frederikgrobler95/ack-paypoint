@@ -1,5 +1,5 @@
 import { useQuery, useSuspenseQuery, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
-import { fetchDocument, fetchDocuments, fetchDocumentsPaginated } from '../services/queryService';
+import { fetchDocument, fetchDocumentsPaginated } from '../services/queryService';
 import { where } from 'firebase/firestore';
 import { Payment } from '../shared/contracts/payment';
 
@@ -10,6 +10,8 @@ export const paymentKeys = {
   list: (filters: string) => [...paymentKeys.lists(), { filters }] as const,
   details: () => [...paymentKeys.all, 'detail'] as const,
   detail: (id: string) => [...paymentKeys.details(), id] as const,
+  byOperator: (operatorId: string) => [...paymentKeys.lists(), 'operator', operatorId] as const,
+  byCustomer: (customerId: string) => [...paymentKeys.lists(), 'customer', customerId] as const,
 };
 
 // Fetch a single payment by ID
@@ -17,14 +19,14 @@ export const fetchPayment = async (id: string): Promise<Payment | null> => {
   return fetchDocument<Payment>('payments', id);
 };
 
-// Fetch payments by account ID
-export const fetchPaymentsByAccount = async (accountId: string): Promise<Payment[]> => {
-  return fetchDocuments<Payment>('payments', [where('accountId', '==', accountId)]);
+// Fetch payments by operator ID with pagination
+export const fetchPaymentsByOperator = async (operatorId: string, pageSize: number = 20, lastDocument?: any): Promise<{ data: Payment[]; lastDoc: any }> => {
+  return fetchDocumentsPaginated<Payment>('payments', pageSize, lastDocument, [where('operatorId', '==', operatorId)]);
 };
 
-// Fetch payments by operator ID
-export const fetchPaymentsByOperator = async (operatorId: string): Promise<Payment[]> => {
-  return fetchDocuments<Payment>('payments', [where('operatorId', '==', operatorId)]);
+// Fetch payments by customer ID with pagination
+export const fetchPaymentsByCustomer = async (customerId: string, pageSize: number = 20, lastDocument?: any): Promise<{ data: Payment[]; lastDoc: any }> => {
+  return fetchDocumentsPaginated<Payment>('payments', pageSize, lastDocument, [where('customerId', '==', customerId)]);
 };
 
 // Fetch all payments with pagination
@@ -51,37 +53,53 @@ export const useSuspensePayment = (id: string) => {
   });
 };
 
-// Get payments by account ID
-export const usePaymentsByAccount = (accountId: string) => {
-  return useQuery({
-    queryKey: [...paymentKeys.list(`account-${accountId}`), accountId],
-    queryFn: () => fetchPaymentsByAccount(accountId),
-    enabled: !!accountId,
-  });
-};
-
-// Get payments by account ID (suspense version)
-export const useSuspensePaymentsByAccount = (accountId: string) => {
-  return useSuspenseQuery({
-    queryKey: [...paymentKeys.list(`account-${accountId}`), accountId],
-    queryFn: () => fetchPaymentsByAccount(accountId),
-  });
-};
-
-// Get payments by operator ID
-export const usePaymentsByOperator = (operatorId: string) => {
-  return useQuery({
-    queryKey: [...paymentKeys.list(`operator-${operatorId}`), operatorId],
-    queryFn: () => fetchPaymentsByOperator(operatorId),
+// Get payments by operator ID with pagination
+export const usePaymentsByOperator = (operatorId: string, pageSize: number = 20) => {
+  return useInfiniteQuery({
+    queryKey: paymentKeys.byOperator(operatorId),
+    queryFn: async ({ pageParam }) => {
+      const result = await fetchPaymentsByOperator(operatorId, pageSize, pageParam);
+      return result;
+    },
+    getNextPageParam: (lastPage) => lastPage.lastDoc,
+    initialPageParam: undefined,
     enabled: !!operatorId,
   });
 };
 
-// Get payments by operator ID (suspense version)
-export const useSuspensePaymentsByOperator = (operatorId: string) => {
+// Get payments by operator ID (suspense version) with pagination
+export const useSuspensePaymentsByOperator = (operatorId: string, pageSize: number = 20) => {
   return useSuspenseQuery({
-    queryKey: [...paymentKeys.list(`operator-${operatorId}`), operatorId],
-    queryFn: () => fetchPaymentsByOperator(operatorId),
+    queryKey: paymentKeys.byOperator(operatorId),
+    queryFn: async () => {
+      const result = await fetchPaymentsByOperator(operatorId, pageSize);
+      return result.data;
+    },
+  });
+};
+
+// Get payments by customer ID with pagination
+export const usePaymentsByCustomer = (customerId: string, pageSize: number = 20) => {
+  return useInfiniteQuery({
+    queryKey: paymentKeys.byCustomer(customerId),
+    queryFn: async ({ pageParam }) => {
+      const result = await fetchPaymentsByCustomer(customerId, pageSize, pageParam);
+      return result;
+    },
+    getNextPageParam: (lastPage) => lastPage.lastDoc,
+    initialPageParam: undefined,
+    enabled: !!customerId,
+  });
+};
+
+// Get payments by customer ID (suspense version) with pagination
+export const useSuspensePaymentsByCustomer = (customerId: string, pageSize: number = 20) => {
+  return useSuspenseQuery({
+    queryKey: paymentKeys.byCustomer(customerId),
+    queryFn: async () => {
+      const result = await fetchPaymentsByCustomer(customerId, pageSize);
+      return result.data;
+    },
   });
 };
 
