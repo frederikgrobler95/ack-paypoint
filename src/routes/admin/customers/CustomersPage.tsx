@@ -1,5 +1,4 @@
 import React from 'react'
-import '../../App.css'
 
 function CustomersPage(): React.JSX.Element {
   return (

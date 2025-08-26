@@ -1,6 +1,6 @@
 import React from 'react'
 import { useParams } from 'react-router-dom'
-import '../../../App.css'
+
 
 function CustomerDetailsPage(): React.JSX.Element {
   const { id } = useParams<{ id: string }>();

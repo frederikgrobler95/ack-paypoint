@@ -1,6 +1,7 @@
-import '../../App.css'
+import React from 'react'
 
-function RefundsPage(): JSX.Element {
+
+function RefundsPage(): React.JSX.Element {
   return (
     <>
       <div>

@@ -1,5 +1,5 @@
 import React from 'react'
-import '../../../../App.css'
+
 
 function CreateBatchPage(): React.JSX.Element {
   return (

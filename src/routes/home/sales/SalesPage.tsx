@@ -1,6 +1,7 @@
-import '../../App.css'
+import React from 'react'
 
-function SalesPage(): JSX.Element {
+
+function SalesPage(): React.JSX.Element {
   return (
     <>
       <div>

@@ -1,5 +1,5 @@
 import React from 'react'
-import '../../App.css'
+
 
 function QRCodesPage(): React.JSX.Element {
   return (

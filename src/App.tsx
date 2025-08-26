@@ -1,5 +1,7 @@
 import { Routes, Route, Link } from 'react-router-dom'
 import React from 'react'
+import { useAuth } from './contexts/AuthContext'
+import AuthPage from './routes/auth/AuthPage'
 import Home from './routes/home/Home'
 import RegistrationPage from './routes/home/registration/RegistrationPage'
 import SalesPage from './routes/home/sales/SalesPage'
@@ -19,42 +21,68 @@ import CustomerDetailsPage from './routes/admin/customers/customerdetails/Custom
 import BatchesPage from './routes/admin/qrcodes/batches/BatchesPage'
 import BatchDetailsPage from './routes/admin/qrcodes/batches/batchdetails/BatchDetailsPage'
 import CreateBatchPage from './routes/admin/qrcodes/batches/create/CreateBatchPage'
-import './App.css'
 
 function App(): React.JSX.Element {
+  const { currentUser, loading } = useAuth();
+  console.log('App: rendering with loading state:', loading, 'and currentUser:', currentUser);
+
+  // Show loading state while auth is initializing
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show auth pages if user is not authenticated
+  if (!currentUser) {
+    return (
+      <Routes>
+        <Route path="*" element={<AuthPage />} />
+      </Routes>
+    );
+  }
+
+  // Show main app if user is authenticated
   return (
     <>
-      <nav>
-              <Link to="/">Home</Link> |
-              <Link to="/about"> About</Link> |
-              <Link to="/registration"> Registration</Link> |
-              <Link to="/sales"> Sales</Link> |
-              <Link to="/checkout"> Checkout</Link> |
-              <Link to="/admin"> Admin</Link>
-            </nav>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              
-              <Route path="/registration" element={<RegistrationPage />} />
-              <Route path="/sales" element={<SalesPage />} />
-              <Route path="/sales/refunds" element={<RefundsPage />} />
-              <Route path="/checkout" element={<CheckoutPage />} />
-              <Route path="/admin" element={<AdminPage />}>
-                <Route path="dashboard" element={<DashboardPage />} />
-                <Route path="users" element={<UsersPage />} />
-                <Route path="users/addUser" element={<AddUserPage />} />
-                <Route path="users/userdetails/:id" element={<UserDetailsPage />} />
-                <Route path="stalls" element={<StallsPage />} />
-                <Route path="stalls/stalldetails/:id" element={<StallDetailsPage />} />
-                <Route path="stalls/stalldetails/:id/operators" element={<OperatorsPage />} />
-                <Route path="customers" element={<CustomersPage />} />
-                <Route path="customers/customerdetails/:id" element={<CustomerDetailsPage />} />
-                <Route path="qrcodes" element={<QRCodesPage />} />
-                <Route path="qrcodes/batches" element={<BatchesPage />} />
-                <Route path="qrcodes/batches/batchdetails/:id" element={<BatchDetailsPage />} />
-                <Route path="qrcodes/batches/create" element={<CreateBatchPage />} />
-              </Route>
-            </Routes>
+      <nav className="bg-gray-800 text-white p-4">
+        <div className="container mx-auto flex space-x-4">
+          <Link to="/" className="text-red-500 hover:text-gray-300 transition-colors">Home</Link>
+          <Link to="/about" className="hover:text-gray-300 transition-colors">About</Link>
+          <Link to="/registration" className="hover:text-gray-300 transition-colors">Registration</Link>
+          <Link to="/sales" className="hover:text-gray-300 transition-colors">Sales</Link>
+          <Link to="/checkout" className="hover:text-gray-300 transition-colors">Checkout</Link>
+          <Link to="/admin" className="hover:text-gray-300 transition-colors">Admin</Link>
+        </div>
+      </nav>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        
+        <Route path="/registration" element={<RegistrationPage />} />
+        <Route path="/sales" element={<SalesPage />} />
+        <Route path="/sales/refunds" element={<RefundsPage />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/admin" element={<AdminPage />}>
+          <Route path="dashboard" element={<DashboardPage />} />
+          <Route path="users" element={<UsersPage />} />
+          <Route path="users/addUser" element={<AddUserPage />} />
+          <Route path="users/userdetails/:id" element={<UserDetailsPage />} />
+          <Route path="stalls" element={<StallsPage />} />
+          <Route path="stalls/stalldetails/:id" element={<StallDetailsPage />} />
+          <Route path="stalls/stalldetails/:id/operators" element={<OperatorsPage />} />
+          <Route path="customers" element={<CustomersPage />} />
+          <Route path="customers/customerdetails/:id" element={<CustomerDetailsPage />} />
+          <Route path="qrcodes" element={<QRCodesPage />} />
+          <Route path="qrcodes/batches" element={<BatchesPage />} />
+          <Route path="qrcodes/batches/batchdetails/:id" element={<BatchDetailsPage />} />
+          <Route path="qrcodes/batches/create" element={<CreateBatchPage />} />
+        </Route>
+      </Routes>
     </>
   )
 }
