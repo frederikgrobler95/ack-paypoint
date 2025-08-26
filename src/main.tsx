@@ -5,9 +5,12 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClient } from './queries/queryClient'
 import { FirebaseProvider } from './firebase/FirebaseContext'
 import { AuthProvider } from './contexts/AuthContext'
+import { ToastProvider } from './contexts/ToastContext'
+import { LoadingProvider } from './contexts/LoadingContext'
 import { auth } from './firebase'
 import { onAuthStateChanged } from 'firebase/auth'
 import App from './App'
+import ToastContainer from './shared/ui/ToastContainer'
 import './index.css'
 
 // State for tracking auth initialization
@@ -36,9 +39,14 @@ authInitializedPromise.then(() => {
       <QueryClientProvider client={queryClient}>
         <FirebaseProvider currentUser={initialUser}>
           <AuthProvider>
-            <BrowserRouter>
-              <App />
-            </BrowserRouter>
+            <ToastProvider>
+              <LoadingProvider>
+                <BrowserRouter>
+                  <App />
+                  <ToastContainer />
+                </BrowserRouter>
+              </LoadingProvider>
+            </ToastProvider>
           </AuthProvider>
         </FirebaseProvider>
       </QueryClientProvider>

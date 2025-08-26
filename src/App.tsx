@@ -21,6 +21,7 @@ import CustomerDetailsPage from './routes/admin/customers/customerdetails/Custom
 import BatchesPage from './routes/admin/qrcodes/batches/BatchesPage'
 import BatchDetailsPage from './routes/admin/qrcodes/batches/batchdetails/BatchDetailsPage'
 import CreateBatchPage from './routes/admin/qrcodes/batches/create/CreateBatchPage'
+import BottomNavigation from './shared/ui/BottomNavigation'
 
 function App(): React.JSX.Element {
   const { currentUser, loading } = useAuth();
@@ -52,7 +53,7 @@ function App(): React.JSX.Element {
     <>
       <nav className="bg-gray-800 text-white p-4">
         <div className="container mx-auto flex space-x-4">
-          <Link to="/" className="text-red-500 hover:text-gray-300 transition-colors">Home</Link>
+          <Link to="/" className="bg-blue-500 hover:text-gray-300 transition-colors">Home</Link>
           <Link to="/about" className="hover:text-gray-300 transition-colors">About</Link>
           <Link to="/registration" className="hover:text-gray-300 transition-colors">Registration</Link>
           <Link to="/sales" className="hover:text-gray-300 transition-colors">Sales</Link>
@@ -60,29 +61,32 @@ function App(): React.JSX.Element {
           <Link to="/admin" className="hover:text-gray-300 transition-colors">Admin</Link>
         </div>
       </nav>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        
-        <Route path="/registration" element={<RegistrationPage />} />
-        <Route path="/sales" element={<SalesPage />} />
-        <Route path="/sales/refunds" element={<RefundsPage />} />
-        <Route path="/checkout" element={<CheckoutPage />} />
-        <Route path="/admin" element={<AdminPage />}>
-          <Route path="dashboard" element={<DashboardPage />} />
-          <Route path="users" element={<UsersPage />} />
-          <Route path="users/addUser" element={<AddUserPage />} />
-          <Route path="users/userdetails/:id" element={<UserDetailsPage />} />
-          <Route path="stalls" element={<StallsPage />} />
-          <Route path="stalls/stalldetails/:id" element={<StallDetailsPage />} />
-          <Route path="stalls/stalldetails/:id/operators" element={<OperatorsPage />} />
-          <Route path="customers" element={<CustomersPage />} />
-          <Route path="customers/customerdetails/:id" element={<CustomerDetailsPage />} />
-          <Route path="qrcodes" element={<QRCodesPage />} />
-          <Route path="qrcodes/batches" element={<BatchesPage />} />
-          <Route path="qrcodes/batches/batchdetails/:id" element={<BatchDetailsPage />} />
-          <Route path="qrcodes/batches/create" element={<CreateBatchPage />} />
-        </Route>
-      </Routes>
+      <div className="pb-16"> {/* Add padding to prevent content from being hidden behind bottom nav */}
+        <Routes>
+          <Route path="/" element={<Home />} />
+          
+          <Route path="/registration" element={<RegistrationPage />} />
+          <Route path="/sales" element={<SalesPage />} />
+          <Route path="/sales/refunds" element={<RefundsPage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/admin" element={<AdminPage />}>
+            <Route path="dashboard" element={<DashboardPage />} />
+            <Route path="users" element={<UsersPage />} />
+            <Route path="users/addUser" element={<AddUserPage />} />
+            <Route path="users/userdetails/:id" element={<UserDetailsPage />} />
+            <Route path="stalls" element={<StallsPage />} />
+            <Route path="stalls/stalldetails/:id" element={<StallDetailsPage />} />
+            <Route path="stalls/stalldetails/:id/operators" element={<OperatorsPage />} />
+            <Route path="customers" element={<CustomersPage />} />
+            <Route path="customers/customerdetails/:id" element={<CustomerDetailsPage />} />
+            <Route path="qrcodes" element={<QRCodesPage />} />
+            <Route path="qrcodes/batches" element={<BatchesPage />} />
+            <Route path="qrcodes/batches/batchdetails/:id" element={<BatchDetailsPage />} />
+            <Route path="qrcodes/batches/create" element={<CreateBatchPage />} />
+          </Route>
+        </Routes>
+      </div>
+      <BottomNavigation />
     </>
   )
 }
