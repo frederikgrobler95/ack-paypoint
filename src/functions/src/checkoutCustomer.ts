@@ -1,7 +1,7 @@
-import { onCall, HttpsError } from "firebase-functions/v2/https";
+import * as https from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
+import { FieldValue } from "firebase-admin/firestore";
 import { db } from "./firebase";
-import { FieldValue, collection, doc } from "firebase-admin/firestore";
 
 // Input type for the checkout function
 interface CheckoutInput {
@@ -23,13 +23,13 @@ interface CheckoutOutput {
   createdAt: Date;
 }
 
-export const checkoutCustomer = onCall(
+export const checkoutCustomer = https.onCall(
   { region: "africa-south1" },
   async (request: any): Promise<CheckoutOutput> => {
     // Authenticate the user
     const uid = request.auth?.uid;
     if (!uid) {
-      throw new HttpsError(
+      throw new https.HttpsError(
         "unauthenticated",
         "User is not authenticated."
       );
@@ -38,7 +38,7 @@ export const checkoutCustomer = onCall(
     // Validate input
     const data = request.data as CheckoutInput;
     if (!data.method || !data.amountCents || !data.operatorId || !data.customerId || !data.idempotencyKey) {
-      throw new HttpsError(
+      throw new https.HttpsError(
         "invalid-argument",
         "Missing required fields: method, amountCents, operatorId, customerId, idempotencyKey"
       );
@@ -94,7 +94,7 @@ export const checkoutCustomer = onCall(
         const customerDoc = await transaction.get(customerDocRef);
         
         if (!customerDoc.exists) {
-          throw new HttpsError(
+          throw new https.HttpsError(
             "not-found",
             "Customer not found"
           );
@@ -124,7 +124,7 @@ export const checkoutCustomer = onCall(
       return result;
     } catch (error) {
       logger.error("Error during checkout", { error });
-      throw new HttpsError(
+      throw new https.HttpsError(
         "internal",
         "An error occurred while processing the checkout"
       );
