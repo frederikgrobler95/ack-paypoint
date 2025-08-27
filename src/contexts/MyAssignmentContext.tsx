@@ -31,7 +31,7 @@ interface MyAssignmentProviderProps {
 
 export const MyAssignmentProvider: React.FC<MyAssignmentProviderProps> = ({ children }) => {
   const { user } = useSessionStore();
-  const { setCurrentAssignmentId, setCurrentStallId, setCurrentStall } = useWorkStore();
+  const { setCurrentAssignmentId, setCurrentStallId, setCurrentStall, setCurrentStallType } = useWorkStore();
 
   const [assignment, setAssignment] = useState<Assignment | null>(null);
   const [stall, setStall] = useState<Stall | null>(null);
@@ -75,19 +75,23 @@ export const MyAssignmentProvider: React.FC<MyAssignmentProviderProps> = ({ chil
                   } as Stall;
                   setStall(stallData);
                   setCurrentStall(stallData);
+                  setCurrentStallType(stallData.type);
                 } else {
                   setStall(null);
                   setCurrentStall(null);
+                  setCurrentStallType(null);
                 }
               } catch (stallError) {
                 console.error('Error fetching stall data:', stallError);
                 setStall(null);
                 setCurrentStall(null);
+                setCurrentStallType(null);
                 setError('Failed to load stall information');
               }
             } else {
               setStall(null);
               setCurrentStall(null);
+              setCurrentStallType(null);
             }
           } else {
             setAssignment(null);
@@ -95,6 +99,7 @@ export const MyAssignmentProvider: React.FC<MyAssignmentProviderProps> = ({ chil
             setCurrentAssignmentId(null);
             setCurrentStallId(null);
             setCurrentStall(null);
+            setCurrentStallType(null);
           }
         } catch (err) {
           console.error('Error processing assignment:', err);
@@ -104,6 +109,7 @@ export const MyAssignmentProvider: React.FC<MyAssignmentProviderProps> = ({ chil
           setCurrentAssignmentId(null);
           setCurrentStallId(null);
           setCurrentStall(null);
+          setCurrentStallType(null);
         } finally {
           setIsLoading(false);
         }

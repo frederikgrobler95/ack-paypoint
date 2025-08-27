@@ -3,8 +3,10 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouteName } from '../../hooks/useRouteName';
 import { shouldShowBackButton } from '../../config/routes';
+import { useWorkStore } from '../../shared/stores/workStore';
 import Button from './Button';
 import InstallButton from './InstallButton';
+import DropdownMenu from './DropdownMenu';
 
 interface HeaderProps {
   title?: string;
@@ -23,6 +25,8 @@ function Header({
   const location = useLocation();
   const navigate = useNavigate();
   const routeName = useRouteName();
+  const currentStallId = useWorkStore((state) => state.currentStallId);
+  const currentStallType = useWorkStore((state) => state.currentStallType);
   
   // Use provided title or fall back to route name
   const displayTitle = title || routeName;
@@ -97,14 +101,15 @@ function Header({
                   <span className="text-xs bg-indigo-600 px-2 py-1 rounded">
                     {role === 'admin' ? 'Admin' : 'Member'}
                   </span>
-                  <InstallButton />
-                  <Button
-                    variant="danger"
-                    size="small"
-                    onClick={handleLogout}
-                  >
-                    Log Out
-                  </Button>
+                  <DropdownMenu
+                    onLogout={handleLogout}
+                    additionalItems={currentStallId && currentStallType === 'commerce' && location.pathname === '/' ? [
+                      {
+                        label: 'Refund',
+                        onClick: () => navigate('/sales/refunds/refundsstep1')
+                      }
+                    ] : []}
+                  />
                 </div>
               </div>
             )}
@@ -130,14 +135,15 @@ function Header({
         </div>
         {showUserControls && currentUser && (
           <div className="flex space-x-2">
-            <InstallButton />
-            <Button
-              variant="danger"
-              size="small"
-              onClick={handleLogout}
-            >
-              Log Out
-            </Button>
+            <DropdownMenu
+              onLogout={handleLogout}
+              additionalItems={currentStallId && currentStallType === 'commerce' && location.pathname === '/' ? [
+                {
+                  label: 'Refund',
+                  onClick: () => navigate('/sales/refunds/refundsstep1')
+                }
+              ] : []}
+            />
           </div>
         )}
       </div>

@@ -153,7 +153,6 @@ function RefundsStep3Page(): React.JSX.Element {
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 flex flex-col items-center justify-center p-4">
-        <h1 className="text-2xl font-bold mb-6">Enter Refund Amount</h1>
         
         <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="text-center mb-4">

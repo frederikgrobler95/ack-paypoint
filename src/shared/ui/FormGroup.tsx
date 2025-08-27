@@ -27,6 +27,7 @@ const FormGroup: React.FC<FormGroupProps> = ({
       <Input
         id={inputId}
         hasError={!!error}
+        className="w-full"
         {...props}
       />
       {error && (

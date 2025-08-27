@@ -1,5 +1,6 @@
 import { useQuery, useSuspenseQuery, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import { fetchDocument, fetchDocumentsPaginated } from '../services/queryService';
+import { where } from 'firebase/firestore';
 import { User } from '../shared/contracts/user';
 
 // Query keys for user-related queries
@@ -17,8 +18,13 @@ export const fetchUser = async (id: string): Promise<User | null> => {
 };
 
 // Fetch all users with pagination
-export const fetchUsers = async (pageSize: number = 20, lastDocument?: any) => {
-  return fetchDocumentsPaginated<User>('users', pageSize, lastDocument);
+export const fetchUsers = async (pageSize: number = 20, lastDocument?: any, searchTerm?: string) => {
+  // Add search filter if searchTerm is provided
+  const constraints = searchTerm
+    ? [where('name', '>=', searchTerm), where('name', '<=', searchTerm + '\uf8ff')]
+    : [];
+    
+  return fetchDocumentsPaginated<User>('users', pageSize, lastDocument, constraints, 'name');
 };
 
 // React Query hooks for users
@@ -41,11 +47,11 @@ export const useSuspenseUser = (id: string) => {
 };
 
 // Get all users with infinite scrolling
-export const useUsers = (pageSize: number = 20) => {
+export const useUsers = (pageSize: number = 20, searchTerm?: string) => {
   return useInfiniteQuery({
-    queryKey: userKeys.list('all'),
+    queryKey: userKeys.list(searchTerm || 'all'),
     queryFn: async ({ pageParam }) => {
-      const result = await fetchUsers(pageSize, pageParam);
+      const result = await fetchUsers(pageSize, pageParam, searchTerm);
       return result;
     },
     getNextPageParam: (lastPage) => lastPage.lastDoc,

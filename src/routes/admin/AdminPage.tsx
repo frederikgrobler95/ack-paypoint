@@ -50,10 +50,8 @@ function AdminPage(): React.JSX.Element {
   return (
     <>
       <Header />
-     <div className="pt-4"> {/* Add padding to account for fixed header */}
-        <TopTabNavigator tabs={tabs} />
-        <Outlet />
-      </div>
+      <TopTabNavigator tabs={tabs} />
+      <Outlet />
     </>
   )
 }

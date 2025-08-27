@@ -27,8 +27,13 @@ export const fetchCustomersByQRCode = async (qrCodeId: string | null, pageSize: 
 };
 
 // Fetch all customers with pagination
-export const fetchCustomers = async (pageSize: number = 20, lastDocument?: any) => {
-  return fetchDocumentsPaginated<Customer>('customers', pageSize, lastDocument);
+export const fetchCustomers = async (pageSize: number = 20, lastDocument?: any, searchTerm?: string) => {
+  // Add search filter if searchTerm is provided
+  const constraints = searchTerm
+    ? [where('name', '>=', searchTerm), where('name', '<=', searchTerm + '\uf8ff')]
+    : [];
+    
+  return fetchDocumentsPaginated<Customer>('customers', pageSize, lastDocument, constraints, 'name');
 };
 
 // React Query hooks for customers
@@ -76,11 +81,11 @@ export const useSuspenseCustomersByQRCode = (qrCodeId: string | null, pageSize: 
 };
 
 // Get all customers with infinite scrolling
-export const useCustomers = (pageSize: number = 20) => {
+export const useCustomers = (pageSize: number = 20, searchTerm?: string) => {
   return useInfiniteQuery({
-    queryKey: customerKeys.list('all'),
+    queryKey: customerKeys.list(searchTerm || 'all'),
     queryFn: async ({ pageParam }) => {
-      const result = await fetchCustomers(pageSize, pageParam);
+      const result = await fetchCustomers(pageSize, pageParam, searchTerm);
       return result;
     },
     getNextPageParam: (lastPage) => lastPage.lastDoc,

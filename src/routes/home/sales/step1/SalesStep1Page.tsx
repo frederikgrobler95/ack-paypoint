@@ -14,6 +14,7 @@ function SalesStep1Page(): React.JSX.Element {
   const qrScannerRef = useRef<QrScannerHandle>(null);
   const [inputMethod, setInputMethod] = useState<'scan' | 'manual'>('scan');
   const [hasNavigated, setHasNavigated] = useState(false);
+  const [isManualSubmit, setIsManualSubmit] = useState(false);
   
   // For scanning, we validate by ID and by label
   const { data: qrCodeDataById, isLoading: isQrCodeLoadingById, isError: isQrCodeErrorById } = useQRCodeValidationForSales(qrCodeInput);
@@ -40,7 +41,7 @@ function SalesStep1Page(): React.JSX.Element {
     if (qrScannerRef.current) {
       try {
         const scannedCode = await qrScannerRef.current.captureQRCode();
-        validateQrCode(scannedCode);
+        validateQrCode(scannedCode, false);
       } catch (err) {
         setError('Failed to scan QR code. Please try again.');
       }
@@ -50,44 +51,53 @@ function SalesStep1Page(): React.JSX.Element {
   const handleManualSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (qrCodeInput.trim()) {
-      validateQrCode(qrCodeInput);
+      validateQrCode(qrCodeInput, true);
     } else {
       setError('Please enter a QR code');
     }
   };
   
-  const validateQrCode = (code: string) => {
+  const validateQrCode = (code: string, isManual = false) => {
     // The useQRCodeValidationForSales hook will automatically validate the code
     // We just need to check the result
     setQrCodeInput(code);
     setError('');
+    if (isManual) {
+      setIsManualSubmit(true);
+    }
   };
   
   // When qrCodeData changes, check if it's valid
   useEffect(() => {
     if (qrCodeData && !hasNavigated && idempotencyKey) {
-      setHasNavigated(true);
-      navigate('/sales/salesstep2', {
-        state: {
-          qrCode: qrCodeData.id,
-          idempotencyKey,
-        }
-      });
+      // For scanned codes, navigate automatically
+      // For manually entered codes, only navigate after explicit submission
+      if (inputMethod === 'scan' || (inputMethod === 'manual' && isManualSubmit)) {
+        setHasNavigated(true);
+        setIsManualSubmit(false); // Reset the flag
+        navigate('/sales/salesstep2', {
+          state: {
+            qrCode: qrCodeData.id,
+            idempotencyKey,
+          }
+        });
+      }
     } else if (isQrCodeError || (qrCodeInput && !isQrCodeLoading && !qrCodeData && !hasNavigated)) {
       setError('Invalid QR code. Please try again.');
+      setIsManualSubmit(false); // Reset the flag on error
     }
-  }, [qrCodeData, isQrCodeError, qrCodeInput, isQrCodeLoading, navigate, idempotencyKey, hasNavigated]);
+  }, [qrCodeData, isQrCodeError, qrCodeInput, isQrCodeLoading, navigate, idempotencyKey, hasNavigated, inputMethod, isManualSubmit]);
   
   return (
-    <div className="p-4">
+    <div className="px-4">
       
       {/* QR Scanner Section - Show only when inputMethod is 'scan' */}
       {inputMethod === 'scan' && (
         <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-          <h3 className="text-md font-semibold text-gray-800 mb-3">Scan QR Code</h3>
+        
           <QrScanner
             ref={qrScannerRef}
-            onCodeScanned={validateQrCode}
+            onCodeScanned={(code) => validateQrCode(code, false)}
             isActive={true}
           />
           <button

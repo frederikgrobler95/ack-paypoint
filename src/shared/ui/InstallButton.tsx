@@ -40,7 +40,7 @@ function InstallButton() {
   };
 
   return (
-    <button className='' onClick={handleInstall}>
+    <button className='text-left w-full' onClick={handleInstall}>
       Install App
     </button>
   );

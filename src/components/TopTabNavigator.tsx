@@ -15,7 +15,7 @@ const TopTabNavigator: React.FC<TopTabNavigatorProps> = ({ tabs }) => {
   const location = useLocation();
 
   return (
-    <div className="border-b border-gray-200">
+    <div className="border-b border-gray-200 mt-2">
       <nav className="-mb-px flex justify-between px-4 py-2">
         {tabs.map((tab) => (
           <Link

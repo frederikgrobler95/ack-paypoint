@@ -1,5 +1,6 @@
 import { useQuery, useSuspenseQuery, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import { fetchDocument, fetchDocumentsPaginated } from '../services/queryService';
+import { where } from 'firebase/firestore';
 import { Stall } from '../shared/contracts/stall';
 
 // Query keys for stall-related queries
@@ -17,9 +18,13 @@ export const fetchStall = async (id: string): Promise<Stall | null> => {
 };
 
 // Fetch all stalls with pagination
-export const fetchStalls = async (pageSize: number = 20, lastDocument?: any) => {
-  // Use fetchDocumentsPaginated without orderBy since Stall doesn't have createdAt field
-  return fetchDocumentsPaginated<Stall>('stalls', pageSize, lastDocument, [], undefined);
+export const fetchStalls = async (pageSize: number = 20, lastDocument?: any, searchTerm?: string) => {
+  // Add search filter if searchTerm is provided
+  const constraints = searchTerm
+    ? [where('name', '>=', searchTerm), where('name', '<=', searchTerm + '\uf8ff')]
+    : [];
+    
+  return fetchDocumentsPaginated<Stall>('stalls', pageSize, lastDocument, constraints, 'name');
 };
 
 // React Query hooks for stalls
@@ -42,11 +47,11 @@ export const useSuspenseStall = (id: string) => {
 };
 
 // Get all stalls with infinite scrolling
-export const useStalls = (pageSize: number = 20) => {
+export const useStalls = (pageSize: number = 20, searchTerm?: string) => {
   return useInfiniteQuery({
-    queryKey: stallKeys.list('all'),
+    queryKey: stallKeys.list(searchTerm || 'all'),
     queryFn: async ({ pageParam }) => {
-      const result = await fetchStalls(pageSize, pageParam);
+      const result = await fetchStalls(pageSize, pageParam, searchTerm);
       return result;
     },
     getNextPageParam: (lastPage) => lastPage.lastDoc,

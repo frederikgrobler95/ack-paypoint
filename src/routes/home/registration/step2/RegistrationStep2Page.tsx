@@ -84,7 +84,7 @@ function RegistrationStep2Page(): React.JSX.Element {
       {/* QR Scanner Section - Show only when inputMethod is 'scan' */}
       {inputMethod === 'scan' && (
         <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-          <h3 className="text-md font-semibold text-gray-800 mb-3">Scan QR Code</h3>
+          
           <QrScanner
             ref={qrScannerRef}
             onCodeScanned={validateQrCode}

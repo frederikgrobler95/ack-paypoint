@@ -82,7 +82,7 @@ function App(): React.JSX.Element {
       <Header />
       <PWANotification />
       
-      <div className="pb-16 pt-4"> {/* Add padding to prevent content from being hidden behind bottom nav and fixed header */}
+      <div className="pb-16 pt-16"> {/* Add padding to prevent content from being hidden behind bottom nav and fixed header */}
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/registration" element={<RegistrationPage />} />

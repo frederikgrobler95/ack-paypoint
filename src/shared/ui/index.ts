@@ -7,4 +7,5 @@ export { default as FormGroup } from './FormGroup';
 export { default as Header } from './Header';
 export { default as GlobalSpinner } from './GlobalSpinner';
 export { default as Toast } from './Toast';
+export { default as DropdownMenu } from './DropdownMenu';
 export type { QrScannerHandle } from './QrScanner';
