@@ -8,6 +8,7 @@ export type Payment = {
   operatorName?: string;
   customerId: string;
   customerName?: string;
+  stallId: string;
   idempotencyKey: string;
   createdAt: Date;
 };

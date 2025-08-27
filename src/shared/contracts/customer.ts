@@ -5,6 +5,7 @@ export type Customer = {
   phoneRaw: string;
   qrCodeId: string;
   Account: Account;
+  IdempotencyKey?: string;
 };
 
 export type AccountStatus = 'clean' |'unpaid' | 'paid';

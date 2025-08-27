@@ -4,5 +4,5 @@ export interface Stall {
   id: string;
   name: string;
   type: StallType;
-  totalSalesAmountCents?: number; // Optional fixed amount for registration stalls
+  totalAmount: number; // Optional fixed amount for registration stalls
 }

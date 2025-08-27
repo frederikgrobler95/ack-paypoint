@@ -2,7 +2,8 @@ import React from 'react'
 import { useTransactionsByStall } from '@/queries/transactions';
 import { useWorkStore } from '@/shared/stores/workStore';
 import { Transaction as FirestoreTransaction, TransactionType } from '@/shared/contracts/transaction';
-import { SharedList } from '@/shared/ui';
+import { SharedList, StallTransactionCard } from '@/shared/ui';
+import { Timestamp } from 'firebase/firestore';
 
 // Define types for our data
 interface Transaction {
@@ -11,6 +12,7 @@ interface Transaction {
   customerName: string;
   amountCents: number;
   type: TransactionType;
+  createdAt: Timestamp;
 }
 
 // Component for displaying total sales
@@ -21,43 +23,6 @@ const TotalSalesCard: React.FC<{ totalCents: number }> = ({ totalCents }) => {
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">
       <h2 className="text-lg font-semibold text-gray-700 mb-2">Total Sales</h2>
       <p className="text-3xl font-bold text-green-600">R{formattedAmount}</p>
-    </div>
-  );
-};
-
-// Component for displaying individual transactions
-const TransactionCard: React.FC<{ transaction: Transaction }> = ({ transaction }) => {
-  const formattedAmount = (Math.abs(transaction.amountCents) / 100).toFixed(2);
-  const isRefund = transaction.type === 'refund';
-  const isSale = transaction.type === 'sale';
-  
-  // Determine styling based on transaction type
-  const getTypeColor = () => {
-    if (isRefund) return 'bg-red-100 text-red-800';
-    if (isSale) return 'bg-green-100 text-green-800';
-    return 'bg-green-100 text-green-800';
-  };
-  
-  const getTypeText = () => {
-    if (isRefund) return 'Refund';
-    if (isSale) return 'Sale';
-    return 'Sale';
-  };
-  
-  return (
-    <div className="bg-white rounded-lg shadow-sm p-4 mb-3 flex justify-between items-center">
-      <div className="flex items-center">
-        <div className={`px-2 py-1 rounded text-xs font-semibold ${getTypeColor()}`}>
-          {getTypeText()}
-        </div>
-        <div className="ml-3">
-          <p className="text-lg font-bold text-gray-900">{transaction.customerName}</p>
-          <p className="text-sm text-gray-500">Operator: {transaction.operatorName}</p>
-        </div>
-      </div>
-      <div className={`text-lg font-semibold ${isRefund ? 'text-red-600' : 'text-green-600'}`}>
-        {isRefund ? '-R' : 'R'}{formattedAmount}
-      </div>
     </div>
   );
 };
@@ -88,6 +53,7 @@ function SalesPage(): React.JSX.Element {
     customerName: transaction.customerName || transaction.operatorName,
     amountCents: transaction.amountCents,
     type: transaction.type,
+    createdAt: transaction.createdAt,
   })) || [];
   
   // Calculate total sales from transactions
@@ -123,7 +89,7 @@ function SalesPage(): React.JSX.Element {
       
       <SharedList<Transaction>
         data={transactions}
-        renderItem={(transaction: Transaction) => <TransactionCard transaction={transaction} />}
+        renderItem={(transaction: Transaction) => <StallTransactionCard transaction={transaction} />}
         onRefresh={handleRefresh}
         hasMore={hasNextPage}
         loadMore={() => fetchNextPage()}

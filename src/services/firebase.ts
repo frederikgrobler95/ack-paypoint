@@ -21,7 +21,7 @@ export const app = initializeApp(firebaseConfig)
 // Initialize Firebase services
 export const auth = getAuth(app)
 export const db = getFirestore(app)
-export const functions = getFunctions(app)
+export const functions = getFunctions(app, 'africa-south1')
 
 // For local development with Firebase Functions emulator
 if (import.meta.env?.DEV) {

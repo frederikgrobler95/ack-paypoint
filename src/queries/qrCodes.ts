@@ -2,6 +2,7 @@ import { useQuery, useSuspenseQuery, useQueryClient, useInfiniteQuery } from '@t
 import { fetchDocument, fetchDocuments, fetchDocumentsPaginated } from '../services/queryService';
 import { where } from 'firebase/firestore';
 import { QRCode, QRBatch } from '../shared/contracts/qrCode';
+import { Customer } from '../shared/contracts/customer';
 
 // Query keys for QR code-related queries
 export const qrCodeKeys = {
@@ -17,6 +18,23 @@ export const qrCodeKeys = {
 // Fetch a single QR code by ID
 export const fetchQRCode = async (id: string): Promise<QRCode | null> => {
   return fetchDocument<QRCode>('qrCodes', id);
+};
+
+// Verify QR code is assigned and return customer details
+export const fetchQRCodeCustomer = async (id: string): Promise<{ qrCode: QRCode; customer: Customer } | null> => {
+  const qrCode = await fetchQRCode(id);
+  
+  if (!qrCode || !qrCode.assignedCustomerId) {
+    return null;
+  }
+  
+  const customer = await fetchDocument<Customer>('customers', qrCode.assignedCustomerId);
+  
+  if (!customer) {
+    return null;
+  }
+  
+  return { qrCode, customer };
 };
 
 // Fetch QR codes by assigned customer ID with pagination
@@ -51,6 +69,23 @@ export const fetchQRBatches = async (): Promise<QRBatch[]> => {
 };
 
 // React Query hooks for QR codes
+
+// Verify QR code is assigned and return customer details
+export const useQRCodeCustomer = (id: string) => {
+  return useQuery({
+    queryKey: [...qrCodeKeys.detail(id), 'customer'],
+    queryFn: () => fetchQRCodeCustomer(id),
+    enabled: !!id,
+  });
+};
+
+// Verify QR code is assigned and return customer details (suspense version)
+export const useSuspenseQRCodeCustomer = (id: string) => {
+  return useSuspenseQuery({
+    queryKey: [...qrCodeKeys.detail(id), 'customer'],
+    queryFn: () => fetchQRCodeCustomer(id),
+  });
+};
 
 // Get a single QR code by ID
 export const useQRCode = (id: string) => {
