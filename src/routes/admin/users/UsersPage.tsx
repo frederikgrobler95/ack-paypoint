@@ -27,17 +27,16 @@ function UsersPage(): React.JSX.Element {
   }
   
   // Render user item
-  const renderUserItem = (user: User) => (
+  const renderUserItem = (user: User, index: number) => (
     <div
-      key={user.id}
-      className="bg-white rounded-lg shadow p-4 mb-3 cursor-pointer hover:bg-gray-50 transition-colors"
+      className="p-4 cursor-pointer"
       onClick={() => navigate(`/admin/users/role/${user.id}`)}
     >
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="font-semibold text-gray-800">{user.name}</h3>
-          <p className="text-sm text-gray-600">@{user.username}</p>
-          <p className="text-sm text-gray-600">{user.email}</p>
+          <h3 className="font-semibold text-[#1A202C] text-base leading-6">{user.name}</h3>
+          <p className="text-[#4A5568] text-sm leading-5">@{user.username}</p>
+          <p className="text-[#4A5568] text-sm leading-5">{user.email}</p>
         </div>
         <div>
           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -55,7 +54,7 @@ function UsersPage(): React.JSX.Element {
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Users</h1>
+        <div></div>
         <button
           onClick={() => navigate('/admin/users/add')}
           className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md transition duration-300 ease-in-out"

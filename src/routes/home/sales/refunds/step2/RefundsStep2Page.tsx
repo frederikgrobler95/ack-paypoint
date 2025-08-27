@@ -59,7 +59,6 @@ function RefundsStep2Page(): React.JSX.Element {
   if (isQrLoading || isTransactionsLoading) {
     return (
       <div className="p-4">
-        <h1 className="text-2xl font-bold text-gray-800 mb-4">Refund - Step 2</h1>
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex justify-center">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
@@ -74,7 +73,6 @@ function RefundsStep2Page(): React.JSX.Element {
   if (isQrError || isTransactionsError || !qrData || !stallId) {
     return (
       <div className="p-4">
-        <h1 className="text-2xl font-bold text-gray-800 mb-4">Refund - Step 2</h1>
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="text-center">
             <div className="text-red-500 text-5xl mb-4">⚠️</div>
@@ -102,7 +100,6 @@ function RefundsStep2Page(): React.JSX.Element {
   return (
     <>
       <div className="p-4">
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">Refund - Step 2</h1>
         <p className="text-gray-600 mb-6">Select a transaction to refund for {qrData.customer.name}</p>
         
         {/* Customer Info */}

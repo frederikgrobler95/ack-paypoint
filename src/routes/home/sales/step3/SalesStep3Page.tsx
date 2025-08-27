@@ -13,6 +13,7 @@ function SalesStep3Page(): React.JSX.Element {
   const { showToast: addToast } = useToast();
   const { assignment, stall } = useMyAssignment();
   const { user } = useSessionStore();
+  const displayName = useSessionStore((state) => state.displayName);
   
   const { qrCode, amountCents, idempotencyKey } = location.state || {};
   
@@ -25,7 +26,7 @@ function SalesStep3Page(): React.JSX.Element {
     const input = {
       amountCents,
       operatorId: user?.uid || '',
-      operatorName: user?.displayName || user?.email || 'Unknown Operator',
+      operatorName: displayName || user?.email || 'Unknown Operator',
       customerId: qrData.customer.id,
       customerName: qrData.customer.name,
       stallId: assignment.stallId,
@@ -55,7 +56,6 @@ function SalesStep3Page(): React.JSX.Element {
     return (
       <>
         <div className="p-4">
-          <h1 className="text-2xl font-bold text-gray-800 mb-6">Sales - Step 3</h1>
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="text-center">
               <div className="text-lg text-gray-600">Loading customer details...</div>
@@ -71,7 +71,6 @@ function SalesStep3Page(): React.JSX.Element {
     return (
       <>
         <div className="p-4">
-          <h1 className="text-2xl font-bold text-gray-800 mb-6">Sales - Step 3</h1>
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="text-center">
               <div className="text-lg text-red-600">Error loading customer details: {qrError?.message}</div>
@@ -93,7 +92,6 @@ function SalesStep3Page(): React.JSX.Element {
     return (
       <>
         <div className="p-4">
-          <h1 className="text-2xl font-bold text-gray-800 mb-6">Sales - Step 3</h1>
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="text-center">
               <div className="text-lg text-red-600">Error creating sale: {saleError?.message}</div>
@@ -115,7 +113,6 @@ function SalesStep3Page(): React.JSX.Element {
     return (
       <>
         <div className="p-4">
-          <h1 className="text-2xl font-bold text-gray-800 mb-6">Sales - Step 3</h1>
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="text-center">
               <div className="text-lg text-gray-600">Invalid QR code or customer not found</div>
@@ -135,7 +132,6 @@ function SalesStep3Page(): React.JSX.Element {
   return (
     <>
       <div className="p-4">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">Sales - Step 3</h1>
         <div className="bg-white rounded-lg shadow-md p-6">
           <h2 className="text-lg font-semibold text-gray-700 mb-4">Confirm Transaction</h2>
           

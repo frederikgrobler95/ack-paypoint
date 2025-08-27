@@ -32,15 +32,15 @@ function StallsPage(): React.JSX.Element {
   }, [stallsData])
   
   // Render individual stall item
-  const renderStallItem = (stall: Stall) => (
+  const renderStallItem = (stall: Stall, index: number) => (
     <div
-      className="bg-white rounded-lg shadow-md p-4 mb-4 cursor-pointer hover:shadow-lg transition-shadow duration-200"
+      className="p-4 cursor-pointer"
       onClick={() => navigate(`/admin/stalls/stalldetails/${stall.id}`)}
     >
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-lg font-semibold text-gray-800">{stall.name}</h3>
-          <p className="text-sm text-gray-600 capitalize">{stall.type}</p>
+          <h3 className="font-semibold text-[#1A202C] text-base leading-6">{stall.name}</h3>
+          <p className="text-[#4A5568] text-sm leading-5 capitalize">{stall.type}</p>
         </div>
       </div>
     </div>
@@ -50,7 +50,7 @@ function StallsPage(): React.JSX.Element {
     <>
       <div className="p-4">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-800">Stalls</h1>
+          <div></div>
           <button
             onClick={() => navigate('/admin/stalls/add')}
             className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md transition duration-300 ease-in-out"

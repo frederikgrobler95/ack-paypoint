@@ -3,7 +3,7 @@ import PullToRefresh from 'react-simple-pull-to-refresh';
 
 interface SharedListProps<T> {
   data: T[];
-  renderItem: (item: T) => ReactNode;
+  renderItem: (item: T, index: number) => ReactNode;
   onRefresh?: () => Promise<any>;
   hasMore?: boolean;
   loadMore?: () => void;
@@ -50,10 +50,10 @@ const SharedList = <T,>({
   // Render loading state
   if (isLoading && data.length === 0) {
     return (
-      <div className="flex justify-center items-center h-32">
+      <div className="flex justify-center items-center flex-1 w-full">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500 mb-2"></div>
-          <p className="text-gray-600">{loadingMessage}</p>
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#007BFF] mb-2"></div>
+          <p className="text-[#4A5568] text-base font-normal leading-6">{loadingMessage}</p>
         </div>
       </div>
     );
@@ -62,9 +62,9 @@ const SharedList = <T,>({
   // Render error state
   if (isError) {
     return (
-      <div className="flex justify-center items-center h-32">
-        <div className="text-center p-4 bg-red-50 rounded-lg">
-          <p className="text-red-600 font-medium">{errorMessage}</p>
+      <div className="flex justify-center items-center flex-1 w-full">
+        <div className="text-center p-4 bg-[#FBEBEE] rounded-lg">
+          <p className="text-[#DC3545] font-medium text-base leading-6">{errorMessage}</p>
         </div>
       </div>
     );
@@ -73,9 +73,9 @@ const SharedList = <T,>({
   // Render empty state
   if (isEmpty || data.length === 0) {
     return (
-      <div className="flex justify-center items-center h-32">
+      <div className="flex justify-center items-center flex-1 w-full">
         <div className="text-center p-4">
-          <p className="text-gray-500">{emptyMessage}</p>
+          <p className="text-[#A0AEC0] text-base leading-6">{emptyMessage}</p>
         </div>
       </div>
     );
@@ -83,29 +83,33 @@ const SharedList = <T,>({
 
   // Render list with pull to refresh and infinite scroll
   return (
-    <PullToRefresh onRefresh={handleRefresh} pullingContent="" refreshingContent={
-      <div className="flex justify-center py-4">
-        <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-indigo-500"></div>
-      </div>
-    }>
-      <div 
-        className="overflow-y-auto h-full"
-        onScroll={handleScroll}
-      >
-        {data.map((item, index) => (
-          <div key={index}>
-            {renderItem(item)}
-          </div>
-        ))}
-        
-        {/* Loading more indicator */}
-        {hasMore && isLoading && (
-          <div className="flex justify-center py-4">
-            <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-indigo-500"></div>
-          </div>
-        )}
-      </div>
-    </PullToRefresh>
+    <div className="flex-1 w-full flex flex-col relative">
+      <PullToRefresh onRefresh={handleRefresh} pullingContent="" refreshingContent={
+        <div className="flex justify-center py-4 relative z-50 bg-white">
+          <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-[#007BFF]"></div>
+        </div>
+      }>
+        <div
+          className="overflow-y-auto flex-1 w-full flex flex-col relative z-10"
+          onScroll={handleScroll}
+        >
+          <ul className="divide-y divide-[#E2E8F0] border border-[#E2E8F0] rounded-lg overflow-hidden relative z-10">
+            {data.map((item, index) => (
+              <li key={index} className="bg-[#FFFFFF] hover:bg-[#F7FAFC] transition-colors duration-200 relative z-10">
+                {renderItem(item, index)}
+              </li>
+            ))}
+          </ul>
+          
+          {/* Loading more indicator */}
+          {hasMore && isLoading && (
+            <div className="flex justify-center py-4">
+              <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-[#007BFF]"></div>
+            </div>
+          )}
+        </div>
+      </PullToRefresh>
+    </div>
   );
 };
 

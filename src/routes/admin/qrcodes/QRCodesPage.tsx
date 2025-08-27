@@ -24,21 +24,21 @@ function QRCodesPage(): React.JSX.Element {
   }, [qrCodesData])
   
   // Render individual QR code item
-  const renderQrCodeItem = (qrCode: QRCode) => (
-    <div className="bg-white rounded-lg shadow-md p-4 mb-4">
+  const renderQrCodeItem = (qrCode: QRCode, index: number) => (
+    <div className="p-4">
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-lg font-semibold text-gray-800">{qrCode.label}</h3>
-          <p className="text-sm text-gray-600 capitalize">Status: {qrCode.status}</p>
+          <h3 className="font-semibold text-[#1A202C] text-base leading-6">{qrCode.label}</h3>
+          <p className="text-[#4A5568] text-sm leading-5 capitalize">Status: {qrCode.status}</p>
           {qrCode.assignedCustomerId && (
-            <p className="text-sm text-gray-600">Assigned to customer</p>
+            <p className="text-[#4A5568] text-sm leading-5">Assigned to customer</p>
           )}
           {qrCode.batchId && (
-            <p className="text-sm text-gray-600">Batch: {qrCode.batchId.substring(0, 8)}...</p>
+            <p className="text-[#4A5568] text-sm leading-5">Batch: {qrCode.batchId.substring(0, 8)}...</p>
           )}
         </div>
         <div className="text-right">
-          <p className="text-xs text-gray-500">
+          <p className="text-[#A0AEC0] text-xs leading-4">
             Created: {timestampToDate(qrCode.createdAt).toLocaleDateString()}
           </p>
         </div>
@@ -50,7 +50,7 @@ function QRCodesPage(): React.JSX.Element {
     <>
       <div className="p-4">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-800">QR Codes</h1>
+          <div></div>
           <button
             onClick={() => navigate('/admin/qrcodes/batches')}
             className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md transition duration-300 ease-in-out"

@@ -113,7 +113,6 @@ function SalesStep2Page(): React.JSX.Element {
   return (
     <>
       <div className="p-4">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">Sales - Step 2</h1>
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <h2 className="text-lg font-semibold text-gray-700 mb-2">Enter Amount</h2>
           <p className="text-gray-600 mb-4">Please enter the amount for this transaction.</p>

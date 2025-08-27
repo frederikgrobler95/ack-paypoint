@@ -1,6 +1,7 @@
 import React from 'react'
 import { Outlet } from 'react-router-dom'
 import { TopTabNavigator } from '../../components'
+import Header from '../../shared/ui/Header'
 
 // Dashboard Icon
 const DashboardIcon = () => (
@@ -48,11 +49,11 @@ function AdminPage(): React.JSX.Element {
 
   return (
     <>
-      <div>
-        <h1 className="text-2xl font-bold text-gray-800 p-4">Admin Panel</h1>
+      <Header />
+     <div className="pt-4"> {/* Add padding to account for fixed header */}
         <TopTabNavigator tabs={tabs} />
+        <Outlet />
       </div>
-      <Outlet />
     </>
   )
 }

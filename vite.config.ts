@@ -16,7 +16,7 @@ export default defineConfig({
       devOptions: {
         enabled: true
       },
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg', 'logo.png', 'logo-small.png'],
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg', 'paypoint-192.png', 'paypoint-512.png'],
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}']
       },
@@ -28,12 +28,12 @@ export default defineConfig({
         theme_color: '#ffffff',
         icons: [
           {
-            src: 'logo-small.png',
+            src: 'paypoint-192.png',
             sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: 'logo.png',
+            src: 'paypoint-512.png',
             sizes: '512x512',
             type: 'image/png'
           }

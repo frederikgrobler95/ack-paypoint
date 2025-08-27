@@ -3,6 +3,7 @@ import { useMyAssignment } from '../../contexts/MyAssignmentContext'
 import RegistrationPage from './registration/RegistrationPage'
 import SalesPage from './sales/SalesPage'
 import CheckoutPage from './checkout/CheckoutPage'
+import Header from '../../shared/ui/Header'
 
 function Home(): React.JSX.Element {
   const { stall, isLoading, error } = useMyAssignment()
@@ -48,21 +49,47 @@ function Home(): React.JSX.Element {
   // Show the appropriate page based on stall type
   switch (stall.type) {
     case 'registration':
-      return <RegistrationPage />
+      return (
+        <>
+          <Header title={`${stall.name} Registration`} showNavigation={false} />
+         <div className="pt-4"> {/* Add padding to account for fixed header */}
+            <RegistrationPage />
+          </div>
+        </>
+      );
     case 'commerce':
-      return <SalesPage />
+      return (
+        <>
+          <Header title={`${stall.name} Sales`} showNavigation={false} />
+         <div className="pt-4"> {/* Add padding to account for fixed header */}
+            <SalesPage />
+          </div>
+        </>
+      );
     case 'checkout':
-      return <CheckoutPage />
+      return (
+        <>
+          <Header title={`${stall.name} Checkout`} showNavigation={false} />
+         <div className="pt-4"> {/* Add padding to account for fixed header */}
+            <CheckoutPage />
+          </div>
+        </>
+      );
     default:
       return (
-        <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
-          <div className="bg-white rounded-lg shadow-md p-6 max-w-md w-full text-center">
-            <h1 className="text-2xl font-bold text-gray-800 mb-4">Unknown Assignment</h1>
-            <p className="text-gray-700 mb-4">Your stall assignment type is not recognized.</p>
-            <p className="text-gray-500">Stall type: {stall.type}</p>
-            <p className="text-gray-500">Please contact support.</p>
+        <>
+          <Header />
+         <div className="pt-4"> {/* Add padding to account for fixed header */}
+            <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
+              <div className="bg-white rounded-lg shadow-md p-6 max-w-md w-full text-center">
+                <h1 className="text-2xl font-bold text-gray-800 mb-4">Unknown Assignment</h1>
+                <p className="text-gray-700 mb-4">Your stall assignment type is not recognized.</p>
+                <p className="text-gray-500">Stall type: {stall.type}</p>
+                <p className="text-gray-500">Please contact support.</p>
+              </div>
+            </div>
           </div>
-        </div>
+        </>
       )
   }
 }

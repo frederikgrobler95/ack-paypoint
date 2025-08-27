@@ -96,7 +96,6 @@ function RefundsStep4Page(): React.JSX.Element {
   
   return (
     <div className="flex flex-col h-full p-4">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Confirm Refund</h1>
       
       {/* Customer Information */}
       <div className="bg-white rounded-lg shadow-md p-4 mb-4">

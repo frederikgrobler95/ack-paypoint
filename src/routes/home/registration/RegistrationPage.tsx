@@ -1,7 +1,11 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
+import { useRegistrations } from '@/queries/registrations';
+import { useMyAssignment } from '@/contexts/MyAssignmentContext';
 
 // Define types for our dummy data
+
 interface Customer {
   id: string;
   name: string;
@@ -9,19 +13,6 @@ interface Customer {
   email?: string;
   registrationDate: string;
 }
-
-// Dummy data
-const stallName = "Market Street Cafe";
-const totalRegistrations = 42;
-
-const customers: Customer[] = [
-  { id: '1', name: 'John Smith', phone: '072 123 4567', email: 'john@example.com', registrationDate: '2025-08-25' },
-  { id: '2', name: 'Sarah Johnson', phone: '083 456 7890', registrationDate: '2025-08-25' },
-  { id: '3', name: 'Mike Williams', phone: '079 876 5432', email: 'mike.w@example.com', registrationDate: '2025-08-24' },
-  { id: '4', name: 'Emily Davis', phone: '084 555 6666', registrationDate: '2025-08-24' },
-  { id: '5', name: 'Robert Brown', phone: '071 222 3333', email: 'rob.brown@example.com', registrationDate: '2025-08-23' },
-];
-
 // Component for displaying total registrations
 const TotalRegistrationsCard: React.FC<{ total: number }> = ({ total }) => {
   return (
@@ -53,16 +44,82 @@ const CustomerCard: React.FC<{ customer: Customer }> = ({ customer }) => {
 
 function RegistrationPage(): React.JSX.Element {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { stall } = useMyAssignment();
+  
+  const stallName = stall?.name || "Your Stall";
+  
+  const {
+    data: registrationsData,
+    isLoading,
+    error,
+    refetch
+  } = useRegistrations(20);
+  
+  // Flatten the paginated data
+  const flatRegistrations = React.useMemo(() => {
+    return registrationsData?.pages.flatMap((page: { data: any[] }) => page.data) || [];
+  }, [registrationsData]);
+  
+  // Transform registration data to our Customer interface
+  const customers: Customer[] = flatRegistrations?.map((registration: any) => ({
+    id: registration.id,
+    name: registration.customerName,
+    phone: registration.customerPhone,
+    email: registration.customerEmail,
+    registrationDate: registration.createdAt?.toDate().toISOString().split('T')[0] || 'Unknown Date',
+  })) || [];
+  
+  const totalRegistrations = flatRegistrations?.length || 0;
+  
+  // Invalidate queries when component mounts to refetch data
+  useEffect(() => {
+    queryClient.invalidateQueries({ queryKey: ['registrations', 'list', 'all'] });
+  }, [queryClient]);
+  
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading registrations...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // Show error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+        <div className="bg-white rounded-lg shadow-md p-6 max-w-md w-full text-center">
+          <p className="text-gray-700 mb-4">Failed to load registrations.</p>
+          <button
+            onClick={() => refetch()}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md transition duration-300"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">{stallName} Registrations</h1>
       <TotalRegistrationsCard total={totalRegistrations} />
       <div className="mb-4">
         <h2 className="text-xl font-semibold text-gray-700 mb-3">Recent Customers</h2>
-        {customers.map((customer) => (
-          <CustomerCard key={customer.id} customer={customer} />
-        ))}
+        {customers.length > 0 ? (
+          customers.map((customer) => (
+            <CustomerCard key={customer.id} customer={customer} />
+          ))
+        ) : (
+          <div className="bg-white rounded-lg shadow-sm p-4 text-center text-gray-500">
+            No registrations yet
+          </div>
+        )}
       </div>
       
       {/* FAB Button */}

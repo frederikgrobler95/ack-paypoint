@@ -1,48 +1,57 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useToast } from '../../contexts/ToastContext';
 
 interface ToastProps {
   id: string;
   message: string;
   type: 'success' | 'error' | 'warning' | 'info';
-  onHide: (id: string) => void;
+  duration?: number;
 }
 
-const Toast: React.FC<ToastProps> = ({ id, message, type, onHide }) => {
+const Toast: React.FC<ToastProps> = ({ id, message, type, duration = 3000 }) => {
   const { hideToast } = useToast();
-  
-  const getTypeColor = () => {
+
+  useEffect(() => {
+    if (duration > 0) {
+      const timer = setTimeout(() => {
+        hideToast(id);
+      }, duration);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [id, duration, hideToast]);
+
+  const getTypeStyles = () => {
     switch (type) {
       case 'success':
-        return 'bg-green-500';
+        return 'bg-[#28A745] text-white'; // Accent Green from DESIGN_SYSTEM.md
       case 'error':
-        return 'bg-red-500';
+        return 'bg-[#DC3545] text-white'; // Error Red from DESIGN_SYSTEM.md
       case 'warning':
-        return 'bg-amber-500';
+        return 'bg-[#FFC107] text-gray-800'; // Warning Orange from DESIGN_SYSTEM.md
       case 'info':
-        return 'bg-blue-500';
+        return 'bg-[#007BFF] text-white'; // Primary Blue from DESIGN_SYSTEM.md
       default:
-        return 'bg-gray-500';
+        return 'bg-gray-500 text-white';
     }
   };
-  
-  const getTypeTextColor = () => {
+
+  const getTypeBorder = () => {
     switch (type) {
       case 'warning':
-        return 'text-amber-800';
+        return 'border border-[#FFC107]'; // Warning Orange border
       default:
-        return 'text-white';
+        return '';
     }
   };
 
   const handleHide = () => {
     hideToast(id);
-    onHide(id);
   };
 
   return (
     <div
-      className={`fixed top-4 right-4 z-50 min-w-[300px] max-w-md transform transition-all duration-300 ease-in-out ${getTypeColor()} ${getTypeTextColor()} p-4 rounded-lg shadow-lg flex justify-between items-start`}
+      className={`min-w-[300px] max-w-md transform transition-all duration-300 ease-in-out ${getTypeStyles()} ${getTypeBorder()} p-4 rounded-lg shadow-lg flex justify-between items-start`}
     >
       <div className="flex-1">
         {message}

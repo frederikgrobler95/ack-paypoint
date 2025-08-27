@@ -111,24 +111,23 @@ function OperatorsPage(): React.JSX.Element {
   };
   
   // Render user item with checkbox
-  const renderUserItem = (user: User) => {
+  const renderUserItem = (user: User, index: number) => {
     const isSelected = selectedUsers.has(user.id);
     
     return (
       <div
-        key={user.id}
-        className="bg-white rounded-lg shadow p-4 mb-3 flex items-center"
+        className="p-4 flex items-center"
       >
         <input
           type="checkbox"
           checked={isSelected}
           onChange={() => toggleUserSelection(user.id)}
-          className="h-5 w-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
+          className="h-5 w-5 text-[#007BFF] rounded border-[#E2E8F0] focus:ring-[#007BFF]"
         />
         <div className="ml-4 flex-1">
-          <h3 className="font-semibold text-gray-800">{user.name}</h3>
-          <p className="text-sm text-gray-600">@{user.username}</p>
-          <p className="text-sm text-gray-600">{user.email}</p>
+          <h3 className="font-semibold text-[#1A202C] text-base leading-6">{user.name}</h3>
+          <p className="text-[#4A5568] text-sm leading-5">@{user.username}</p>
+          <p className="text-[#4A5568] text-sm leading-5">{user.email}</p>
         </div>
         <div>
           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -150,18 +149,7 @@ function OperatorsPage(): React.JSX.Element {
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center">
-          <button
-            onClick={() => window.history.back()}
-            className="mr-4 p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
-            aria-label="Go back"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <h1 className="text-2xl font-bold text-gray-800">Stall Operators</h1>
-        </div>
+        <div></div>
         <button
           onClick={handleSaveOperators}
           disabled={isAssigning}

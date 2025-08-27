@@ -80,7 +80,6 @@ function RegistrationStep2Page(): React.JSX.Element {
   
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Registration - Step 2</h1>
       
       {/* QR Scanner Section - Show only when inputMethod is 'scan' */}
       {inputMethod === 'scan' && (

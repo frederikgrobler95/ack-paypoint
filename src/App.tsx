@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import React from 'react'
 import { useAuth } from './contexts/AuthContext'
 import AuthPage from './routes/auth/AuthPage'
@@ -45,9 +45,12 @@ import RegistrationStep3Page from './routes/home/registration/step3/Registration
 import BottomNavigation from './shared/ui/BottomNavigation'
 import Header from './shared/ui/Header'
 import { PWANotification } from './components'
+import GlobalSpinner from './shared/ui/GlobalSpinner'
+import ToastContainer from './shared/ui/ToastContainer'
 
 function App(): React.JSX.Element {
   const { currentUser, loading } = useAuth();
+  const location = useLocation();
   console.log('App: rendering with loading state:', loading, 'and currentUser:', currentUser);
 
   // Show loading state while auth is initializing
@@ -74,10 +77,12 @@ function App(): React.JSX.Element {
   // Show main app if user is authenticated
   return (
     <>
+      <GlobalSpinner />
+      <ToastContainer />
       <Header />
       <PWANotification />
       
-      <div className="pb-16 pt-16"> {/* Add padding to prevent content from being hidden behind bottom nav and fixed header */}
+      <div className="pb-16 pt-4"> {/* Add padding to prevent content from being hidden behind bottom nav and fixed header */}
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/registration" element={<RegistrationPage />} />

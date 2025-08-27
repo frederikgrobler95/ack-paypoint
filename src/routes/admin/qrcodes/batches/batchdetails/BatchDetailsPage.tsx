@@ -55,18 +55,18 @@ function BatchDetailsPage(): React.JSX.Element {
   };
   
   // Render individual QR code item
-  const renderQrCodeItem = (qrCode: QRCode) => (
-    <div className="bg-white rounded-lg shadow-md p-4 mb-4">
+  const renderQrCodeItem = (qrCode: QRCode, index: number) => (
+    <div className="p-4">
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-lg font-semibold text-gray-800">{qrCode.label}</h3>
-          <p className="text-sm text-gray-600 capitalize">Status: {qrCode.status}</p>
+          <h3 className="font-semibold text-[#1A202C] text-base leading-6">{qrCode.label}</h3>
+          <p className="text-[#4A5568] text-sm leading-5 capitalize">Status: {qrCode.status}</p>
           {qrCode.assignedCustomerId && (
-            <p className="text-sm text-gray-600">Assigned to customer</p>
+            <p className="text-[#4A5568] text-sm leading-5">Assigned to customer</p>
           )}
         </div>
         <div className="text-right">
-          <p className="text-xs text-gray-500">
+          <p className="text-[#A0AEC0] text-xs leading-4">
             Created: {timestampToDate(qrCode.createdAt).toLocaleDateString()}
           </p>
         </div>
@@ -78,18 +78,7 @@ function BatchDetailsPage(): React.JSX.Element {
     <>
       <div className="p-4">
         <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center">
-            <button
-              onClick={() => window.history.back()}
-              className="mr-4 p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
-              aria-label="Go back"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <h1 className="text-2xl font-bold text-gray-800">Batch Details</h1>
-          </div>
+          <div></div>
           <button
             onClick={handlePrintBatchPdf}
             disabled={mutation.isPending}

@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { useTransactionsByStall } from '@/queries/transactions';
-import { useWorkStore } from '@/shared/stores/workStore';
+import { useMyAssignment } from '@/contexts/MyAssignmentContext';
+import { useStall } from '@/queries/stalls';
 import { Transaction as FirestoreTransaction, TransactionType } from '@/shared/contracts/transaction';
 import { SharedList, StallTransactionCard } from '@/shared/ui';
 import { Timestamp } from 'firebase/firestore';
@@ -30,10 +32,17 @@ const TotalSalesCard: React.FC<{ totalCents: number }> = ({ totalCents }) => {
 
 function SalesPage(): React.JSX.Element {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const currentStallId = useWorkStore((state: { currentStallId: string | null }) => state.currentStallId);
-  const currentStall = useWorkStore((state: { currentStall: any }) => state.currentStall);
+  const { stall: currentStall, isLoading: isAssignmentLoading, error: assignmentError } = useMyAssignment();
+  const currentStallId = currentStall?.id || null;
+  
+  const {
+    data: stallData,
+    isLoading: isStallLoading,
+    error: stallError
+  } = useStall(currentStallId || '');
   
   const {
     data: transactionsData,
@@ -60,31 +69,8 @@ function SalesPage(): React.JSX.Element {
     createdAt: transaction.createdAt,
   })) || [];
   
-  // Calculate total sales from transactions
-  const totalSalesCents = transactions?.reduce((total, transaction) => {
-    // Only count sale transactions in total sales
-    return transaction.type === 'sale' ? total + transaction.amountCents : total;
-  }, 0) || 0;
-  
-  // Show message if no stall is assigned
-  if (!currentStallId || !currentStall) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
-        <div className="bg-white rounded-lg shadow-md p-6 max-w-md w-full text-center">
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">No Stall Assignment</h1>
-          <p className="text-gray-700 mb-4">You are not currently assigned to any stall.</p>
-          <p className="text-gray-500">Please contact your administrator.</p>
-        </div>
-      </div>
-    );
-  }
-  
-  const stallName = currentStall.name || "Your Stall";
-  
-  // Create a wrapper function for refetch to match the expected signature
-  const handleRefresh = async () => {
-    await refetch();
-  };
+  // Get total amount from stall data
+  const totalSalesCents = stallData?.totalAmount || 0;
   
   // Close menu when clicking outside
   useEffect(() => {
@@ -103,10 +89,68 @@ function SalesPage(): React.JSX.Element {
     };
   }, [isMenuOpen]);
   
+  // Invalidate queries when component mounts to refetch data
+  useEffect(() => {
+    if (currentStallId) {
+      queryClient.invalidateQueries({ queryKey: ['transactions', 'list', 'stall', currentStallId] });
+      queryClient.invalidateQueries({ queryKey: ['stalls', 'detail', currentStallId] });
+    }
+  }, [queryClient, currentStallId]);
+  
+  // All hooks must be called before any conditional returns to maintain hook order
+  // Show loading state
+  if (isAssignmentLoading || isStallLoading) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
+        <div className="bg-white rounded-lg shadow-md p-6 max-w-md w-full text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mb-4"></div>
+          <p className="text-gray-600">Loading sales data...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // Show error state
+  if (assignmentError || stallError) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
+        <div className="bg-white rounded-lg shadow-md p-6 max-w-md w-full text-center">
+          <p className="text-gray-700 mb-4">There was an error loading your sales data.</p>
+          <p className="text-red-500 mb-4">{assignmentError?.toString() || stallError?.toString() || 'Unknown error'}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md transition duration-200"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+  
+  // Show message if no stall is assigned
+  if (!currentStallId || !currentStall) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
+        <div className="bg-white rounded-lg shadow-md p-6 max-w-md w-full text-center">
+          <p className="text-gray-700 mb-4">You are not currently assigned to any stall.</p>
+          <p className="text-gray-500">Please contact your administrator.</p>
+        </div>
+      </div>
+    );
+  }
+  
+  const stallName = currentStall.name || "Your Stall";
+  
+  // Create a wrapper function for refetch to match the expected signature
+  const handleRefresh = async () => {
+    await refetch();
+  };
+  
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">{stallName} Sales</h1>
+        <div></div>
         <div className="relative">
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -137,8 +181,8 @@ function SalesPage(): React.JSX.Element {
         </div>
       </div>
       <TotalSalesCard totalCents={totalSalesCents} />
-      
-      <SharedList<Transaction>
+
+ <SharedList<Transaction>
         data={transactions}
         renderItem={(transaction: Transaction) => <StallTransactionCard transaction={transaction} />}
         onRefresh={handleRefresh}
@@ -151,6 +195,8 @@ function SalesPage(): React.JSX.Element {
         errorMessage={`Failed to load transactions: ${(error as Error)?.message || 'Unknown error'}`}
         loadingMessage="Loading transactions..."
       />
+
+     
       
       {/* FAB Button */}
       <div className="fixed bottom-20 right-6">

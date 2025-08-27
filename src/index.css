@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+/* Global styles based on Paypoint Design System */
+
+body {
+  font-family: 'Inter', sans-serif;
+  color: #1A202C; /* Text Primary */
+  background-color: #F7FAFC; /* Background Light */
+}
+
 /* Mobile-first responsive utilities */
 @layer utilities {
   /* Responsive padding utilities for mobile-first design */

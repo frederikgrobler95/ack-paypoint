@@ -1,5 +1,8 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
+import { usePayments } from '@/queries/payments';
+import { useMyAssignment } from '@/contexts/MyAssignmentContext';
 
 // Define types for our dummy data
 interface Transaction {
@@ -10,17 +13,6 @@ interface Transaction {
   timestamp: string;
 }
 
-// Dummy data
-const stallName = "Market Street Cafe";
-const totalRevenueCents = 865000; // R8,650.00
-
-const transactions: Transaction[] = [
-  { id: '1', customerName: 'Alice Johnson', items: 3, amountCents: 25000, timestamp: '2025-08-26 14:30' },
-  { id: '2', items: 1, amountCents: 15000, timestamp: '2025-08-26 14:25' },
-  { id: '3', customerName: 'Carol Davis', items: 5, amountCents: 42000, timestamp: '2025-08-26 14:15' },
-  { id: '4', customerName: 'David Wilson', items: 2, amountCents: 18000, timestamp: '2025-08-26 14:10' },
-  { id: '5', items: 4, amountCents: 35000, timestamp: '2025-08-26 14:05' },
-];
 
 // Component for displaying total revenue
 const TotalRevenueCard: React.FC<{ totalCents: number }> = ({ totalCents }) => {
@@ -59,16 +51,86 @@ const TransactionCard: React.FC<{ transaction: Transaction }> = ({ transaction }
 
 function CheckoutPage(): React.JSX.Element {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { stall } = useMyAssignment();
+  
+  const stallName = stall?.name || "Your Stall";
+  
+  const {
+    data: paymentsData,
+    isLoading,
+    error,
+    refetch
+  } = usePayments(20);
+  
+  // Flatten the paginated data
+  const flatPayments = React.useMemo(() => {
+    return paymentsData?.pages.flatMap((page: { data: any[] }) => page.data) || [];
+  }, [paymentsData]);
+  
+  // Transform payment data to our Transaction interface
+  const transactions: Transaction[] = flatPayments?.map((payment: any) => ({
+    id: payment.id,
+    customerName: payment.customerName,
+    items: 1, // Payments don't have item counts, so we'll default to 1
+    amountCents: payment.amountCents,
+    timestamp: payment.createdAt?.toDate().toISOString().split('T')[0] || 'Unknown Date',
+  })) || [];
+  
+  const totalRevenueCents = flatPayments?.reduce((total: number, payment: any) => {
+    return total + payment.amountCents;
+  }, 0) || 0;
+  
+  // Invalidate queries when component mounts to refetch data
+  useEffect(() => {
+    queryClient.invalidateQueries({ queryKey: ['payments', 'list', 'all'] });
+  }, [queryClient]);
+  
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading payments...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // Show error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+        <div className="bg-white rounded-lg shadow-md p-6 max-w-md w-full text-center">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Error</h1>
+          <p className="text-gray-700 mb-4">Failed to load payments.</p>
+          <button
+            onClick={() => refetch()}
+            className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-md transition duration-300"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold text-gray-800 mb-6">{stallName} Checkout</h1>
       <TotalRevenueCard totalCents={totalRevenueCents} />
       <div className="mb-4">
-        <h2 className="text-xl font-semibold text-gray-700 mb-3">Recent Transactions</h2>
-        {transactions.map((transaction) => (
-          <TransactionCard key={transaction.id} transaction={transaction} />
-        ))}
+        <h2 className="text-xl font-semibold text-gray-700 mb-3">Recent Payments</h2>
+        {transactions.length > 0 ? (
+          transactions.map((transaction) => (
+            <TransactionCard key={transaction.id} transaction={transaction} />
+          ))
+        ) : (
+          <div className="bg-white rounded-lg shadow-sm p-4 text-center text-gray-500">
+            No payments yet
+          </div>
+        )}
       </div>
       
       {/* FAB Button */}

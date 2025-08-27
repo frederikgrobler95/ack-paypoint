@@ -26,14 +26,13 @@ function CustomersPage(): React.JSX.Element {
   }
 
   // Render customer item
-  const renderCustomerItem = (customer: Customer) => (
+  const renderCustomerItem = (customer: Customer, index: number) => (
     <div
-      key={customer.id}
-      className="p-4 hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
+      className="p-4 cursor-pointer"
       onClick={() => navigate(`/admin/customers/${customer.id}`)}
     >
-      <p className="font-semibold text-gray-900">{customer.name}</p>
-      <p className="text-sm text-gray-600">{customer.phoneE164}</p>
+      <p className="font-semibold text-[#1A202C] text-base leading-6">{customer.name}</p>
+      <p className="text-[#4A5568] text-sm leading-5">{customer.phoneE164}</p>
     </div>
   )
 
@@ -41,7 +40,7 @@ function CustomersPage(): React.JSX.Element {
     <>
       <div className="p-4">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-800">Customers</h1>
+          <div></div>
           <button
             onClick={() => navigate('/admin/customers/create')}
             className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md transition duration-300 ease-in-out"

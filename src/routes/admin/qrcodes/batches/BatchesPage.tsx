@@ -18,18 +18,18 @@ function BatchesPage(): React.JSX.Element {
   } = useQRBatches()
   
   // Render individual batch item
-  const renderBatchItem = (batch: QRBatch) => (
+  const renderBatchItem = (batch: QRBatch, index: number) => (
     <div
-      className="bg-white rounded-lg shadow-md p-4 mb-4 cursor-pointer hover:shadow-lg transition-shadow duration-200"
+      className="p-4 cursor-pointer"
       onClick={() => navigate(`/admin/qrcodes/batches/batchdetails/${batch.id}`)}
     >
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-lg font-semibold text-gray-800">{batch.batchName}</h3>
-          <p className="text-sm text-gray-600">Count: {batch.count}</p>
+          <h3 className="font-semibold text-[#1A202C] text-base leading-6">{batch.batchName}</h3>
+          <p className="text-[#4A5568] text-sm leading-5">Count: {batch.count}</p>
         </div>
         <div className="text-right">
-          <p className="text-xs text-gray-500">
+          <p className="text-[#A0AEC0] text-xs leading-4">
             Created: {timestampToDate(batch.createdAt).toLocaleDateString()}
           </p>
         </div>
@@ -41,18 +41,7 @@ function BatchesPage(): React.JSX.Element {
     <>
       <div className="p-4">
         <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center">
-            <button
-              onClick={() => navigate(-1)}
-              className="mr-4 p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
-              aria-label="Go back"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <h1 className="text-2xl font-bold text-gray-800">QR Code Batches</h1>
-          </div>
+          <div></div>
           <button
             onClick={() => navigate('/admin/qrcodes/batches/create')}
             className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md transition duration-300 ease-in-out"

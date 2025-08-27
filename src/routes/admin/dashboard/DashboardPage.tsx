@@ -99,7 +99,6 @@ function DashboardPage(): React.JSX.Element {
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Admin Dashboard</h1>
       
       <SharedList
         data={[{}]} // Dummy data to enable pull-to-refresh
