@@ -1,24 +1,25 @@
 import { db as firestore } from './firebase';
-import { doc, getDoc, collection, query, getDocs, orderBy, limit, startAfter, QueryConstraint } from 'firebase/firestore';
+import { doc, getDoc, collection, query, getDocs, orderBy, limit, startAfter, where, QueryConstraint } from 'firebase/firestore';
 import { Timestamp } from 'firebase/firestore';
 
-// Utility function to convert Firestore Timestamps to Dates
-export const convertTimestamps = (data: any): any => {
+// Utility function to preserve Firestore Timestamps (no longer converting to Date)
+export const preserveTimestamps = (data: any): any => {
   if (!data) return data;
   
+  // Keep Firestore Timestamps as-is
   if (data instanceof Timestamp) {
-    return data.toDate();
+    return data;
   }
   
   if (Array.isArray(data)) {
-    return data.map(convertTimestamps);
+    return data.map(preserveTimestamps);
   }
   
   if (typeof data === 'object') {
     const result: any = {};
     for (const key in data) {
       if (data.hasOwnProperty(key)) {
-        result[key] = convertTimestamps(data[key]);
+        result[key] = preserveTimestamps(data[key]);
       }
     }
     return result;
@@ -26,6 +27,9 @@ export const convertTimestamps = (data: any): any => {
   
   return data;
 };
+
+// Legacy function for backward compatibility - will be removed after migration
+export const convertTimestamps = preserveTimestamps;
 
 // Generic function to fetch a single document by ID
 export const fetchDocument = async <T>(collectionName: string, id: string): Promise<T | null> => {
@@ -37,7 +41,7 @@ export const fetchDocument = async <T>(collectionName: string, id: string): Prom
       const data = docSnap.data();
       return {
         id: docSnap.id,
-        ...convertTimestamps(data)
+        ...preserveTimestamps(data)
       } as T;
     }
     
@@ -59,7 +63,7 @@ export const fetchDocuments = async <T>(
     
     return querySnapshot.docs.map(doc => ({
       id: doc.id,
-      ...convertTimestamps(doc.data())
+      ...preserveTimestamps(doc.data())
     } as T));
   } catch (error) {
     console.error(`Error fetching documents from ${collectionName}:`, error);
@@ -72,13 +76,21 @@ export const fetchDocumentsPaginated = async <T>(
   collectionName: string,
   pageSize: number = 20,
   lastDocument?: any,
-  constraints: QueryConstraint[] = []
+  constraints: QueryConstraint[] = [],
+  orderByField?: string
 ): Promise<{ data: T[]; lastDoc: any | null }> => {
   try {
+    // Start with the base constraints
+    let baseConstraints = [...constraints];
+    
+    // Add orderBy constraint if specified
+    if (orderByField) {
+      baseConstraints.push(orderBy(orderByField));
+    }
+    
     let q = query(
       collection(firestore, collectionName),
-      ...constraints,
-      orderBy('createdAt'), // Assuming all documents have a createdAt field
+      ...baseConstraints,
       limit(pageSize)
     );
     
@@ -90,7 +102,7 @@ export const fetchDocumentsPaginated = async <T>(
     
     const data = querySnapshot.docs.map(doc => ({
       id: doc.id,
-      ...convertTimestamps(doc.data())
+      ...preserveTimestamps(doc.data())
     } as T));
     
     const lastDoc = querySnapshot.docs.length > 0 ? querySnapshot.docs[querySnapshot.docs.length - 1] : null;
@@ -98,6 +110,37 @@ export const fetchDocumentsPaginated = async <T>(
     return { data, lastDoc };
   } catch (error) {
     console.error(`Error fetching paginated documents from ${collectionName}:`, error);
+    throw error;
+  }
+};
+
+// Generic function to fetch a single document by a field value
+export const fetchDocumentByField = async <T>(
+  collectionName: string,
+  field: string,
+  value: string
+): Promise<T | null> => {
+  try {
+    const q = query(
+      collection(firestore, collectionName),
+      where(field, '==', value),
+      limit(1)
+    );
+    
+    const querySnapshot = await getDocs(q);
+    
+    if (!querySnapshot.empty) {
+      const doc = querySnapshot.docs[0];
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...preserveTimestamps(data)
+      } as T;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error(`Error fetching document from ${collectionName} where ${field} = ${value}:`, error);
     throw error;
   }
 };

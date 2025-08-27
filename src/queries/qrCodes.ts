@@ -1,5 +1,5 @@
 import { useQuery, useSuspenseQuery, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
-import { fetchDocument, fetchDocuments, fetchDocumentsPaginated } from '../services/queryService';
+import { fetchDocument, fetchDocuments, fetchDocumentsPaginated, fetchDocumentByField } from '../services/queryService';
 import { where } from 'firebase/firestore';
 import { QRCode, QRBatch } from '../shared/contracts/qrCode';
 import { Customer } from '../shared/contracts/customer';
@@ -13,11 +13,23 @@ export const qrCodeKeys = {
   detail: (id: string) => [...qrCodeKeys.details(), id] as const,
   batches: () => [...qrCodeKeys.all, 'batches'] as const,
   batch: (id: string) => [...qrCodeKeys.batches(), id] as const,
+  validation: () => [...qrCodeKeys.all, 'validation'] as const,
+  validateRegistration: (id: string) => [...qrCodeKeys.validation(), 'registration', id] as const,
+  validateRegistrationByLabel: (label: string) => [...qrCodeKeys.validation(), 'registration', 'label', label] as const,
+  validateSales: (id: string) => [...qrCodeKeys.validation(), 'sales', id] as const,
+  validateSalesByLabel: (label: string) => [...qrCodeKeys.validation(), 'sales', 'label', label] as const,
+  validateCheckout: (id: string) => [...qrCodeKeys.validation(), 'checkout', id] as const,
+  validateCheckoutByLabel: (label: string) => [...qrCodeKeys.validation(), 'checkout', 'label', label] as const,
 };
 
 // Fetch a single QR code by ID
 export const fetchQRCode = async (id: string): Promise<QRCode | null> => {
   return fetchDocument<QRCode>('qrCodes', id);
+};
+
+// Fetch a single QR code by label
+export const fetchQRCodeByLabel = async (label: string): Promise<QRCode | null> => {
+  return fetchDocumentByField<QRCode>('qrCodes', 'label', label);
 };
 
 // Verify QR code is assigned and return customer details
@@ -61,6 +73,78 @@ export const fetchQRCodes = async (pageSize: number = 20, lastDocument?: any) =>
 // Fetch a single QR batch by ID
 export const fetchQRBatch = async (id: string): Promise<QRBatch | null> => {
   return fetchDocument<QRBatch>('qrBatches', id);
+};
+
+// Validate QR code for registration (exists and not assigned to another customer)
+export const validateQRCodeForRegistration = async (id: string): Promise<QRCode | null> => {
+  const qrCode = await fetchQRCode(id);
+  
+  // QR code is valid for registration if it exists and is not assigned to another customer
+  if (qrCode && !qrCode.assignedCustomerId && qrCode.status === 'unassigned') {
+    return qrCode;
+  }
+  
+  return null;
+};
+
+// Validate QR code for registration by label (exists and not assigned to another customer)
+export const validateQRCodeForRegistrationByLabel = async (label: string): Promise<QRCode | null> => {
+  const qrCode = await fetchQRCodeByLabel(label);
+  
+  // QR code is valid for registration if it exists and is not assigned to another customer
+  if (qrCode && !qrCode.assignedCustomerId && qrCode.status === 'unassigned') {
+    return qrCode;
+  }
+  
+  return null;
+};
+
+// Validate QR code for sales (exists and assigned to a customer)
+export const validateQRCodeForSales = async (id: string): Promise<QRCode | null> => {
+  const qrCode = await fetchQRCode(id);
+  
+  // QR code is valid for sales if it exists and is assigned to a customer
+  if (qrCode && qrCode.assignedCustomerId && qrCode.status === 'assigned') {
+    return qrCode;
+  }
+  
+  return null;
+};
+
+// Validate QR code for sales by label (exists and assigned to a customer)
+export const validateQRCodeForSalesByLabel = async (label: string): Promise<QRCode | null> => {
+  const qrCode = await fetchQRCodeByLabel(label);
+  
+  // QR code is valid for sales if it exists and is assigned to a customer
+  if (qrCode && qrCode.assignedCustomerId && qrCode.status === 'assigned') {
+    return qrCode;
+  }
+  
+  return null;
+};
+
+// Validate QR code for checkouts (exists and assigned to a customer)
+export const validateQRCodeForCheckout = async (id: string): Promise<QRCode | null> => {
+  const qrCode = await fetchQRCode(id);
+  
+  // QR code is valid for checkouts if it exists and is assigned to a customer
+  if (qrCode && qrCode.assignedCustomerId && qrCode.status === 'assigned') {
+    return qrCode;
+  }
+  
+  return null;
+};
+
+// Validate QR code for checkouts by label (exists and assigned to a customer)
+export const validateQRCodeForCheckoutByLabel = async (label: string): Promise<QRCode | null> => {
+  const qrCode = await fetchQRCodeByLabel(label);
+  
+  // QR code is valid for checkouts if it exists and is assigned to a customer
+  if (qrCode && qrCode.assignedCustomerId && qrCode.status === 'assigned') {
+    return qrCode;
+  }
+  
+  return null;
 };
 
 // Fetch all QR batches
@@ -154,6 +238,23 @@ export const useSuspenseQRCodesByBatch = (batchId: string | null, pageSize: numb
   });
 };
 
+// Validate QR code for registration by label
+export const useQRCodeValidationForRegistrationByLabel = (label: string) => {
+  return useQuery({
+    queryKey: qrCodeKeys.validateRegistrationByLabel(label),
+    queryFn: () => validateQRCodeForRegistrationByLabel(label),
+    enabled: !!label,
+  });
+};
+
+// Validate QR code for registration by label (suspense version)
+export const useSuspenseQRCodeValidationForRegistrationByLabel = (label: string) => {
+  return useSuspenseQuery({
+    queryKey: qrCodeKeys.validateRegistrationByLabel(label),
+    queryFn: () => validateQRCodeForRegistrationByLabel(label),
+  });
+};
+
 // Get all QR codes with infinite scrolling
 export const useQRCodes = (pageSize: number = 20) => {
   return useInfiniteQuery({
@@ -194,4 +295,91 @@ export const usePrefetchQRCode = () => {
       queryFn: () => fetchQRCode(id),
     });
   };
+};
+
+// React Query hooks for QR code validation
+
+// Validate QR code for registration
+export const useQRCodeValidationForRegistration = (id: string) => {
+  return useQuery({
+    queryKey: qrCodeKeys.validateRegistration(id),
+    queryFn: () => validateQRCodeForRegistration(id),
+    enabled: !!id,
+  });
+};
+
+// Validate QR code for registration (suspense version)
+export const useSuspenseQRCodeValidationForRegistration = (id: string) => {
+  return useSuspenseQuery({
+    queryKey: qrCodeKeys.validateRegistration(id),
+    queryFn: () => validateQRCodeForRegistration(id),
+  });
+};
+
+// Validate QR code for sales
+export const useQRCodeValidationForSales = (id: string) => {
+  return useQuery({
+    queryKey: qrCodeKeys.validateSales(id),
+    queryFn: () => validateQRCodeForSales(id),
+    enabled: !!id,
+  });
+};
+
+// Validate QR code for sales (suspense version)
+export const useSuspenseQRCodeValidationForSales = (id: string) => {
+  return useSuspenseQuery({
+    queryKey: qrCodeKeys.validateSales(id),
+    queryFn: () => validateQRCodeForSales(id),
+  });
+};
+
+// Validate QR code for sales by label
+export const useQRCodeValidationForSalesByLabel = (label: string) => {
+  return useQuery({
+    queryKey: qrCodeKeys.validateSalesByLabel(label),
+    queryFn: () => validateQRCodeForSalesByLabel(label),
+    enabled: !!label,
+  });
+};
+
+// Validate QR code for sales by label (suspense version)
+export const useSuspenseQRCodeValidationForSalesByLabel = (label: string) => {
+  return useSuspenseQuery({
+    queryKey: qrCodeKeys.validateSalesByLabel(label),
+    queryFn: () => validateQRCodeForSalesByLabel(label),
+  });
+};
+
+// Validate QR code for checkouts
+export const useQRCodeValidationForCheckout = (id: string) => {
+  return useQuery({
+    queryKey: qrCodeKeys.validateCheckout(id),
+    queryFn: () => validateQRCodeForCheckout(id),
+    enabled: !!id,
+  });
+};
+
+// Validate QR code for checkouts (suspense version)
+export const useSuspenseQRCodeValidationForCheckout = (id: string) => {
+  return useSuspenseQuery({
+    queryKey: qrCodeKeys.validateCheckout(id),
+    queryFn: () => validateQRCodeForCheckout(id),
+  });
+};
+
+// Validate QR code for checkouts by label
+export const useQRCodeValidationForCheckoutByLabel = (label: string) => {
+  return useQuery({
+    queryKey: qrCodeKeys.validateCheckoutByLabel(label),
+    queryFn: () => validateQRCodeForCheckoutByLabel(label),
+    enabled: !!label,
+  });
+};
+
+// Validate QR code for checkouts by label (suspense version)
+export const useSuspenseQRCodeValidationForCheckoutByLabel = (label: string) => {
+  return useSuspenseQuery({
+    queryKey: qrCodeKeys.validateCheckoutByLabel(label),
+    queryFn: () => validateQRCodeForCheckoutByLabel(label),
+  });
 };

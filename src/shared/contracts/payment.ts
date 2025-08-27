@@ -1,3 +1,5 @@
+import { Timestamp } from 'firebase/firestore';
+
 export type PaymentMethod = 'card' | 'cash' | 'eft';
 
 export type Payment = {
@@ -10,5 +12,5 @@ export type Payment = {
   customerName?: string;
   stallId: string;
   idempotencyKey: string;
-  createdAt: Date;
+  createdAt: Timestamp;
 };

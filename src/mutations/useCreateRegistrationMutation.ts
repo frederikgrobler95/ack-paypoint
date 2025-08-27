@@ -26,7 +26,7 @@ const createRegistration = async (input: CreateRegistrationInput): Promise<Regis
     customerId: input.customerId,
     customerName: input.customerName,
     qrCodeId: input.qrCodeId,
-    createdAt: new Date().toISOString(),
+    createdAt: Timestamp.now(),
     idempotencyKey: input.idempotencyKey,
   };
   

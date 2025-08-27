@@ -21,9 +21,9 @@ export const fetchCustomer = async (id: string): Promise<Customer | null> => {
 // Fetch customers by QR code ID with pagination
 export const fetchCustomersByQRCode = async (qrCodeId: string | null, pageSize: number = 20, lastDocument?: any): Promise<{ data: Customer[]; lastDoc: any }> => {
   if (qrCodeId) {
-    return fetchDocumentsPaginated<Customer>('customers', pageSize, lastDocument, [where('qrCodeId', '==', qrCodeId)]);
+    return fetchDocumentsPaginated<Customer>('customers', pageSize, lastDocument, [where('qrCodeId', '==', qrCodeId)], 'createdAt');
   }
-  return fetchDocumentsPaginated<Customer>('customers', pageSize, lastDocument, [where('qrCodeId', '==', null)]);
+  return fetchDocumentsPaginated<Customer>('customers', pageSize, lastDocument, [where('qrCodeId', '==', null)], 'createdAt');
 };
 
 // Fetch all customers with pagination

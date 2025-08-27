@@ -1,68 +1,143 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import AmountKeypad from '../../../../../shared/ui/AmountKeypad';
 import { useTransaction } from '../../../../../queries/transactions';
 import { Transaction } from '../../../../../shared/contracts/transaction';
 
 function RefundsStep3Page(): React.JSX.Element {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const location = useLocation();
   
-  const qrCode = searchParams.get('code') || '';
-  const transactionId = searchParams.get('transactionId') || '';
+  const { qrCode, idempotencyKey, transactionId } = location.state || {};
   
   const { data: transaction, isLoading, isError } = useTransaction(transactionId);
-  const [amountDisplay, setAmountDisplay] = useState('0');
+  const [amountString, setAmountString] = useState('0.00');
   const [amountCents, setAmountCents] = useState(0);
   
   // Update amount display when transaction loads
   useEffect(() => {
     if (transaction) {
       // Initialize with 0 but ensure we don't exceed the original amount
-      setAmountDisplay('0');
+      setAmountString('0.00');
       setAmountCents(0);
     }
   }, [transaction]);
   
+  const formatAmount = (cents: number) => {
+    return `R ${(cents / 100).toFixed(2)}`;
+  };
+
   const handleNumberPress = (number: string) => {
     if (!transaction) return;
-    
-    const newAmountDisplay = amountDisplay === '0' ? number : amountDisplay + number;
-    const newAmountCents = parseInt(newAmountDisplay, 10);
-    
-    // Check if the new amount exceeds the original transaction amount
-    if (newAmountCents <= transaction.amountCents) {
-      setAmountDisplay(newAmountDisplay);
-      setAmountCents(newAmountCents);
+
+    // Remove decimal point to work with raw digits
+    let digits = amountString.replace('.', '');
+
+    // If we're at the initial state, start fresh
+    if (digits === '000') {
+      digits = '';
     }
+
+    // Append the new digit
+    digits += number;
+
+    // Prevent amounts that are too long (over R99,999.99)
+    if (digits.length > 7) {
+      return;
+    }
+
+    // Convert to a number to remove leading zeros, then back to a string
+    const numericValue = parseInt(digits, 10);
+    let formattedDigits = numericValue.toString();
+
+    // Format the string properly with decimal point
+    // Pad with leading zeros if needed to have at least 3 digits for cents
+    formattedDigits = formattedDigits.padStart(3, '0');
+
+    // Insert decimal point 2 positions from the end
+    const insertPos = formattedDigits.length - 2;
+    const newAmountString =
+      formattedDigits.substring(0, insertPos) +
+      '.' +
+      formattedDigits.substring(insertPos);
+
+    // Convert to cents
+    const newCents = Math.round(parseFloat(newAmountString) * 100);
+
+    // Check if the new amount exceeds the maximum allowed
+    if (newCents > transaction.amountCents) {
+      // In a real implementation, we would use the AlertProvider here
+      // For now, we'll just return without updating the state
+      return;
+    }
+
+    setAmountString(newAmountString);
+    setAmountCents(newCents);
   };
-  
+
   const handleBackspacePress = () => {
-    if (amountDisplay.length === 1) {
-      setAmountDisplay('0');
-      setAmountCents(0);
+    if (!transaction) return;
+
+    // Remove decimal point to work with raw digits
+    let digits = amountString.replace('.', '');
+
+    if (digits === '000') {
+      // Already at zero, nothing to do
+      return;
     } else {
-      const newAmountDisplay = amountDisplay.slice(0, -1);
-      setAmountDisplay(newAmountDisplay);
-      setAmountCents(parseInt(newAmountDisplay, 10));
+      // Remove last digit
+      digits = digits.substring(0, digits.length - 1);
+
+      // If we've removed all digits, reset to zero
+      if (digits === '' || parseInt(digits, 10) === 0) {
+        setAmountString('0.00');
+        setAmountCents(0);
+        return;
+      }
+
+      // Convert to a number to remove leading zeros, then back to a string
+      const numericValue = parseInt(digits, 10);
+      let formattedDigits = numericValue.toString();
+
+      // Pad with leading zeros if needed
+      formattedDigits = formattedDigits.padStart(3, '0');
+
+      // Insert decimal point 2 positions from the end
+      const insertPos = formattedDigits.length - 2;
+      const newAmountString =
+        formattedDigits.substring(0, insertPos) +
+        '.' +
+        formattedDigits.substring(insertPos);
+
+      // Convert to cents
+      const newCents = Math.round(parseFloat(newAmountString) * 100);
+
+      setAmountString(newAmountString);
+      setAmountCents(newCents);
     }
   };
-  
+
   const handleClearPress = () => {
-    setAmountDisplay('0');
     setAmountCents(0);
+    setAmountString('0.00');
   };
-  
+
   const handleSubmitPress = () => {
-    if (amountCents > 0 && transaction) {
-      navigate(`/home/sales/refunds/step4?code=${encodeURIComponent(qrCode)}&transactionId=${encodeURIComponent(transactionId)}&amount=${amountCents}`);
+    if (amountCents <= 0 || !transaction) {
+      // In a real implementation, we would use the AlertProvider here
+      // For now, we'll just return without navigating
+      return;
     }
-  };
-  
-  // Format amount for display (in Rands)
-  const formatAmount = (cents: number) => {
-    const rands = cents / 100;
-    return rands.toFixed(2);
+
+    if (amountCents > transaction.amountCents) {
+      // In a real implementation, we would use the AlertProvider here
+      // For now, we'll just return without navigating
+      return;
+    }
+
+    navigate('/sales/refunds/refundsstep4', {
+      state: { qrCode, idempotencyKey, transactionId, amountCents }
+    });
   };
   
   if (isLoading) {

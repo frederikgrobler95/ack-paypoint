@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { User } from '../shared/contracts/user';
 
@@ -16,7 +16,7 @@ const adminUpdateUserRole = async (input: AdminUpdateUserRoleInput): Promise<{ s
     const userDocRef = doc(db, 'users', input.userId);
     await updateDoc(userDocRef, {
       role: input.role,
-      updatedAt: new Date(),
+      updatedAt: serverTimestamp(),
     });
     
     return { success: true, message: 'User role updated successfully' };

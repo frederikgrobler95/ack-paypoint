@@ -1,20 +1,19 @@
 import React from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useQRCodeCustomer } from '../../../../../queries/qrCodes';
 import { useTransaction } from '../../../../../queries/transactions';
 import { useCreateTransactionMutation } from '@/mutations/useCreateTransactionMutation';
 import { useMyAssignment } from '../../../../../contexts/MyAssignmentContext';
 import { useToast } from '../../../../../contexts/ToastContext';
+import { timestampToDate } from '@/shared/utils';
 
 function RefundsStep4Page(): React.JSX.Element {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const location = useLocation();
   const { showToast } = useToast();
   
   // Get URL parameters
-  const qrCode = searchParams.get('code') || '';
-  const transactionId = searchParams.get('transactionId') || '';
-  const refundAmount = parseInt(searchParams.get('amount') || '0', 10);
+  const { qrCode, idempotencyKey, transactionId, amountCents: refundAmount } = location.state || {};
   
   // Get current operator information
   const { assignment } = useMyAssignment();
@@ -42,9 +41,6 @@ function RefundsStep4Page(): React.JSX.Element {
       showToast('Missing required information', 'error');
       return;
     }
-    
-    // Create idempotency key to prevent duplicate refunds
-    const idempotencyKey = `refund-${transactionId}-${Date.now()}`;
     
     createRefund({
       amountCents: refundAmount,
@@ -133,7 +129,7 @@ function RefundsStep4Page(): React.JSX.Element {
         <div className="flex justify-between items-center mt-2">
           <span className="text-gray-600">Date</span>
           <span className="font-medium">
-            {transaction.createdAt.toDate().toLocaleDateString()}
+            {timestampToDate(transaction.createdAt).toLocaleDateString()}
           </span>
         </div>
       </div>

@@ -19,7 +19,7 @@ function Header(): React.JSX.Element {
   return (
     <>
       {/* Top navigation for larger screens - hidden on mobile */}
-      <nav className="bg-gray-800 text-white py-2 px-4 hidden md:flex">
+      <nav className="bg-gray-800 text-white py-2 px-4 hidden md:flex fixed top-0 left-0 right-0 z-50">
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center space-x-4">
             <Link to="/" className="text-xl font-bold">PayPoint</Link>
@@ -64,7 +64,7 @@ function Header(): React.JSX.Element {
       </nav>
       
       {/* Mobile-friendly top bar for smaller screens */}
-      <div className="bg-gray-800 text-white py-2 px-4 md:hidden flex justify-between items-center">
+      <div className="bg-gray-800 text-white py-2 px-4 md:hidden flex justify-between items-center fixed top-0 left-0 right-0 z-50">
         <Link to="/" className="font-bold text-lg">PayPoint</Link>
         <div className="flex space-x-2">
           {currentUser && (

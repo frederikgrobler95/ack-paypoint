@@ -1,6 +1,6 @@
 import { onDocumentCreated } from "firebase-functions/v2/firestore";
 import { db } from "./firebase";
-import { FieldValue } from "firebase-admin/firestore";
+import { FieldValue, Timestamp } from "firebase-admin/firestore";
 
 // Local interfaces to replace shared contracts
 type AccountStatus = 'clean' | 'unpaid' | 'paid';
@@ -8,7 +8,7 @@ type AccountStatus = 'clean' | 'unpaid' | 'paid';
 interface Account {
   balanceCents: number;
   status: AccountStatus;
-  lastPaidAt: Date;
+  lastPaidAt: Timestamp;
 }
 
 interface Customer {
@@ -18,7 +18,7 @@ interface Customer {
   phoneRaw: string;
   qrCodeId: string;
   Account: Account;
-  IdempotencyKey?: string;
+  idempotencyKey?: string;
 }
 
 interface Registration {
@@ -28,7 +28,7 @@ interface Registration {
   customerId: string;
   customerName: string;
   qrCodeId: string;
-  createdAt: string; // ISO string
+  createdAt: Timestamp;
   idempotencyKey: string;
 }
 
@@ -53,14 +53,14 @@ export const onCustomerCreated = onDocumentCreated(
     try {
       const registrationQuery = await db
         .collection("registrations")
-        .where("idempotencyKey", "==", customer.IdempotencyKey)
+        .where("idempotencyKey", "==", customer.idempotencyKey)
         .limit(1)
         .get();
 
       if (registrationQuery.empty) {
         console.error(
           "No registration found for customer with idempotency key:",
-          customer.IdempotencyKey
+          customer.idempotencyKey
         );
         return;
       }

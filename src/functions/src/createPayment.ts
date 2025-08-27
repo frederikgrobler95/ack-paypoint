@@ -1,5 +1,7 @@
-import { onCall } from "firebase-functions/v2/https";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { db } from "./firebase";
+import { firestore } from "firebase-admin";
+import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 
 // Local interfaces to replace shared contracts
 type AccountStatus = 'clean' | 'unpaid' | 'paid';
@@ -7,7 +9,7 @@ type AccountStatus = 'clean' | 'unpaid' | 'paid';
 interface Account {
   balanceCents: number;
   status: AccountStatus;
-  lastPaidAt: Date;
+  lastPaidAt: firestore.Timestamp;
 }
 
 interface Customer {
@@ -17,7 +19,7 @@ interface Customer {
   phoneRaw: string;
   qrCodeId: string;
   Account: Account;
-  IdempotencyKey?: string;
+  idempotencyKey?: string;
 }
 
 type PaymentMethod = 'card' | 'cash' | 'eft';
@@ -32,7 +34,7 @@ interface Payment {
   customerName?: string;
   stallId: string;
   idempotencyKey: string;
-  createdAt: Date;
+  createdAt: firestore.Timestamp;
 }
 
 interface CreatePaymentRequest {
@@ -51,73 +53,87 @@ export const createPayment = onCall({
 }, async (request): Promise<CreatePaymentResponse> => {
     // Get the payment data from the request
     const { payment } = request.data as CreatePaymentRequest;
-    
-    // Check if a payment with this idempotencyKey already exists
-    const existingPaymentQuery = await db
-      .collection("payments")
-      .where("idempotencyKey", "==", payment.idempotencyKey)
-      .limit(1)
-      .get();
-      
-    if (!existingPaymentQuery.empty) {
-      // Return the existing payment if found
-      const existingPayment = existingPaymentQuery.docs[0].data() as Payment;
-      return { payment: existingPayment };
+
+    if (!payment) {
+      throw new HttpsError("invalid-argument", "Payment data is required.");
+    }
+
+    const idemDoc = await firestore().collection("_idem").doc(payment.idempotencyKey).get();
+    if (idemDoc.exists) {
+      throw new HttpsError(
+        "already-exists",
+        `A payment with this key already exists.`
+      );
     }
     
     // Generate a new payment ID
     const paymentId = db.collection("payments").doc().id;
     
-    // Create the payment document
-    const paymentDoc: Payment = {
+    // Create the payment document (filter out undefined values)
+    const paymentDoc: any = {
       id: paymentId,
       method: payment.method,
       amountCents: payment.amountCents,
       operatorId: payment.operatorId,
-      operatorName: payment.operatorName,
       customerId: payment.customerId,
-      customerName: payment.customerName,
       stallId: payment.stallId,
       idempotencyKey: payment.idempotencyKey,
-      createdAt: new Date(),
+      createdAt: FieldValue.serverTimestamp(),
     };
+
+    // Only add optional fields if they have values
+    if (payment.operatorName) {
+      paymentDoc.operatorName = payment.operatorName;
+    }
+    if (payment.customerName) {
+      paymentDoc.customerName = payment.customerName;
+    }
     
-    // Use a transaction to ensure atomicity
-    await db.runTransaction(async (transaction) => {
-      // Save the payment document
-      const paymentRef = db.collection("payments").doc(paymentDoc.id);
-      transaction.set(paymentRef, paymentDoc);
-      
-      // Get the customer document
-      const customerRef = db.collection("customers").doc(payment.customerId);
-      const customerDoc = await transaction.get(customerRef);
-      
-      if (!customerDoc.exists) {
-        throw new Error(`Customer with ID ${payment.customerId} not found`);
-      }
-      
-      const customer = customerDoc.data() as Customer;
-      
-      // Calculate new balance (subtracting payment amount)
-      const newBalanceCents = customer.Account.balanceCents - payment.amountCents;
-      
-      // Determine new status based on balance
-      let newStatus: AccountStatus = "clean";
-      if (newBalanceCents > 0) {
-        newStatus = "unpaid";
-      }
-      
-      // Update the customer's account
-      const updatedAccount = {
-        ...customer.Account,
-        balanceCents: newBalanceCents,
-        status: newStatus,
-      };
-      
-      // Update customer document
-      transaction.update(customerRef, {
-        Account: updatedAccount,
+    try {
+      // Use a transaction to ensure atomicity
+      await db.runTransaction(async (transaction) => {
+        // READS FIRST: Get the customer document
+        const customerRef = db.collection("customers").doc(payment.customerId);
+        const customerDoc = await transaction.get(customerRef);
+        
+        if (!customerDoc.exists) {
+          throw new HttpsError("not-found", `Customer with ID ${payment.customerId} not found`);
+        }
+        
+        const customer = customerDoc.data() as Customer;
+        
+        // When making a payment, the account should be zeroed and marked as paid
+        const newBalanceCents = 0;
+        const newStatus: AccountStatus = "paid";
+        
+        // Update the lastPaidAt timestamp
+        const updatedLastPaidAt = FieldValue.serverTimestamp();
+        
+        // Update the customer's account
+        const updatedAccount = {
+          ...customer.Account,
+          balanceCents: newBalanceCents,
+          status: newStatus,
+          lastPaidAt: updatedLastPaidAt,
+        };
+        
+        // WRITES SECOND: Save the payment document and update customer
+        const paymentRef = db.collection("payments").doc(paymentDoc.id);
+        transaction.set(paymentRef, paymentDoc);
+        
+        // Update customer document
+        transaction.update(customerRef, {
+          Account: updatedAccount,
+        });
       });
+    } catch (error: any) {
+      console.error("Payment transaction failed: ", error);
+      throw new HttpsError("internal", error.message);
+    }
+
+    await firestore().collection("_idem").doc(payment.idempotencyKey).set({
+      type: "payment",
+      createdAt: firestore.FieldValue.serverTimestamp(),
     });
     
     // Return the created payment

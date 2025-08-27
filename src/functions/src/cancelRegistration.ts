@@ -1,5 +1,6 @@
 import { onCall } from "firebase-functions/v2/https";
 import { db } from "./firebase";
+import { Timestamp } from "firebase-admin/firestore";
 
 // Local interfaces to replace shared contracts
 type AccountStatus = 'clean' | 'unpaid' | 'paid';
@@ -7,7 +8,7 @@ type AccountStatus = 'clean' | 'unpaid' | 'paid';
 interface Account {
   balanceCents: number;
   status: AccountStatus;
-  lastPaidAt: Date;
+  lastPaidAt: Timestamp;
 }
 
 interface Customer {
@@ -17,7 +18,7 @@ interface Customer {
   phoneRaw: string;
   qrCodeId: string;
   Account: Account;
-  IdempotencyKey?: string;
+  idempotencyKey?: string;
 }
 
 interface Registration {
@@ -27,7 +28,7 @@ interface Registration {
   customerId: string;
   customerName: string;
   qrCodeId: string;
-  createdAt: string; // ISO string
+  createdAt: Timestamp;
   idempotencyKey: string;
 }
 
@@ -81,7 +82,7 @@ export const cancelRegistration = onCall({
       const customer = customerDoc.data() as Customer;
       
       // Verify that the customer has the same idempotency key
-      if (customer.IdempotencyKey !== idempotencyKey) {
+      if (customer.idempotencyKey !== idempotencyKey) {
         throw new Error(`Customer idempotency key mismatch`);
       }
       

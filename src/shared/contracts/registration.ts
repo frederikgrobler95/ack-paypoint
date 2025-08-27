@@ -1,3 +1,5 @@
+import { Timestamp } from 'firebase/firestore';
+
 export type Registration = {
   id: string;
   operatorName: string;
@@ -5,6 +7,6 @@ export type Registration = {
   customerId: string;
   customerName: string;
   qrCodeId: string;
-  createdAt: string; // ISO string
+  createdAt: Timestamp;
   idempotencyKey: string;
 };

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useQRCodeCustomer } from '../../../../../queries/qrCodes';
 import { useMyAssignment } from '../../../../../contexts/MyAssignmentContext';
 import { useTransactionsByCustomer } from '../../../../../queries/transactions';
@@ -18,8 +18,8 @@ interface CompatibleTransaction {
 
 function RefundsStep2Page(): React.JSX.Element {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const qrCode = searchParams.get('code') || '';
+  const location = useLocation();
+  const { qrCode, idempotencyKey } = location.state || {};
   
   const [selectedTransactionId, setSelectedTransactionId] = useState<string | null>(null);
   
@@ -50,8 +50,9 @@ function RefundsStep2Page(): React.JSX.Element {
   // Handle transaction selection
   const handleTransactionSelect = (transactionId: string) => {
     setSelectedTransactionId(transactionId);
-    // Navigate to step 3 with QR code and selected transaction ID
-    navigate(`/home/sales/refunds/step3?code=${encodeURIComponent(qrCode)}&transactionId=${encodeURIComponent(transactionId)}`);
+    navigate('/sales/refunds/refundsstep3', {
+      state: { qrCode, idempotencyKey, transactionId }
+    });
   };
   
   // Loading state

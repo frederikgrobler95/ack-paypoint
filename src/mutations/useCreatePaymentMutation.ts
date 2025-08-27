@@ -22,12 +22,12 @@ export interface CreatePaymentOutput {
 
 // Function to call the cloud function
 const createPayment = async (input: CreatePaymentInput): Promise<CreatePaymentOutput> => {
-  const createPaymentCallable = httpsCallable<CreatePaymentInput, CreatePaymentOutput>(
+  const createPaymentCallable = httpsCallable<{ payment: CreatePaymentInput }, CreatePaymentOutput>(
     functions,
     'createPayment'
   );
   
-  const result = await createPaymentCallable(input);
+  const result = await createPaymentCallable({ payment: input });
   return result.data;
 };
 

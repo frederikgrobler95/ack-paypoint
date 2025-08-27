@@ -1,6 +1,6 @@
 import { onDocumentCreated } from "firebase-functions/v2/firestore";
 import { db } from "./firebase";
-import { FieldValue } from "firebase-admin/firestore";
+import { FieldValue, Timestamp } from "firebase-admin/firestore";
 
 // Local interfaces to replace shared contracts
 type PaymentMethod = 'card' | 'cash' | 'eft';
@@ -15,7 +15,7 @@ interface Payment {
   customerName?: string;
   stallId: string;
   idempotencyKey: string;
-  createdAt: Date;
+  createdAt: Timestamp;
 }
 
 type StallType = 'registration' | 'checkout' | 'commerce';

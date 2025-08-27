@@ -1,140 +1,158 @@
-import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useQRCodeCustomer } from '../../../../queries/qrCodes';
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { v4 as uuidv4 } from 'uuid';
 import QrScanner, { QrScannerHandle } from '../../../../shared/ui/QrScanner';
+import { useQRCodeValidationForSales, useQRCodeValidationForSalesByLabel } from '../../../../queries/qrCodes';
 
 function SalesStep1Page(): React.JSX.Element {
   const navigate = useNavigate();
-  const [manualCode, setManualCode] = useState('');
+  const location = useLocation();
+
+  const [qrCodeInput, setQrCodeInput] = useState(location.state?.qrCode || '');
+  const [idempotencyKey, setIdempotencyKey] = useState(location.state?.idempotencyKey || '');
   const [error, setError] = useState('');
   const qrScannerRef = useRef<QrScannerHandle>(null);
+  const [inputMethod, setInputMethod] = useState<'scan' | 'manual'>('scan');
+  const [hasNavigated, setHasNavigated] = useState(false);
   
-  // Query hook for QR code validation (only enabled when we have a code to check)
-  const { data: qrData, isLoading, isError, error: queryError, refetch } = useQRCodeCustomer(manualCode);
-
-  // Handle QR code scanned from scanner
-  const handleCodeScanned = async (data: string) => {
-    try {
-      setManualCode(data);
-      // Validate the QR code by triggering the query
-      const result = await refetch();
-      
-      if (result.data) {
-        // Valid QR code, navigate to step 2
-        navigate(`/home/sales/step2?code=${encodeURIComponent(data)}`);
-      } else {
-        // Invalid QR code
-        setError('Invalid QR code. Please try again.');
-      }
-    } catch (err) {
-      setError('Error validating QR code. Please try again.');
+  // For scanning, we validate by ID and by label
+  const { data: qrCodeDataById, isLoading: isQrCodeLoadingById, isError: isQrCodeErrorById } = useQRCodeValidationForSales(qrCodeInput);
+  const { data: qrCodeDataByLabel, isLoading: isQrCodeLoadingByLabel, isError: isQrCodeErrorByLabel } = useQRCodeValidationForSalesByLabel(qrCodeInput);
+  
+  // Use the appropriate data based on what's available
+  const qrCodeData = qrCodeDataById || qrCodeDataByLabel;
+  const isQrCodeLoading = isQrCodeLoadingById || isQrCodeLoadingByLabel;
+  const isQrCodeError = isQrCodeErrorById && isQrCodeErrorByLabel;
+  
+  // Reset QR code input when switching input methods
+  React.useEffect(() => {
+    setQrCodeInput('');
+    setError('');
+  }, [inputMethod]);
+  
+  useEffect(() => {
+    if (!idempotencyKey) {
+      setIdempotencyKey(`sale_${uuidv4()}`);
     }
-  };
+  }, [idempotencyKey]);
 
-  // Handle manual code submission
-  const handleManualSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!manualCode.trim()) {
-      setError('Please enter a QR code');
-      return;
-    }
-    
-    try {
-      setError('');
-      // Validate the QR code by triggering the query
-      const result = await refetch();
-      
-      if (result.data) {
-        // Valid QR code, navigate to step 2
-        navigate(`/home/sales/step2?code=${encodeURIComponent(manualCode)}`);
-      } else {
-        // Invalid QR code
-        setError('Invalid QR code. Please try again.');
-      }
-    } catch (err) {
-      setError('Error validating QR code. Please try again.');
-    }
-  };
-
-  // Handle scan button click
-  const handleScanClick = async () => {
+  const handleScanPress = async () => {
     if (qrScannerRef.current) {
       try {
-        const code = await qrScannerRef.current.captureQRCode();
-        handleCodeScanned(code);
+        const scannedCode = await qrScannerRef.current.captureQRCode();
+        validateQrCode(scannedCode);
       } catch (err) {
         setError('Failed to scan QR code. Please try again.');
       }
     }
   };
-
+  
+  const handleManualSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (qrCodeInput.trim()) {
+      validateQrCode(qrCodeInput);
+    } else {
+      setError('Please enter a QR code');
+    }
+  };
+  
+  const validateQrCode = (code: string) => {
+    // The useQRCodeValidationForSales hook will automatically validate the code
+    // We just need to check the result
+    setQrCodeInput(code);
+    setError('');
+  };
+  
+  // When qrCodeData changes, check if it's valid
+  useEffect(() => {
+    if (qrCodeData && !hasNavigated && idempotencyKey) {
+      setHasNavigated(true);
+      navigate('/sales/salesstep2', {
+        state: {
+          qrCode: qrCodeData.id,
+          idempotencyKey,
+        }
+      });
+    } else if (isQrCodeError || (qrCodeInput && !isQrCodeLoading && !qrCodeData && !hasNavigated)) {
+      setError('Invalid QR code. Please try again.');
+    }
+  }, [qrCodeData, isQrCodeError, qrCodeInput, isQrCodeLoading, navigate, idempotencyKey, hasNavigated]);
+  
   return (
-    <>
-      <div className="p-4">
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">Sales - Step 1</h1>
-        <p className="text-gray-600 mb-6">Scan or enter a QR code to begin a sale transaction.</p>
-        
-        {/* QR Scanner */}
+    <div className="p-4">
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">Sales - Step 1</h1>
+      
+      {/* QR Scanner Section - Show only when inputMethod is 'scan' */}
+      {inputMethod === 'scan' && (
         <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-          <h2 className="text-lg font-semibold text-gray-700 mb-3">Scan QR Code</h2>
-          <div className="flex flex-col items-center">
-            <QrScanner 
-              ref={qrScannerRef}
-              onCodeScanned={handleCodeScanned}
-              isActive={true}
+          <h3 className="text-md font-semibold text-gray-800 mb-3">Scan QR Code</h3>
+          <QrScanner
+            ref={qrScannerRef}
+            onCodeScanned={validateQrCode}
+            isActive={true}
+          />
+          <button
+            onClick={handleScanPress}
+            className="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-md transition duration-200"
+          >
+            Scan QR Code
+          </button>
+          <button
+            onClick={() => setInputMethod('manual')}
+            className="mt-2 w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-4 rounded-md transition duration-200"
+          >
+            Enter Manually
+          </button>
+        </div>
+      )}
+      
+      
+      {/* Manual Entry - Show only when inputMethod is 'manual' */}
+      {inputMethod === 'manual' && (
+        <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+          <h3 className="text-md font-semibold text-gray-800 mb-3">Enter QR Code Manually</h3>
+          <form onSubmit={handleManualSubmit}>
+            <input
+              type="text"
+              value={qrCodeInput}
+              onChange={(e) => {
+                setQrCodeInput(e.target.value);
+                setError('');
+              }}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-3"
+              placeholder="Enter QR code"
             />
             <button
-              onClick={handleScanClick}
-              className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200"
-            >
-              Scan QR Code
-            </button>
-          </div>
-        </div>
-        
-        {/* Manual Entry */}
-        <div className="bg-white rounded-lg shadow-md p-4">
-          <h2 className="text-lg font-semibold text-gray-700 mb-3">Or Enter Code Manually</h2>
-          <form onSubmit={handleManualSubmit}>
-            <div className="mb-4">
-              <label htmlFor="qrCode" className="block text-sm font-medium text-gray-700 mb-1">
-                QR Code
-              </label>
-              <input
-                type="text"
-                id="qrCode"
-                value={manualCode}
-                onChange={(e) => setManualCode(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                placeholder="Enter QR code"
-              />
-            </div>
-            
-            <button
               type="submit"
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md transition duration-200"
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-md transition duration-200"
             >
-              Validate QR Code
+              Submit QR Code
+            </button>
+            <button
+              type="button"
+              onClick={() => setInputMethod('scan')}
+              className="mt-2 w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-4 rounded-md transition duration-200"
+            >
+              Back to Scan
             </button>
           </form>
         </div>
-        
-        {/* Error Message */}
-        {error && (
-          <div className="mt-4 p-3 bg-red-100 text-red-700 rounded-md">
-            {error}
-          </div>
-        )}
-        
-        {/* Loading Indicator */}
-        {isLoading && (
-          <div className="mt-4 p-3 bg-blue-100 text-blue-700 rounded-md">
-            Validating QR code...
-          </div>
-        )}
-      </div>
-    </>
+      )}
+      
+      {/* Error message */}
+      {error && (
+        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">
+          {error}
+        </div>
+      )}
+      
+      {/* Loading indicator */}
+      {isQrCodeLoading && (
+        <div className="mb-4 p-3 bg-blue-100 text-blue-700 rounded-md">
+          Validating QR code...
+        </div>
+      )}
+    </div>
   );
 }
 

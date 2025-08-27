@@ -50,8 +50,12 @@ export const onTransactionCreated = onDocumentCreated(
       const stall = stallDoc.data() as Stall;
 
       await db.runTransaction(async (firestoreTransaction) => {
-        const updatedTotalAmount =
-          (stall.totalAmount || 0) + transaction.amountCents;
+        // Determine the amount to add/subtract based on transaction type
+        const amountToAdd = transaction.type === 'sale'
+          ? transaction.amountCents
+          : -transaction.amountCents;
+
+        const updatedTotalAmount = (stall.totalAmount || 0) + amountToAdd;
         firestoreTransaction.update(stallRef, {
           totalAmount: updatedTotalAmount,
         });
@@ -60,7 +64,7 @@ export const onTransactionCreated = onDocumentCreated(
         firestoreTransaction.set(
           statsRef,
           {
-            totalSales: FieldValue.increment(transaction.amountCents),
+            totalSales: FieldValue.increment(amountToAdd),
           },
           { merge: true }
         );

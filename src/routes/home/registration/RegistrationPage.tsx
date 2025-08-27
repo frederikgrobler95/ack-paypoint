@@ -1,4 +1,5 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom';
 
 // Define types for our dummy data
 interface Customer {
@@ -51,6 +52,8 @@ const CustomerCard: React.FC<{ customer: Customer }> = ({ customer }) => {
 };
 
 function RegistrationPage(): React.JSX.Element {
+  const navigate = useNavigate();
+  
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold text-gray-800 mb-6">{stallName} Registrations</h1>
@@ -64,12 +67,9 @@ function RegistrationPage(): React.JSX.Element {
       
       {/* FAB Button */}
       <div className="fixed bottom-20 right-6">
-        <button 
+        <button
           className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
-          onClick={() => {
-            // Navigation to registration flow would go here
-            console.log('Initiate registration flow');
-          }}
+          onClick={() => navigate('/registration/step1')}
         >
           <span className="text-xl">+</span>
         </button>

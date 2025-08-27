@@ -1,19 +1,37 @@
-import React, { useState, useRef } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import QrScanner, { QrScannerHandle } from '../../../../shared/ui/QrScanner';
-import { useQRCodeCustomer } from '../../../../queries/qrCodes';
+import { useQRCodeValidationForRegistration, useQRCodeValidationForRegistrationByLabel } from '../../../../queries/qrCodes';
 
 function RegistrationStep2Page(): React.JSX.Element {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const name = searchParams.get('name') || '';
-  const phone = searchParams.get('phone') || '';
+  const location = useLocation();
+
+  // Data from previous step
+  const { name, phone, idempotencyKey } = location.state || {};
   
-  const [qrCodeInput, setQrCodeInput] = useState('');
+  const [qrCodeInput, setQrCodeInput] = useState(location.state?.qrCodeId || '');
   const [error, setError] = useState('');
   const qrScannerRef = useRef<QrScannerHandle>(null);
+  const [inputMethod, setInputMethod] = useState<'scan' | 'manual'>('scan');
+  const [hasNavigated, setHasNavigated] = useState(false);
   
-  const { data: qrCodeData, isLoading: isQrCodeLoading, isError: isQrCodeError } = useQRCodeCustomer(qrCodeInput);
+  // For scanning, we validate by ID
+  const { data: qrCodeDataById, isLoading: isQrCodeLoadingById, isError: isQrCodeErrorById } = useQRCodeValidationForRegistration(qrCodeInput);
+  
+  // For manual entry, we validate by label
+  const { data: qrCodeDataByLabel, isLoading: isQrCodeLoadingByLabel, isError: isQrCodeErrorByLabel } = useQRCodeValidationForRegistrationByLabel(qrCodeInput);
+  
+  // Use the appropriate data based on input method
+  const qrCodeData = inputMethod === 'scan' ? qrCodeDataById : qrCodeDataByLabel;
+  const isQrCodeLoading = inputMethod === 'scan' ? isQrCodeLoadingById : isQrCodeLoadingByLabel;
+  const isQrCodeError = inputMethod === 'scan' ? isQrCodeErrorById : isQrCodeErrorByLabel;
+  
+  // Reset QR code input when switching input methods
+  React.useEffect(() => {
+    setQrCodeInput('');
+    setError('');
+  }, [inputMethod]);
   
   const handleScanPress = async () => {
     if (qrScannerRef.current) {
@@ -43,74 +61,83 @@ function RegistrationStep2Page(): React.JSX.Element {
   };
   
   // When qrCodeData changes, check if it's valid
-  React.useEffect(() => {
-    if (qrCodeData) {
-      // Valid QR code - navigate to step 3
-      navigate(`/home/registration/step3?name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&code=${encodeURIComponent(qrCodeData.qrCode.id)}`);
-    } else if (isQrCodeError || (qrCodeInput && !isQrCodeLoading && !qrCodeData)) {
-      // Invalid QR code
+  useEffect(() => {
+    if (qrCodeData && !hasNavigated && name && phone && idempotencyKey) {
+      setHasNavigated(true);
+      navigate('/registration/step3', {
+        state: {
+          name,
+          phone,
+          idempotencyKey,
+          qrCodeId: qrCodeData.id,
+          qrCodeLabel: qrCodeData.label,
+        }
+      });
+    } else if (isQrCodeError || (qrCodeInput && !isQrCodeLoading && !qrCodeData && !hasNavigated)) {
       setError('Invalid QR code. Please try again.');
     }
-  }, [qrCodeData, isQrCodeError, qrCodeInput, isQrCodeLoading, navigate, name, phone]);
+  }, [qrCodeData, isQrCodeError, qrCodeInput, isQrCodeLoading, navigate, name, phone, idempotencyKey, hasNavigated]);
   
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold text-gray-800 mb-6">Registration - Step 2</h1>
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h2 className="text-lg font-semibold text-gray-700 mb-2">QR Code Setup</h2>
-        <p className="text-gray-600">Scan or enter the QR code to link to the customer's account.</p>
-      </div>
       
-      <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-        <h3 className="text-md font-semibold text-gray-800 mb-3">Customer Information</h3>
-        <div className="flex justify-between mb-2">
-          <span className="text-gray-600">Name:</span>
-          <span className="font-medium">{name}</span>
-        </div>
-        <div className="flex justify-between">
-          <span className="text-gray-600">Phone:</span>
-          <span className="font-medium">{phone}</span>
-        </div>
-      </div>
-      
-      {/* QR Scanner */}
-      <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-        <h3 className="text-md font-semibold text-gray-800 mb-3">Scan QR Code</h3>
-        <QrScanner
-          ref={qrScannerRef}
-          onCodeScanned={validateQrCode}
-          isActive={true}
-        />
-        <button
-          onClick={handleScanPress}
-          className="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-md transition duration-200"
-        >
-          Scan QR Code
-        </button>
-      </div>
-      
-      {/* Manual Entry */}
-      <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-        <h3 className="text-md font-semibold text-gray-800 mb-3">Or Enter Manually</h3>
-        <form onSubmit={handleManualSubmit}>
-          <input
-            type="text"
-            value={qrCodeInput}
-            onChange={(e) => {
-              setQrCodeInput(e.target.value);
-              setError('');
-            }}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-3"
-            placeholder="Enter QR code"
+      {/* QR Scanner Section - Show only when inputMethod is 'scan' */}
+      {inputMethod === 'scan' && (
+        <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+          <h3 className="text-md font-semibold text-gray-800 mb-3">Scan QR Code</h3>
+          <QrScanner
+            ref={qrScannerRef}
+            onCodeScanned={validateQrCode}
+            isActive={true}
           />
           <button
-            type="submit"
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-md transition duration-200"
+            onClick={handleScanPress}
+            className="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-md transition duration-200"
           >
-            Submit QR Code
+            Scan QR Code
           </button>
-        </form>
-      </div>
+          <button
+            onClick={() => setInputMethod('manual')}
+            className="mt-2 w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-4 rounded-md transition duration-200"
+          >
+            Enter Manually
+          </button>
+        </div>
+      )}
+      
+      
+      {/* Manual Entry - Show only when inputMethod is 'manual' */}
+      {inputMethod === 'manual' && (
+        <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+          <h3 className="text-md font-semibold text-gray-800 mb-3">Enter QR Code Manually</h3>
+          <form onSubmit={handleManualSubmit}>
+            <input
+              type="text"
+              value={qrCodeInput}
+              onChange={(e) => {
+                setQrCodeInput(e.target.value);
+                setError('');
+              }}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-3"
+              placeholder="Enter QR code"
+            />
+            <button
+              type="submit"
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-md transition duration-200"
+            >
+              Submit QR Code
+            </button>
+            <button
+              type="button"
+              onClick={() => setInputMethod('scan')}
+              className="mt-2 w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-4 rounded-md transition duration-200"
+            >
+              Back to Scan
+            </button>
+          </form>
+        </div>
+      )}
       
       {/* Error message */}
       {error && (

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useUser } from '../../../queries/users';
-import { useAdminUpdateUserRoleMutation } from '../../../mutations/useAdminUpdateUserRoleMutation';
-import { User } from '../../../shared/contracts/user';
+import { useUser } from '../../../../queries/users';
+import { useAdminUpdateUserRoleMutation } from '../../../../mutations/useAdminUpdateUserRoleMutation';
+import { User } from '../../../../shared/contracts/user';
 
 function RoleSelectionPage(): React.JSX.Element {
   const { id } = useParams<{ id: string }>();
@@ -82,7 +82,18 @@ function RoleSelectionPage(): React.JSX.Element {
   return (
     <div className="max-w-2xl mx-auto p-4">
       <div className="bg-white rounded-lg shadow p-6">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">Change User Role</h1>
+        <div className="flex items-center mb-6">
+          <button
+            onClick={() => navigate(-1)}
+            className="mr-4 p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
+            aria-label="Go back"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <h1 className="text-2xl font-bold text-gray-800">Change User Role</h1>
+        </div>
         
         <div className="mb-6">
           <h2 className="text-lg font-semibold text-gray-700">User Information</h2>

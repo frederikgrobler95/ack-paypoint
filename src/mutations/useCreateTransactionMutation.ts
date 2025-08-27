@@ -24,12 +24,12 @@ export interface CreateTransactionOutput {
 
 // Function to call the cloud function
 const createTransaction = async (input: CreateTransactionInput): Promise<CreateTransactionOutput> => {
-  const createTransactionCallable = httpsCallable<CreateTransactionInput, CreateTransactionOutput>(
+  const createTransactionCallable = httpsCallable<{transaction: CreateTransactionInput}, CreateTransactionOutput>(
     functions,
     'createTransaction'
   );
   
-  const result = await createTransactionCallable(input);
+  const result = await createTransactionCallable({transaction: input});
   return result.data;
 };
 

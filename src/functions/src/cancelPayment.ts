@@ -1,5 +1,6 @@
 import { onCall } from "firebase-functions/v2/https";
 import { db } from "./firebase";
+import { Timestamp } from "firebase-admin/firestore";
 
 // Local interfaces to replace shared contracts
 type AccountStatus = 'clean' | 'unpaid' | 'paid';
@@ -7,7 +8,7 @@ type AccountStatus = 'clean' | 'unpaid' | 'paid';
 interface Account {
   balanceCents: number;
   status: AccountStatus;
-  lastPaidAt: Date;
+  lastPaidAt: Timestamp;
 }
 
 interface Customer {
@@ -17,7 +18,7 @@ interface Customer {
   phoneRaw: string;
   qrCodeId: string;
   Account: Account;
-  IdempotencyKey?: string;
+  idempotencyKey?: string;
 }
 
 type PaymentMethod = 'card' | 'cash' | 'eft';
@@ -32,7 +33,7 @@ interface Payment {
   customerName?: string;
   stallId: string;
   idempotencyKey: string;
-  createdAt: Date;
+  createdAt: Timestamp;
 }
 
 interface CancelPaymentRequest {

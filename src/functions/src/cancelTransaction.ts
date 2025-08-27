@@ -8,7 +8,7 @@ type AccountStatus = 'clean' | 'unpaid' | 'paid';
 interface Account {
   balanceCents: number;
   status: AccountStatus;
-  lastPaidAt: Date;
+  lastPaidAt: Timestamp;
 }
 
 interface Customer {
@@ -18,7 +18,7 @@ interface Customer {
   phoneRaw: string;
   qrCodeId: string;
   Account: Account;
-  IdempotencyKey?: string;
+  idempotencyKey?: string;
 }
 
 type TransactionType = 'sale' | 'refund';

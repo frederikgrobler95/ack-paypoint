@@ -31,9 +31,9 @@ const adminCreateCustomers = async (customers: AdminCreateCustomerInput[]): Prom
       Account: {
         balanceCents: 0,
         status: 'clean',
-        lastPaidAt: new Date(),
+        lastPaidAt: Timestamp.now(),
       },
-      IdempotencyKey: customerInput.idempotencyKey,
+      idempotencyKey: customerInput.idempotencyKey,
     };
     
     // Save the customer document

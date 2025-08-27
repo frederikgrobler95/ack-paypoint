@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useQRCodeCustomer } from '@/queries/qrCodes';
 import { useCreateTransactionMutation } from '@/mutations/useCreateTransactionMutation';
 import { useToast } from '@/contexts/ToastContext';
@@ -9,13 +9,12 @@ import { useSessionStore } from '@/shared/stores/sessionStore';
 
 function SalesStep3Page(): React.JSX.Element {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const location = useLocation();
   const { showToast: addToast } = useToast();
   const { assignment, stall } = useMyAssignment();
   const { user } = useSessionStore();
   
-  const qrCode = searchParams.get('code') || '';
-  const amountCents = parseInt(searchParams.get('amount') || '0', 10);
+  const { qrCode, amountCents, idempotencyKey } = location.state || {};
   
   const { data: qrData, isLoading: isQrLoading, isError: isQrError, error: qrError } = useQRCodeCustomer(qrCode);
   const { mutate: createSale, isPending: isCreatingSale, isError: isSaleError, error: saleError } = useCreateTransactionMutation();
@@ -32,7 +31,7 @@ function SalesStep3Page(): React.JSX.Element {
       stallId: assignment.stallId,
       stallName: stall?.name || '',
       type: 'sale' as const,
-      idempotencyKey: `${qrCode}-${Date.now()}`, // Unique key to prevent duplicate transactions
+      idempotencyKey,
     };
     
     createSale(input, {
@@ -77,7 +76,7 @@ function SalesStep3Page(): React.JSX.Element {
             <div className="text-center">
               <div className="text-lg text-red-600">Error loading customer details: {qrError?.message}</div>
               <button
-                onClick={() => navigate('/home/sales/step1')}
+                onClick={() => navigate('/sales/salesstep1')}
                 className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md transition duration-200"
               >
                 Try Again
@@ -99,7 +98,7 @@ function SalesStep3Page(): React.JSX.Element {
             <div className="text-center">
               <div className="text-lg text-red-600">Error creating sale: {saleError?.message}</div>
               <button
-                onClick={() => navigate('/home/sales/step1')}
+                onClick={() => navigate('/sales/salesstep1')}
                 className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md transition duration-200"
               >
                 Start Over
@@ -121,7 +120,7 @@ function SalesStep3Page(): React.JSX.Element {
             <div className="text-center">
               <div className="text-lg text-gray-600">Invalid QR code or customer not found</div>
               <button
-                onClick={() => navigate('/home/sales/step1')}
+                onClick={() => navigate('/sales/salesstep1')}
                 className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md transition duration-200"
               >
                 Start Over

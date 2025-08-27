@@ -1,16 +1,27 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { v4 as uuidv4 } from 'uuid';
 
 function RegistrationStep1Page(): React.JSX.Element {
   const navigate = useNavigate();
-  const [name, setName] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const location = useLocation();
+
+  // Initialize state from location state or with empty values
+  const [name, setName] = useState(location.state?.name || '');
+  const [phoneNumber, setPhoneNumber] = useState(location.state?.phone || '');
+  const [idempotencyKey, setIdempotencyKey] = useState(location.state?.idempotencyKey || '');
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    // Generate a new idempotency key only if one doesn't already exist
+    if (!idempotencyKey) {
+      setIdempotencyKey(`registration_${uuidv4()}`);
+    }
+  }, [idempotencyKey]);
 
   const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate that name and phone number are not empty
     if (!name.trim()) {
       setError('Name is required');
       return;
@@ -21,20 +32,21 @@ function RegistrationStep1Page(): React.JSX.Element {
       return;
     }
     
-    // Clear any previous error
     setError('');
     
-    // Navigate to the next step with name and phone number as URL parameters
-    navigate(`/home/registration/step2?name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phoneNumber)}`);
+    // Navigate to the next step with state
+    navigate('/registration/step2', {
+      state: { name, phone: phoneNumber, idempotencyKey }
+    });
   };
 
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold text-gray-800 mb-6">Registration - Step 1</h1>
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+      {/* <div className="bg-white rounded-lg shadow-md p-6 mb-6">
         <h2 className="text-lg font-semibold text-gray-700 mb-2">Customer Information</h2>
         <p className="text-gray-600">Enter the customer's basic information to begin registration.</p>
-      </div>
+      </div> */}
       
       <form onSubmit={handleNext}>
         <div className="bg-white rounded-lg shadow-sm p-4 mb-3">

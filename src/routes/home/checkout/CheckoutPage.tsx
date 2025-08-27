@@ -1,4 +1,5 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom';
 
 // Define types for our dummy data
 interface Transaction {
@@ -57,6 +58,8 @@ const TransactionCard: React.FC<{ transaction: Transaction }> = ({ transaction }
 };
 
 function CheckoutPage(): React.JSX.Element {
+  const navigate = useNavigate();
+  
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold text-gray-800 mb-6">{stallName} Checkout</h1>
@@ -70,12 +73,9 @@ function CheckoutPage(): React.JSX.Element {
       
       {/* FAB Button */}
       <div className="fixed bottom-20 right-6">
-        <button 
+        <button
           className="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
-          onClick={() => {
-            // Navigation to checkout flow would go here
-            console.log('Initiate checkout flow');
-          }}
+          onClick={() => navigate('/checkout/step1')}
         >
           <span className="text-xl">+</span>
         </button>

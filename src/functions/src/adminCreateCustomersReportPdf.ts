@@ -10,7 +10,7 @@ type AccountStatus = 'clean' | 'unpaid' | 'paid';
 interface Account {
   balanceCents: number;
   status: AccountStatus;
-  lastPaidAt: Date;
+  lastPaidAt: Timestamp;
 }
 
 interface Customer {
@@ -20,7 +20,7 @@ interface Customer {
   phoneRaw: string;
   qrCodeId: string;
   Account: Account;
-  IdempotencyKey?: string;
+  idempotencyKey?: string;
 }
 
 interface AdminCreateCustomersReportPdfRequest {
@@ -49,13 +49,13 @@ const fetchAllCustomers = async (): Promise<Customer[]> => {
         Account: {
           balanceCents: data.Account?.balanceCents || 0,
           status: data.Account?.status || 'clean',
-          lastPaidAt: data.Account?.lastPaidAt instanceof Timestamp 
-            ? data.Account.lastPaidAt.toDate() 
-            : data.Account?.lastPaidAt 
-            ? new Date(data.Account.lastPaidAt) 
-            : new Date()
+          lastPaidAt: data.Account?.lastPaidAt instanceof Timestamp
+            ? data.Account.lastPaidAt
+            : data.Account?.lastPaidAt
+            ? Timestamp.fromDate(new Date(data.Account.lastPaidAt))
+            : Timestamp.now()
         },
-        IdempotencyKey: data.IdempotencyKey
+        idempotencyKey: data.idempotencyKey
       } as Customer;
     });
   } catch (error) {
@@ -83,13 +83,13 @@ const fetchCustomersByIds = async (customerIds: string[]): Promise<Customer[]> =
         Account: {
           balanceCents: data.Account?.balanceCents || 0,
           status: data.Account?.status || 'clean',
-          lastPaidAt: data.Account?.lastPaidAt instanceof Timestamp 
-            ? data.Account.lastPaidAt.toDate() 
-            : data.Account?.lastPaidAt 
-            ? new Date(data.Account.lastPaidAt) 
-            : new Date()
+          lastPaidAt: data.Account?.lastPaidAt instanceof Timestamp
+            ? data.Account.lastPaidAt
+            : data.Account?.lastPaidAt
+            ? Timestamp.fromDate(new Date(data.Account.lastPaidAt))
+            : Timestamp.now()
         },
-        IdempotencyKey: data.IdempotencyKey
+        idempotencyKey: data.idempotencyKey
       } as Customer;
     });
   } catch (error) {

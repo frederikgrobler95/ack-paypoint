@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useState, useRef, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom';
 import { useTransactionsByStall } from '@/queries/transactions';
 import { useWorkStore } from '@/shared/stores/workStore';
 import { Transaction as FirestoreTransaction, TransactionType } from '@/shared/contracts/transaction';
@@ -28,6 +29,9 @@ const TotalSalesCard: React.FC<{ totalCents: number }> = ({ totalCents }) => {
 };
 
 function SalesPage(): React.JSX.Element {
+  const navigate = useNavigate();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const currentStallId = useWorkStore((state: { currentStallId: string | null }) => state.currentStallId);
   const currentStall = useWorkStore((state: { currentStall: any }) => state.currentStall);
   
@@ -82,9 +86,56 @@ function SalesPage(): React.JSX.Element {
     await refetch();
   };
   
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMenuOpen]);
+  
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">{stallName} Sales</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-gray-800">{stallName} Sales</h1>
+        <div className="relative">
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="p-2 rounded-full hover:bg-gray-200 focus:outline-none"
+            aria-label="More options"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+            </svg>
+          </button>
+          {isMenuOpen && (
+            <div
+              ref={menuRef}
+              className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50"
+              style={{ top: '100%' }}
+            >
+              <button
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  navigate('/sales/refunds/refundsstep1');
+                }}
+                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              >
+                Refund
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
       <TotalSalesCard totalCents={totalSalesCents} />
       
       <SharedList<Transaction>
@@ -105,10 +156,7 @@ function SalesPage(): React.JSX.Element {
       <div className="fixed bottom-20 right-6">
         <button
           className="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
-          onClick={() => {
-            // Navigation to sales flow would go here
-            console.log('Initiate sales flow');
-          }}
+          onClick={() => navigate('/sales/salesstep1')}
         >
           <span className="text-xl">+</span>
         </button>

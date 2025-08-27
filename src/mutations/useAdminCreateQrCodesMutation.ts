@@ -8,6 +8,7 @@ export interface AdminCreateQrCodesInput {
   amount: number;
   batchId?: string;
   name?: string;
+  prefix?: string;
 }
 
 // Output type for the admin create QR codes mutation

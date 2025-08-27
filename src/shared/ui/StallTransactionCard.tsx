@@ -1,6 +1,7 @@
 import React from 'react';
 import { Timestamp } from 'firebase/firestore';
 import { TransactionType } from '@/shared/contracts/transaction';
+import { timestampToDate } from '@/shared/utils';
 
 // Define types for our data
 interface Transaction {
@@ -19,7 +20,7 @@ const StallTransactionCard: React.FC<{ transaction: Transaction }> = ({ transact
   const isSale = transaction.type === 'sale';
   
   // Format the time (HH:MM)
-  const formattedTime = transaction.createdAt.toDate().toLocaleTimeString([], {
+  const formattedTime = timestampToDate(transaction.createdAt).toLocaleTimeString([], {
     hour: '2-digit',
     minute: '2-digit'
   });

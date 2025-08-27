@@ -18,7 +18,8 @@ export const fetchStall = async (id: string): Promise<Stall | null> => {
 
 // Fetch all stalls with pagination
 export const fetchStalls = async (pageSize: number = 20, lastDocument?: any) => {
-  return fetchDocumentsPaginated<Stall>('stalls', pageSize, lastDocument);
+  // Use fetchDocumentsPaginated without orderBy since Stall doesn't have createdAt field
+  return fetchDocumentsPaginated<Stall>('stalls', pageSize, lastDocument, [], undefined);
 };
 
 // React Query hooks for stalls

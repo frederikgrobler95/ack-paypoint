@@ -1,3 +1,5 @@
+import { Timestamp } from 'firebase/firestore';
+
 export type Customer = {
   id: string;
   name: string;
@@ -5,7 +7,7 @@ export type Customer = {
   phoneRaw: string;
   qrCodeId: string;
   Account: Account;
-  IdempotencyKey?: string;
+  idempotencyKey?: string;
 };
 
 export type AccountStatus = 'clean' |'unpaid' | 'paid';
@@ -13,5 +15,5 @@ export type AccountStatus = 'clean' |'unpaid' | 'paid';
 export type Account = {
   balanceCents: number;
   status: AccountStatus;
-  lastPaidAt: Date;
+  lastPaidAt: Timestamp;
 };

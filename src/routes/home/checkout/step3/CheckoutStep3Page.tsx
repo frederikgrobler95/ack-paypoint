@@ -1,21 +1,20 @@
 import React from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useQRCodeCustomer } from '../../../../queries/qrCodes';
-import { useCreateTransactionMutation } from '@/mutations/useCreateTransactionMutation';
+import { useCreatePaymentMutation } from '@/mutations/useCreatePaymentMutation';
 import { useAuth } from '@/contexts/AuthContext';
 import { PaymentMethod } from '@/shared/contracts/payment';
 import { useMyAssignment } from '@/contexts/MyAssignmentContext';
 
 function CheckoutStep3Page(): React.JSX.Element {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const qrCode = searchParams.get('code') || '';
-  const paymentMethod = searchParams.get('method') as PaymentMethod || 'cash';
+  const location = useLocation();
+  const { qrCode, idempotencyKey, method: paymentMethod } = location.state || {};
   
   const { data: qrData, isLoading: isQrLoading, isError: isQrError } = useQRCodeCustomer(qrCode);
   const { currentUser } = useAuth();
   const { assignment, stall } = useMyAssignment();
-  const { mutate: checkoutCustomer, isPending: isCheckoutLoading, isError: isCheckoutError, error: checkoutError } = useCreateTransactionMutation();
+  const { mutate: checkoutCustomer, isPending: isCheckoutLoading, isError: isCheckoutError, error: checkoutError } = useCreatePaymentMutation();
   
   // Format amount in Rands
   const formatAmount = (cents: number) => {
@@ -37,18 +36,20 @@ function CheckoutStep3Page(): React.JSX.Element {
     if (!qrData || !currentUser) return;
     
     checkoutCustomer({
+      method: paymentMethod,
       amountCents: qrData.customer.Account.balanceCents,
       operatorId: currentUser.uid,
       customerId: qrData.customer.id,
-      idempotencyKey: `${qrData.customer.id}-${Date.now()}`,
+      idempotencyKey,
       operatorName: currentUser.displayName || currentUser.email || 'Unknown Operator',
       customerName: qrData.customer.name,
-      stallId: assignment?.stallId || '',
-      stallName: stall?.name || '',
-      type: 'sale' as const
+      stallId: assignment?.stallId || ''
     }, {
       onSuccess: () => {
         navigate('/');
+      },
+      onError: (error: any) => {
+        console.error('Error processing checkout:', error);
       }
     });
   };

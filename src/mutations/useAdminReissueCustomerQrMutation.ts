@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { doc, updateDoc, collection } from 'firebase/firestore';
+import { doc, updateDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { QRCode } from '../shared/contracts/qrCode';
 
@@ -16,7 +16,7 @@ const adminReissueCustomerQr = async (input: AdminReissueCustomerQrInput): Promi
     const customerDocRef = doc(db, 'customers', input.customerId);
     await updateDoc(customerDocRef, {
       qrCodeId: input.newQrCodeId,
-      updatedAt: new Date(),
+      updatedAt: serverTimestamp(),
     });
     
     // Also update the QR code document to mark it as assigned
@@ -24,7 +24,7 @@ const adminReissueCustomerQr = async (input: AdminReissueCustomerQrInput): Promi
     await updateDoc(qrCodeDocRef, {
       assignedCustomerId: input.customerId,
       status: 'assigned',
-      updatedAt: new Date(),
+      updatedAt: serverTimestamp(),
     });
     
     return { success: true, message: 'QR code reissued successfully' };

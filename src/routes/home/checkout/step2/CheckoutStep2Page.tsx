@@ -1,16 +1,18 @@
 import React from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useQRCodeCustomer } from '../../../../queries/qrCodes'
 
 function CheckoutStep2Page(): React.JSX.Element {
   const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
-  const qrCode = searchParams.get('code') || ''
+  const location = useLocation()
+  const { qrCode, idempotencyKey } = location.state || {};
   
   const { data: qrData, isLoading, isError } = useQRCodeCustomer(qrCode)
   
   const handlePaymentMethodSelect = (method: 'card' | 'cash' | 'eft') => {
-    navigate(`/home/checkout/step3?code=${encodeURIComponent(qrCode)}&method=${method}`)
+    navigate('/checkout/step3', {
+      state: { qrCode, idempotencyKey, method }
+    });
   }
   
   // Format amount in Rands

@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { QRCode } from '../shared/contracts/qrCode';
 
@@ -15,7 +15,7 @@ const adminVoidCustomerQr = async (input: AdminVoidCustomerQrInput): Promise<{ s
     const qrCodeDocRef = doc(db, 'qrCodes', input.qrCodeId);
     await updateDoc(qrCodeDocRef, {
       status: 'void',
-      updatedAt: new Date(),
+      updatedAt: serverTimestamp(),
     });
     
     return { success: true, message: 'QR code voided successfully' };
