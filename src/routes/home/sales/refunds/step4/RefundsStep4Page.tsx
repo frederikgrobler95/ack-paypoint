@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQRCodeCustomer } from '../../../../../queries/qrCodes';
 import { useTransaction } from '../../../../../queries/transactions';
-import { useCreateRefundMutation, DEFAULT_REFUND_METHOD } from '../../../../../mutations/useCreateRefundMutation';
+import { useCreateTransactionMutation } from '@/mutations/useCreateTransactionMutation';
 import { useMyAssignment } from '../../../../../contexts/MyAssignmentContext';
 import { useToast } from '../../../../../contexts/ToastContext';
 
@@ -28,7 +28,7 @@ function RefundsStep4Page(): React.JSX.Element {
   const { data: transaction, isLoading: isTransactionLoading, isError: isTransactionError } = useTransaction(transactionId);
   
   // Refund mutation
-  const { mutate: createRefund, isPending: isRefundPending } = useCreateRefundMutation();
+  const { mutate: createRefund, isPending: isRefundPending } = useCreateTransactionMutation();
   
   // Format amount for display (in Rands)
   const formatAmount = (cents: number) => {
@@ -47,21 +47,23 @@ function RefundsStep4Page(): React.JSX.Element {
     const idempotencyKey = `refund-${transactionId}-${Date.now()}`;
     
     createRefund({
-      method: DEFAULT_REFUND_METHOD,
       amountCents: refundAmount,
       operatorId,
       operatorName,
       customerId: qrData.customer.id,
       customerName: qrData.customer.name,
+      stallId: transaction.stallId,
+      stallName: transaction.stallName,
+      type: 'refund' as const,
+      refundOfTxnId: transactionId,
       idempotencyKey,
-      originalTransactionId: transactionId
     }, {
       onSuccess: () => {
         showToast('Refund processed successfully', 'success');
         // Navigate back to home page
         navigate('/');
       },
-      onError: (error) => {
+      onError: (error: any) => {
         console.error('Refund error:', error);
         showToast('Failed to process refund. Please try again.', 'error');
       }

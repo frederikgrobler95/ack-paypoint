@@ -20,12 +20,19 @@ import CustomersPage from './routes/admin/customers/CustomersPage'
 import QRCodesPage from './routes/admin/qrcodes/QRCodesPage'
 import AddUserPage from './routes/admin/users/addUser/AddUserPage'
 import UserDetailsPage from './routes/admin/users/userdetails/UserDetailsPage'
+import AddUsersScreen from './routes/admin/users/AddUsersScreen'
+import RoleSelectionPage from './routes/admin/users/RoleSelectionPage'
 import StallDetailsPage from './routes/admin/stalls/stalldetails/StallDetailsPage'
 import OperatorsPage from './routes/admin/stalls/stalldetails/operators/OperatorsPage'
+import StallStatsPage from './routes/admin/stalls/stalldetails/StallStatsPage'
 import CustomerDetailsPage from './routes/admin/customers/customerdetails/CustomerDetailsPage'
+import CreateCustomersScreen from './routes/admin/customers/CreateCustomersScreen'
+import ReissueQrCodeScreen from './routes/admin/customers/ReissueQrCodeScreen'
+import ReissueQrCodePage from './routes/admin/customers/ReissueQrCodePage'
 import BatchesPage from './routes/admin/qrcodes/batches/BatchesPage'
 import BatchDetailsPage from './routes/admin/qrcodes/batches/batchdetails/BatchDetailsPage'
 import CreateBatchPage from './routes/admin/qrcodes/batches/create/CreateBatchPage'
+import GenerateScreen from './routes/admin/qrcodes/GenerateScreen'
 import BottomNavigation from './shared/ui/BottomNavigation'
 import Header from './shared/ui/Header'
 import { PWANotification } from './components'
@@ -64,7 +71,6 @@ function App(): React.JSX.Element {
       <div className="pb-16"> {/* Add padding to prevent content from being hidden behind bottom nav */}
         <Routes>
           <Route path="/" element={<Home />} />
-          
           <Route path="/registration" element={<RegistrationPage />} />
           <Route path="/sales" element={<SalesPage />} />
           <Route path="/sales/salesstep1" element={<SalesStep1Page />} />
@@ -75,20 +81,27 @@ function App(): React.JSX.Element {
           <Route path="/sales/refunds/refundsstep2" element={<RefundsStep2Page />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/admin" element={<AdminPage />}>
-            <Route path="dashboard" element={<DashboardPage />} />
-            <Route path="users" element={<UsersPage />} />
-            <Route path="users/addUser" element={<AddUserPage />} />
-            <Route path="users/userdetails/:id" element={<UserDetailsPage />} />
-            <Route path="stalls" element={<StallsPage />} />
-            <Route path="stalls/stalldetails/:id" element={<StallDetailsPage />} />
-            <Route path="stalls/stalldetails/:id/operators" element={<OperatorsPage />} />
-            <Route path="customers" element={<CustomersPage />} />
-            <Route path="customers/customerdetails/:id" element={<CustomerDetailsPage />} />
-            <Route path="qrcodes" element={<QRCodesPage />} />
-            <Route path="qrcodes/batches" element={<BatchesPage />} />
-            <Route path="qrcodes/batches/batchdetails/:id" element={<BatchDetailsPage />} />
-            <Route path="qrcodes/batches/create" element={<CreateBatchPage />} />
-          </Route>
+          <Route path="/admin/dashboard" element={<DashboardPage />} />
+          <Route path="/admin/users" element={<UsersPage />} />
+          <Route path="/admin/users/add" element={<AddUsersScreen />} />
+          <Route path="/admin/users/role/:id" element={<RoleSelectionPage />} />
+          <Route path="/admin/users/addUser" element={<AddUserPage />} />
+          <Route path="/admin/users/userdetails/:id" element={<UserDetailsPage />} />
+          <Route path="/admin/stalls" element={<StallsPage />} />
+          <Route path="/admin/stalls/stalldetails/:id" element={<StallDetailsPage />} />
+          <Route path="/admin/stalls/stalldetails/:id/operators" element={<OperatorsPage />} />
+          <Route path="/admin/stalls/stalldetails/:id/stats" element={<StallStatsPage />} />
+          <Route path="/admin/customers" element={<CustomersPage />} />
+          <Route path="/admin/customers/create" element={<CreateCustomersScreen />} />
+          <Route path="/admin/customers/customerdetails/:id" element={<CustomerDetailsPage />} />
+          <Route path="/admin/customers/reissue-qr-screen/:id" element={<ReissueQrCodeScreen />} />
+          <Route path="/admin/customers/reissue-qr/:id" element={<ReissueQrCodePage />} />
+          <Route path="/admin/qrcodes" element={<QRCodesPage />} />
+          <Route path="/admin/qrcodes/generate" element={<GenerateScreen />} />
+          <Route path="/admin/qrcodes/batches" element={<BatchesPage />} />
+          <Route path="/admin/qrcodes/batches/batchdetails/:id" element={<BatchDetailsPage />} />
+          <Route path="/admin/qrcodes/batches/create" element={<CreateBatchPage />} />
+         </Route>
         </Routes>
       </div>
       <BottomNavigation />

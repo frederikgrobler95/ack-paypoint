@@ -1,11 +1,22 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 
 
 function BatchesPage(): React.JSX.Element {
+  const navigate = useNavigate()
+  
   return (
     <>
-      <div>
-        <h1>QR Code Batches</h1>
+      <div className="p-4">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold text-gray-800">QR Code Batches</h1>
+          <button
+            onClick={() => navigate('/admin/qrcodes/batches/create')}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md transition duration-300 ease-in-out"
+          >
+            Create New Batch
+          </button>
+        </div>
         <p>This is the QR code batches page.</p>
       </div>
     </>

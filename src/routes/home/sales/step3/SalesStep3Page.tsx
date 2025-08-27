@@ -1,34 +1,37 @@
 import React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useQRCodeCustomer } from '../../../../queries/qrCodes';
-import { useCreateSaleMutation } from '../../../../mutations/useCreateSaleMutation';
-import { useToast } from '../../../../contexts/ToastContext';
-import { PaymentMethod } from '../../../../shared/contracts/payment';
-import { useMyAssignment } from '../../../../contexts/MyAssignmentContext';
+import { useQRCodeCustomer } from '@/queries/qrCodes';
+import { useCreateTransactionMutation } from '@/mutations/useCreateTransactionMutation';
+import { useToast } from '@/contexts/ToastContext';
+import { PaymentMethod } from '@/shared/contracts/payment';
+import { useMyAssignment } from '@/contexts/MyAssignmentContext';
+import { useSessionStore } from '@/shared/stores/sessionStore';
 
 function SalesStep3Page(): React.JSX.Element {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { addToast } = useToast();
-  const { data: assignment } = useMyAssignment();
+  const { showToast: addToast } = useToast();
+  const { assignment, stall } = useMyAssignment();
+  const { user } = useSessionStore();
   
   const qrCode = searchParams.get('code') || '';
   const amountCents = parseInt(searchParams.get('amount') || '0', 10);
   
   const { data: qrData, isLoading: isQrLoading, isError: isQrError, error: qrError } = useQRCodeCustomer(qrCode);
-  const { mutate: createSale, isPending: isCreatingSale, isError: isSaleError, error: saleError } = useCreateSaleMutation();
+  const { mutate: createSale, isPending: isCreatingSale, isError: isSaleError, error: saleError } = useCreateTransactionMutation();
   
   const handleConfirmTransaction = () => {
     if (!qrData || !assignment) return;
     
     const input = {
       amountCents,
-      operatorId: assignment.operator.id,
-      operatorName: assignment.operator.name,
+      operatorId: user?.uid || '',
+      operatorName: user?.displayName || user?.email || 'Unknown Operator',
       customerId: qrData.customer.id,
       customerName: qrData.customer.name,
-      stallId: assignment.stall.id,
-      stallName: assignment.stall.name,
+      stallId: assignment.stallId,
+      stallName: stall?.name || '',
+      type: 'sale' as const,
       idempotencyKey: `${qrCode}-${Date.now()}`, // Unique key to prevent duplicate transactions
     };
     
@@ -37,7 +40,7 @@ function SalesStep3Page(): React.JSX.Element {
         addToast('Transaction completed successfully', 'success');
         navigate('/');
       },
-      onError: (error) => {
+      onError: (error: any) => {
         addToast(`Error creating sale: ${error.message}`, 'error');
       }
     });

@@ -1,9 +1,10 @@
 import React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQRCodeCustomer } from '../../../../queries/qrCodes';
-import { useCheckoutCustomerMutation } from '../../../../mutations/useCheckoutCustomerMutation';
-import { useAuth } from '../../../../contexts/AuthContext';
-import { PaymentMethod } from '../../../../shared/contracts/payment';
+import { useCreateTransactionMutation } from '@/mutations/useCreateTransactionMutation';
+import { useAuth } from '@/contexts/AuthContext';
+import { PaymentMethod } from '@/shared/contracts/payment';
+import { useMyAssignment } from '@/contexts/MyAssignmentContext';
 
 function CheckoutStep3Page(): React.JSX.Element {
   const navigate = useNavigate();
@@ -13,7 +14,8 @@ function CheckoutStep3Page(): React.JSX.Element {
   
   const { data: qrData, isLoading: isQrLoading, isError: isQrError } = useQRCodeCustomer(qrCode);
   const { currentUser } = useAuth();
-  const { mutate: checkoutCustomer, isPending: isCheckoutLoading, isError: isCheckoutError, error: checkoutError } = useCheckoutCustomerMutation();
+  const { assignment, stall } = useMyAssignment();
+  const { mutate: checkoutCustomer, isPending: isCheckoutLoading, isError: isCheckoutError, error: checkoutError } = useCreateTransactionMutation();
   
   // Format amount in Rands
   const formatAmount = (cents: number) => {
@@ -35,13 +37,15 @@ function CheckoutStep3Page(): React.JSX.Element {
     if (!qrData || !currentUser) return;
     
     checkoutCustomer({
-      method: paymentMethod,
       amountCents: qrData.customer.Account.balanceCents,
       operatorId: currentUser.uid,
       customerId: qrData.customer.id,
       idempotencyKey: `${qrData.customer.id}-${Date.now()}`,
-      operatorName: currentUser.displayName || undefined,
-      customerName: qrData.customer.name
+      operatorName: currentUser.displayName || currentUser.email || 'Unknown Operator',
+      customerName: qrData.customer.name,
+      stallId: assignment?.stallId || '',
+      stallName: stall?.name || '',
+      type: 'sale' as const
     }, {
       onSuccess: () => {
         navigate('/');
