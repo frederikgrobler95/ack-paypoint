@@ -31,7 +31,7 @@ function SalesStep3PageTutorial() {
     showToast('Transaction completed successfully', 'success');
     
     // Navigate to next step (which will complete the tutorial)
-    navigateToNextTutorialStep(location.pathname);
+    navigateToNextTutorialStep('/tutorial/sales/step3');
   };
   
   const formatAmount = (cents: number) => {
@@ -39,7 +39,7 @@ function SalesStep3PageTutorial() {
   };
   
   return (
-    <FlowContainer withHeaderOffset withBottomOffset>
+    <FlowContainer withNoHeaderOffset withBottomOffset>
       <TutorialTour steps={salesStep3TutorialSteps} />
       
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">

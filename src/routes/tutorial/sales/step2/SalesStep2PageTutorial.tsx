@@ -127,11 +127,11 @@ function SalesStep2PageTutorial() {
     }
     
     // Navigate to next step
-    navigateToNextTutorialStep(location.pathname);
+    navigateToNextTutorialStep('/tutorial/sales/step2');
   };
   
   return (
-    <FlowContainer withHeaderOffset withBottomOffset>
+    <FlowContainer withNoHeaderOffset withBottomOffset>
       <TutorialTour steps={salesStep2TutorialSteps} />
       
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
