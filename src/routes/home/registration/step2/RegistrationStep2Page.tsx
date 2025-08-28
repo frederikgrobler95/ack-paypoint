@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import QrScanner, { QrScannerHandle } from '../../../../shared/ui/QrScanner';
-import MockQrScanner, { MockQrScannerHandle } from '../../../../shared/ui/MockQrScanner';
 import { useQRCodeValidationForRegistration, useQRCodeValidationForRegistrationByLabel } from '../../../../queries/qrCodes';
 import { FlowContainer } from '@/shared/ui';
 import { useFlowStore } from '@/shared/stores/flowStore';
@@ -89,25 +88,19 @@ function RegistrationStep2Page({ isTutorial = false }: WithTutorialProps): React
   }, [qrCodeData, isQrCodeError, qrCodeInput, isQrCodeLoading, navigate, name, phone, idempotencyKey, hasNavigated]);
   
   return (
-    <FlowContainer withHeaderOffset withBottomOffset>
+    <FlowContainer withNoHeaderOffset withBottomOffset>
       
       {/* QR Scanner Section - Show only when inputMethod is 'scan' */}
       {inputMethod === 'scan' && (
         <div className="bg-white rounded-lg shadow-md p-4 mb-6">
           
-          {isTutorial ? (
-            <MockQrScanner
-              ref={qrScannerRef as React.RefObject<MockQrScannerHandle>}
-              onCodeScanned={validateQrCode}
-              isActive={true}
-            />
-          ) : (
+        
             <QrScanner
               ref={qrScannerRef}
               onCodeScanned={validateQrCode}
               isActive={true}
             />
-          )}
+         
           <button
             onClick={handleScanPress}
             className="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-md transition duration-200"

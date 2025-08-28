@@ -148,7 +148,7 @@ function RefundsStep3PageTutorial() {
   
   
   return (
-    <FlowContainer withHeaderOffset withBottomOffset>
+    <FlowContainer withNoHeaderOffset withBottomOffset>
       <TutorialTour steps={refundsStep3TutorialSteps} />
       
       <div className="flex-1 flex flex-col items-center justify-center p-4">

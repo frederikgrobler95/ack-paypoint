@@ -61,7 +61,7 @@ function RefundsStep1PageTutorial() {
   };
   
   return (
-    <FlowContainer withHeaderOffset withBottomOffset>
+    <FlowContainer withNoHeaderOffset withBottomOffset>
       <TutorialTour steps={refundsStep1TutorialSteps} />
       
       {/* QR Scanner Section - Show only when inputMethod is 'scan' */}

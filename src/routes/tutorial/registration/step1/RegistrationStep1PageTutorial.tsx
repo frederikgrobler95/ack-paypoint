@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { FlowContainer } from '../../../../shared/ui';
 import { TutorialTour } from '../../../../components/tutorial';
 import { useTutorialStore } from '../../../../shared/stores/tutorialStore';
@@ -25,7 +25,6 @@ const registrationStep1TutorialSteps = [
 
 function RegistrationStep1PageTutorial() {
   const navigate = useNavigate();
-  const location = useLocation();
   const { mockRegistrationData } = useTutorialStore();
   const { navigateToNextTutorialStep, exitTutorial } = useTutorialNavigation();
   const [name, setName] = useState(mockRegistrationData.customerName);
@@ -48,11 +47,11 @@ function RegistrationStep1PageTutorial() {
     setError('');
     
     // Navigate to next step
-    navigateToNextTutorialStep(location.pathname);
+    navigateToNextTutorialStep('/tutorial/registration/step1');
   };
   
   return (
-    <FlowContainer withHeaderOffset withBottomOffset>
+    <FlowContainer withNoHeaderOffset withBottomOffset>
       <TutorialTour steps={registrationStep1TutorialSteps} />
       
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">

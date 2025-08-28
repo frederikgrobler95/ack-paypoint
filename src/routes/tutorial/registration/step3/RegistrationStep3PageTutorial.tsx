@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { QRCodeCanvas } from 'qrcode.react';
 import { FlowContainer } from '../../../../shared/ui';
 import { TutorialTour } from '../../../../components/tutorial';
@@ -26,18 +26,17 @@ const registrationStep3TutorialSteps = [
 
 function RegistrationStep3PageTutorial() {
   const navigate = useNavigate();
-  const location = useLocation();
   const { mockRegistrationData } = useTutorialStore();
   const { navigateToNextTutorialStep, exitTutorial } = useTutorialNavigation();
   
   const handleConfirmRegistration = () => {
     // In tutorial mode, just show a success message and complete the tutorial
     // Navigate to next step (which will complete the tutorial)
-    navigateToNextTutorialStep(location.pathname);
+    navigateToNextTutorialStep('/tutorial/registration/step3');
   };
   
   return (
-    <FlowContainer withHeaderOffset withBottomOffset>
+    <FlowContainer withNoHeaderOffset withBottomOffset>
       <TutorialTour steps={registrationStep3TutorialSteps} />
       
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">

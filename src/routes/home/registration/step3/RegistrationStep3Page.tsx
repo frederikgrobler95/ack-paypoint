@@ -42,7 +42,7 @@ function RegistrationStep3Page(): React.JSX.Element {
   // Error state for missing data
   if (!name || !phone || !qrCodeId || !idempotencyKey) {
     return (
-      <FlowContainer withHeaderOffset withBottomOffset>
+      <FlowContainer withNoHeaderOffset withBottomOffset>
         <h1 className="text-2xl font-bold text-gray-800 mb-6">Registration - Step 3</h1>
         <div className="bg-white rounded-lg shadow-sm p-4 mb-3">
           <div className="text-center">
@@ -63,7 +63,7 @@ function RegistrationStep3Page(): React.JSX.Element {
   }
 
   return (
-    <FlowContainer withHeaderOffset withBottomOffset>
+    <FlowContainer withNoHeaderOffset withBottomOffset>
       <h1 className="text-2xl font-bold text-gray-800 mb-6">Registration - Step 3</h1>
       <div className="bg-white rounded-lg shadow-sm p-4 mb-3">
         <p className="text-sm text-gray-500">Customer Name</p>

@@ -13,6 +13,7 @@ import { auth } from './firebase'
 import { onAuthStateChanged } from 'firebase/auth'
 import App from './App'
 import ToastContainer from './shared/ui/ToastContainer'
+import './config/i18n'
 import './index.css'
 
 // State for tracking auth initialization

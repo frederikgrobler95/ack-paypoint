@@ -46,7 +46,7 @@ function CheckoutPageTutorial() {
   };
   
   return (
-    <FlowContainer withHeaderOffset withBottomOffset>
+    <FlowContainer withNoHeaderOffset withBottomOffset>
       <TutorialTour steps={checkoutTutorialSteps} />
       
       <div className="p-4">

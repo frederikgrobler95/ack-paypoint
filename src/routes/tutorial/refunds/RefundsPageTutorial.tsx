@@ -45,7 +45,7 @@ function RefundsPageTutorial() {
   };
   
   return (
-    <FlowContainer className='tutorial-intro' withHeaderOffset withBottomOffset>
+    <FlowContainer className='tutorial-intro' withNoHeaderOffset withBottomOffset>
       <TutorialTour steps={refundsTutorialSteps} />
       
       {/* Floating Header Menu Simulation */}

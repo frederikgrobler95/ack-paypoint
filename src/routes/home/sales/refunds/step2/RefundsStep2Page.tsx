@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useQRCodeCustomer } from '../../../../../queries/qrCodes';
 import { useMyAssignment } from '../../../../../contexts/MyAssignmentContext';
 import { useTransactionsByCustomer } from '../../../../../queries/transactions';
@@ -21,6 +22,7 @@ interface CompatibleTransaction {
 }
 
 function RefundsStep2Page({ isTutorial = false, mockData }: WithTutorialProps): React.JSX.Element {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const { qrCode: locationQrCode, idempotencyKey } = location.state || {};
@@ -81,12 +83,12 @@ function RefundsStep2Page({ isTutorial = false, mockData }: WithTutorialProps): 
   // Loading state
   if (isQrLoading || isTransactionsLoading) {
     return (
-      <FlowContainer withHeaderOffset withBottomOffset>
+      <FlowContainer withNoHeaderOffset withBottomOffset>
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex justify-center">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
           </div>
-          <p className="text-center mt-4 text-gray-600">Loading customer transactions...</p>
+          <p className="text-center mt-4 text-gray-600">{t('refundsStep2.loadingCustomerTransactions')}</p>
         </div>
       </FlowContainer>
     );
@@ -95,24 +97,24 @@ function RefundsStep2Page({ isTutorial = false, mockData }: WithTutorialProps): 
   // Error state
   if (isQrError || isTransactionsError || !qrData || !stallId) {
     return (
-      <FlowContainer withHeaderOffset withBottomOffset>
+      <FlowContainer withNoHeaderOffset withBottomOffset>
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="text-center">
             <div className="text-red-500 text-5xl mb-4">⚠️</div>
             <p className="text-red-600 font-semibold">
               {isQrError || !qrData
-                ? 'Error loading customer information'
+                ? t('refundsStep2.errorLoadingCustomerInfo')
                 : isTransactionsError
-                ? 'Error loading transactions'
+                ? t('refundsStep2.errorLoadingTransactions')
                 : !stallId
-                ? 'No stall assignment found'
-                : 'An unknown error occurred'}
+                ? t('refundsStep2.noStallAssignment')
+                : t('refundsStep2.unknownError')}
             </p>
             <button
               onClick={() => navigate(-1)}
               className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md transition duration-200"
             >
-              Go Back
+              {t('refundsStep2.goBack')}
             </button>
           </div>
         </div>
@@ -121,29 +123,29 @@ function RefundsStep2Page({ isTutorial = false, mockData }: WithTutorialProps): 
   }
   
   return (
-    <FlowContainer withHeaderOffset withBottomOffset>
-      <p className="text-gray-600 mb-6">Select a transaction to refund for {isTutorial ? mockData?.customerName || 'John Doe' : qrData?.customer.name}</p>
+    <FlowContainer withNoHeaderOffset withBottomOffset>
+      <p className="text-gray-600 mb-6">{t('refundsStep2.selectTransaction', { customerName: isTutorial ? mockData?.customerName || 'John Doe' : qrData?.customer.name })}</p>
       
       {/* Customer Info */}
       <div className="bg-white rounded-lg shadow-md p-4 mb-6">
         <div className="flex justify-between items-center">
           <div>
             <h2 className="text-lg font-semibold text-gray-800">{isTutorial ? mockData?.customerName || 'John Doe' : qrData?.customer.name}</h2>
-            <p className="text-gray-600 text-sm">Customer</p>
+            <p className="text-gray-600 text-sm">{t('refundsStep2.customer')}</p>
           </div>
           <div className="bg-gray-100 rounded-full px-3 py-1">
-            <span className="text-gray-800 font-medium">QR: {isTutorial ? (mockData?.qrCode?.substring(0, 8) + '...') || 'TUTORIA...' : qrCode?.substring(0, 8) + '...'}</span>
+            <span className="text-gray-800 font-medium">{t('refundsStep2.qr')}: {isTutorial ? (mockData?.qrCode?.substring(0, 8) + '...') || 'TUTORIA...' : qrCode?.substring(0, 8) + '...'}</span>
           </div>
         </div>
       </div>
       
       {/* Transactions List */}
       <div className="bg-white rounded-lg shadow-md p-4">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">Recent Transactions</h2>
+        <h2 className="text-lg font-semibold text-gray-800 mb-4">{t('refundsStep2.recentTransactions')}</h2>
         
         {stallTransactions.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-gray-500">No transactions found for this customer at your stall.</p>
+            <p className="text-gray-500">{t('refundsStep2.noTransactionsFound')}</p>
           </div>
         ) : (
           <div className="space-y-2">

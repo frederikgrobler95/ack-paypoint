@@ -42,7 +42,7 @@ function RegistrationPageTutorial() {
   };
   
   return (
-    <FlowContainer withHeaderOffset withBottomOffset>
+    <FlowContainer withNoHeaderOffset withBottomOffset>
       <TutorialTour steps={registrationTutorialSteps} />
       
       <div className="p-4">

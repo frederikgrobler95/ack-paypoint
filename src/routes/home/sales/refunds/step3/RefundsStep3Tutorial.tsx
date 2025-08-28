@@ -34,7 +34,7 @@ function RefundsStep3Tutorial() {
   };
 
   return (
-    <FlowContainer withHeaderOffset withBottomOffset>
+    <FlowContainer withNoHeaderOffset withBottomOffset>
       <TutorialTour steps={checkoutTutorialSteps} />
       
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">

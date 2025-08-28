@@ -48,7 +48,7 @@ function RefundsStep2PageTutorial() {
   
   
   return (
-    <FlowContainer withHeaderOffset withBottomOffset>
+    <FlowContainer withNoHeaderOffset withBottomOffset>
       <TutorialTour steps={refundsStep2TutorialSteps} />
       
       <p className="text-gray-600 mb-6">Select a transaction to refund for {mockRefundsData.customerName}</p>

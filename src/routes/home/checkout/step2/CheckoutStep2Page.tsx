@@ -30,7 +30,7 @@ function CheckoutStep2Page(): React.JSX.Element {
   
   if (isLoading) {
     return (
-      <FlowContainer withHeaderOffset withBottomOffset>
+      <FlowContainer withNoHeaderOffset withBottomOffset>
         <h1 className="text-2xl font-bold text-gray-800 mb-6">Checkout - Step 2</h1>
         <div className="bg-white rounded-lg shadow-md p-6">
           <p className="text-gray-600">Loading customer details...</p>
@@ -41,7 +41,7 @@ function CheckoutStep2Page(): React.JSX.Element {
   
   if (isError || !qrData) {
     return (
-      <FlowContainer withHeaderOffset withBottomOffset>
+      <FlowContainer withNoHeaderOffset withBottomOffset>
         <h1 className="text-2xl font-bold text-gray-800 mb-6">Checkout - Step 2</h1>
         <div className="bg-white rounded-lg shadow-md p-6">
           <p className="text-red-600">Error loading customer details. Please try again.</p>
@@ -53,7 +53,7 @@ function CheckoutStep2Page(): React.JSX.Element {
   const { customer } = qrData
   
   return (
-    <FlowContainer withHeaderOffset withBottomOffset>
+    <FlowContainer withNoHeaderOffset withBottomOffset>
       <h1 className="text-2xl font-bold text-gray-800 mb-6">Checkout - Step 2</h1>
       
       {/* Customer Details */}

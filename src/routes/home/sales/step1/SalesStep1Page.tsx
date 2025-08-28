@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
 import QrScanner, { QrScannerHandle } from '../../../../shared/ui/QrScanner';
 import MockQrScanner, { MockQrScannerHandle } from '../../../../shared/ui/MockQrScanner';
@@ -47,7 +48,7 @@ function SalesStep1Page({ isTutorial = false }: WithTutorialProps): React.JSX.El
         const scannedCode = await qrScannerRef.current.captureQRCode();
         validateQrCode(scannedCode, false);
       } catch (err) {
-        setError('Failed to scan QR code. Please try again.');
+        setError(t('salesStep1.failedToScan'));
       }
     }
   };
@@ -57,7 +58,7 @@ function SalesStep1Page({ isTutorial = false }: WithTutorialProps): React.JSX.El
     if (qrCodeInput.trim()) {
       validateQrCode(qrCodeInput, true);
     } else {
-      setError('Please enter a QR code');
+      setError(t('salesStep1.pleaseEnterQrCode'));
     }
   };
   
@@ -93,13 +94,13 @@ function SalesStep1Page({ isTutorial = false }: WithTutorialProps): React.JSX.El
         });
       }
     } else if (isQrCodeError || (qrCodeInput && !isQrCodeLoading && !qrCodeData && !hasNavigated)) {
-      setError('Invalid QR code. Please try again.');
+      setError(t('salesStep1.invalidQrCode'));
       setIsManualSubmit(false); // Reset the flag on error
     }
   }, [qrCodeData, isQrCodeError, qrCodeInput, isQrCodeLoading, navigate, idempotencyKey, hasNavigated, inputMethod, isManualSubmit]);
   
   return (
-    <FlowContainer withHeaderOffset withBottomOffset>
+    <FlowContainer withNoHeaderOffset withBottomOffset>
       
       {/* QR Scanner Section - Show only when inputMethod is 'scan' */}
       {inputMethod === 'scan' && (
@@ -122,13 +123,13 @@ function SalesStep1Page({ isTutorial = false }: WithTutorialProps): React.JSX.El
             onClick={handleScanPress}
             className="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-md transition duration-200"
           >
-            Scan QR Code
+            {t('salesStep1.scanQrCode')}
           </button>
           <button
             onClick={() => setInputMethod('manual')}
             className="mt-2 w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-4 rounded-md transition duration-200"
           >
-            Enter Manually
+            {t('salesStep1.enterManually')}
           </button>
         </div>
       )}
@@ -137,7 +138,7 @@ function SalesStep1Page({ isTutorial = false }: WithTutorialProps): React.JSX.El
       {/* Manual Entry - Show only when inputMethod is 'manual' */}
       {inputMethod === 'manual' && (
         <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-          <h3 className="text-md font-semibold text-gray-800 mb-3">Enter QR Code Manually</h3>
+          <h3 className="text-md font-semibold text-gray-800 mb-3">{t('salesStep1.enterQrCodeManually')}</h3>
           <form onSubmit={handleManualSubmit}>
             <input
               type="text"
@@ -147,20 +148,20 @@ function SalesStep1Page({ isTutorial = false }: WithTutorialProps): React.JSX.El
                 setError('');
               }}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-3"
-              placeholder="Enter QR code"
+              placeholder={t('salesStep1.enterQrCodePlaceholder')}
             />
             <button
               type="submit"
               className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-md transition duration-200"
             >
-              Submit QR Code
+              {t('salesStep1.submitQrCode')}
             </button>
             <button
               type="button"
               onClick={() => setInputMethod('scan')}
               className="mt-2 w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-4 rounded-md transition duration-200"
             >
-              Back to Scan
+              {t('salesStep1.backToScan')}
             </button>
           </form>
         </div>
@@ -176,7 +177,7 @@ function SalesStep1Page({ isTutorial = false }: WithTutorialProps): React.JSX.El
       {/* Loading indicator */}
       {isQrCodeLoading && (
         <div className="mb-4 p-3 bg-blue-100 text-blue-700 rounded-md">
-          Validating QR code...
+          {t('salesStep1.validatingQrCode')}
         </div>
       )}
     </FlowContainer>

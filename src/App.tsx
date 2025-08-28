@@ -1,5 +1,6 @@
 import { Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from './contexts/AuthContext'
 import { useMyAssignment } from './contexts/MyAssignmentContext'
 import { StallType } from './shared/contracts/stall'
@@ -91,6 +92,7 @@ import RefundsStep4PageTutorial from './routes/tutorial/refunds/step4/RefundsSte
 import RefundsTutorialComplete from './routes/tutorial/refunds/RefundsTutorialComplete'
 
 function App(): React.JSX.Element {
+  const { t } = useTranslation()
   const { currentUser, loading, tutorialEnabled } = useAuth();
   const { stall, isLoading: assignmentLoading } = useMyAssignment();
   const location = useLocation();
@@ -160,8 +162,8 @@ function App(): React.JSX.Element {
       <div className=" bg-gray-50 flex flex-col justify-center">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
-        </div>
+            <p className="text-gray-600">{t('loading')}</p>
+          </div>
       </div>
     );
   }

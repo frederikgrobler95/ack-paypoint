@@ -46,7 +46,7 @@ function SalesPageTutorial() {
   };
   
   return (
-    <FlowContainer withHeaderOffset withBottomOffset>
+    <FlowContainer withNoHeaderOffset withBottomOffset>
       <TutorialTour steps={salesTutorialSteps} />
       
       <div className="p-4">

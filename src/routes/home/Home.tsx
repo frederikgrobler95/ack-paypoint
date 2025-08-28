@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { useMyAssignment } from '../../contexts/MyAssignmentContext'
 import RegistrationPage from './registration/RegistrationPage'
 import SalesPage from './sales/SalesPage'
@@ -6,6 +7,7 @@ import CheckoutPage from './checkout/CheckoutPage'
 import Header from '../../shared/ui/Header'
 
 function Home(): React.JSX.Element {
+  const { t } = useTranslation()
   const { stall, isLoading, error } = useMyAssignment()
 
   // Show loading state
@@ -14,7 +16,7 @@ function Home(): React.JSX.Element {
       <div className=" bg-gray-100 flex flex-col items-center justify-center p-4">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mb-4"></div>
-          <p className="text-gray-600">Loading your assignment...</p>
+          <p className="text-gray-600">{t('loadingYourAssignment')}</p>
         </div>
       </div>
     )
@@ -25,9 +27,9 @@ function Home(): React.JSX.Element {
     return (
       <div className=" bg-gray-100 flex flex-col items-center justify-center p-4">
         <div className="bg-white rounded-lg shadow-md p-6 max-w-md w-full text-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">Error</h1>
+          <h1 className="text-2xl font-bold text-red-600 mb-4">{t('error')}</h1>
           <p className="text-gray-700 mb-4">{error}</p>
-          <p className="text-gray-500">Please contact support if this issue persists.</p>
+          <p className="text-gray-500">{t('contactSupport')}</p>
         </div>
       </div>
     )
@@ -38,9 +40,9 @@ function Home(): React.JSX.Element {
     return (
       <div className=" bg-gray-100 flex flex-col items-center justify-center p-4">
         <div className="bg-white rounded-lg shadow-md p-6 max-w-md w-full text-center">
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">No Assignment</h1>
-          <p className="text-gray-700 mb-4">You are not currently assigned to any stall.</p>
-          <p className="text-gray-500">Please contact your administrator to get assigned to a stall.</p>
+          <h1 className="text-2xl font-bold text-gray-800 mb-4">{t('noAssignment')}</h1>
+          <p className="text-gray-700 mb-4">{t('notAssignedToStall')}</p>
+          <p className="text-gray-500">{t('contactAdminToGetAssigned')}</p>
         </div>
       </div>
     )
@@ -51,7 +53,7 @@ function Home(): React.JSX.Element {
     case 'registration':
       return (
         <>
-          <Header title={`${stall.name} Registration`} showNavigation={false} />
+          <Header title={t('registrationHeader', { stallName: stall.name })} showNavigation={false} />
           <RegistrationPage />
         </>
       );
@@ -65,7 +67,7 @@ function Home(): React.JSX.Element {
     case 'checkout':
       return (
         <>
-          <Header title={`${stall.name} Checkout`} showNavigation={false} />
+          <Header title={t('checkoutHeader', { stallName: stall.name })} showNavigation={false} />
           <CheckoutPage />
         </>
       );
@@ -75,10 +77,10 @@ function Home(): React.JSX.Element {
           <Header />
           <div className=" bg-gray-100 flex flex-col items-center justify-center p-4">
             <div className="bg-white rounded-lg shadow-md p-6 max-w-md w-full text-center">
-              <h1 className="text-2xl font-bold text-gray-800 mb-4">Unknown Assignment</h1>
-              <p className="text-gray-700 mb-4">Your stall assignment type is not recognized.</p>
-              <p className="text-gray-500">Stall type: {stall.type}</p>
-              <p className="text-gray-500">Please contact support.</p>
+              <h1 className="text-2xl font-bold text-gray-800 mb-4">{t('unknownAssignment')}</h1>
+              <p className="text-gray-700 mb-4">{t('stallAssignmentNotRecognized')}</p>
+              <p className="text-gray-500">{t('stallType', { stallType: stall.type })}</p>
+              <p className="text-gray-500">{t('contactSupport')}</p>
             </div>
           </div>
         </>

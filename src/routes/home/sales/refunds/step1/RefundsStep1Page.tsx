@@ -47,7 +47,7 @@ function RefundsStep1Page({ isTutorial = false }: WithTutorialProps): React.JSX.
         const scannedCode = await qrScannerRef.current.captureQRCode();
         validateQrCode(scannedCode, false);
       } catch (err) {
-        setError('Failed to scan QR code. Please try again.');
+        setError(t('refundsStep1.failedToScan'));
       }
     }
   };
@@ -57,7 +57,7 @@ function RefundsStep1Page({ isTutorial = false }: WithTutorialProps): React.JSX.
     if (qrCodeInput.trim()) {
       validateQrCode(qrCodeInput, true);
     } else {
-      setError('Please enter a QR code');
+      setError(t('refundsStep1.pleaseEnterQrCode'));
     }
   };
   
@@ -89,19 +89,19 @@ function RefundsStep1Page({ isTutorial = false }: WithTutorialProps): React.JSX.
         });
       }
     } else if (isQrCodeError || (qrCodeInput && !isQrCodeLoading && !qrCodeData && !hasNavigated)) {
-      setError('Invalid QR code. Please try again.');
+      setError(t('refundsStep1.invalidQrCode'));
       setIsManualSubmit(false); // Reset the flag on error
     }
   }, [qrCodeData, isQrCodeError, qrCodeInput, isQrCodeLoading, navigate, idempotencyKey, hasNavigated, inputMethod, isManualSubmit]);
   
   return (
-    <FlowContainer withHeaderOffset withBottomOffset>
+    <FlowContainer withNoHeaderOffset withBottomOffset>
     
       
       {/* QR Scanner Section - Show only when inputMethod is 'scan' */}
       {inputMethod === 'scan' && (
         <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-          <h3 className="text-md font-semibold text-gray-800 mb-3">Scan QR Code</h3>
+          <h3 className="text-md font-semibold text-gray-800 mb-3">{t('refundsStep1.scanQrCode')}</h3>
           {isTutorial ? (
             <MockQrScanner
               ref={qrScannerRef as React.RefObject<MockQrScannerHandle>}
@@ -119,13 +119,13 @@ function RefundsStep1Page({ isTutorial = false }: WithTutorialProps): React.JSX.
             onClick={handleScanPress}
             className="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-md transition duration-200"
           >
-            Scan QR Code
+            {t('refundsStep1.scanQrCode')}
           </button>
           <button
             onClick={() => setInputMethod('manual')}
             className="mt-2 w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-4 rounded-md transition duration-200"
           >
-            Enter Manually
+            {t('refundsStep1.enterManually')}
           </button>
         </div>
       )}
@@ -134,7 +134,7 @@ function RefundsStep1Page({ isTutorial = false }: WithTutorialProps): React.JSX.
       {/* Manual Entry - Show only when inputMethod is 'manual' */}
       {inputMethod === 'manual' && (
         <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-          <h3 className="text-md font-semibold text-gray-800 mb-3">Enter QR Code Manually</h3>
+          <h3 className="text-md font-semibold text-gray-800 mb-3">{t('refundsStep1.enterQrCodeManually')}</h3>
           <form onSubmit={handleManualSubmit}>
             <input
               type="text"
@@ -144,38 +144,38 @@ function RefundsStep1Page({ isTutorial = false }: WithTutorialProps): React.JSX.
                 setError('');
               }}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-3"
-              placeholder="Enter QR code"
+              placeholder={t('refundsStep1.enterQrCodePlaceholder')}
             />
             <button
               type="submit"
               className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-md transition duration-200"
             >
-              Submit QR Code
-            </button>
-            <button
-              type="button"
-              onClick={() => setInputMethod('scan')}
-              className="mt-2 w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-4 rounded-md transition duration-200"
-            >
-              Back to Scan
-            </button>
-          </form>
-        </div>
-      )}
-      
-      {/* Error message */}
-      {error && (
-        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">
-          {error}
-        </div>
-      )}
-      
-      {/* Loading indicator */}
-      {isQrCodeLoading && (
-        <div className="mb-4 p-3 bg-blue-100 text-blue-700 rounded-md">
-          Validating QR code...
-        </div>
-      )}
+            {t('refundsStep1.submitQrCode')}
+          </button>
+          <button
+            type="button"
+            onClick={() => setInputMethod('scan')}
+            className="mt-2 w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-4 rounded-md transition duration-200"
+          >
+            {t('refundsStep1.backToScan')}
+          </button>
+        </form>
+      </div>
+    )}
+    
+    {/* Error message */}
+    {error && (
+      <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">
+        {error}
+      </div>
+    )}
+    
+    {/* Loading indicator */}
+    {isQrCodeLoading && (
+      <div className="mb-4 p-3 bg-blue-100 text-blue-700 rounded-md">
+        {t('refundsStep1.validatingQrCode')}
+      </div>
+    )}
     </FlowContainer>
   );
 }

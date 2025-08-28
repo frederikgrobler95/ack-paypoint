@@ -3,13 +3,14 @@
  *
  * This file implements the Sales spacing standard via FlowContainer:
  * - Horizontal: px-4 on the outer page container
- * - Vertical: pt-4/pb-4 by default; withHeaderOffset/withBottomOffset when needed
+ * - Vertical: pt-4/pb-4 by default; withNoHeaderOffset/withBottomOffset when needed
  * - Section rhythm: consistent spacing (follows Sales usage)
  * - Respects fixed Header and BottomNavigation components
  *
  * Source of truth: Sales pages implementation
  */
 import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRegistrations } from '@/queries/registrations';
@@ -28,9 +29,10 @@ interface Customer {
 }
 // Component for displaying total registrations
 const TotalRegistrationsCard: React.FC<{ total: number }> = ({ total }) => {
+  const { t } = useTranslation();
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-      <h2 className="text-lg font-semibold text-gray-700 mb-2">Total Registrations</h2>
+      <h2 className="text-lg font-semibold text-gray-700 mb-2">{t('totalRegistrations')}</h2>
       <p className="text-3xl font-bold text-blue-600">{total}</p>
     </div>
   );
@@ -56,6 +58,7 @@ const CustomerCard: React.FC<{ customer: Customer }> = ({ customer }) => {
 };
 
 function RegistrationPage(): React.JSX.Element {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { stall } = useMyAssignment();
@@ -96,7 +99,7 @@ function RegistrationPage(): React.JSX.Element {
       <div className=" bg-gray-100 flex items-center justify-center p-4">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading registrations...</p>
+          <p className="mt-4 text-gray-600">{t('loadingRegistratiomin-h-screenns')}</p>
         </div>
       </div>
     );
@@ -107,12 +110,12 @@ function RegistrationPage(): React.JSX.Element {
     return (
       <div className=" bg-gray-100 flex items-center justify-center p-4">
         <div className="bg-white rounded-lg shadow-md p-6 max-w-md w-full text-center">
-          <p className="text-gray-700 mb-4">Failed to load registrations.</p>
+          <p className="text-gray-700 mb-4">{t('failedToLoadRegistrations')}</p>
           <button
             onClick={() => refetch()}
             className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md transition duration-300"
           >
-            Try Again
+            {t('tryAgain')}
           </button>
         </div>
       </div>
@@ -120,17 +123,17 @@ function RegistrationPage(): React.JSX.Element {
   }
   
   return (
-    <FlowContainer withHeaderOffset withBottomOffset>
+    <FlowContainer withNoHeaderOffset withBottomOffset>
       <TotalRegistrationsCard total={totalRegistrations} />
       <div className="mb-4">
-        <h2 className="text-xl font-semibold text-gray-700 mb-3">Recent Customers</h2>
+        <h2 className="text-xl font-semibold text-gray-700 mb-3">{t('recentCustomers')}</h2>
         {customers.length > 0 ? (
           customers.map((customer) => (
             <CustomerCard key={customer.id} customer={customer} />
           ))
         ) : (
           <div className="bg-white rounded-lg shadow-sm p-4 text-center text-gray-500">
-            No registrations yet
+            {t('noRegistrationsYet')}
           </div>
         )}
       </div>

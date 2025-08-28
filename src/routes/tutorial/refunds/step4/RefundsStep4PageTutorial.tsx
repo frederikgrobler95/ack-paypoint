@@ -37,7 +37,7 @@ function RefundsStep4PageTutorial() {
   };
   
   return (
-    <FlowContainer withHeaderOffset withBottomOffset>
+    <FlowContainer withNoHeaderOffset withBottomOffset>
       <TutorialTour steps={refundsStep4TutorialSteps} />
       
       <div className="refund-confirmation p-4">

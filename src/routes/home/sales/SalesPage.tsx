@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTransactionsByStall } from '@/queries/transactions';
@@ -21,17 +22,19 @@ interface Transaction {
 
 // Component for displaying total sales
 const TotalSalesCard: React.FC<{ totalCents: number }> = ({ totalCents }) => {
+  const { t } = useTranslation();
   const formattedAmount = (totalCents / 100).toFixed(2);
   
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-      <h2 className="text-lg font-semibold text-gray-700 mb-2">Total Sales</h2>
+      <h2 className="text-lg font-semibold text-gray-700 mb-2">{t('totalSales')}</h2>
       <p className="text-3xl font-bold text-green-600">R{formattedAmount}</p>
     </div>
   );
 };
 
 function SalesPage(): React.JSX.Element {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { stall: currentStall, isLoading: isAssignmentLoading, error: assignmentError } = useMyAssignment();
@@ -87,7 +90,7 @@ function SalesPage(): React.JSX.Element {
       <div className=" bg-gray-100 flex flex-col items-center justify-center p-4">
         <div className="bg-white rounded-lg shadow-md p-6 max-w-md w-full text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mb-4"></div>
-          <p className="text-gray-600">Loading sales data...</p>
+          <p className="text-gray-600">{t('salesPage.loadingSalesData')}</p>
         </div>
       </div>
     );
@@ -98,13 +101,13 @@ function SalesPage(): React.JSX.Element {
     return (
       <div className=" bg-gray-100 flex flex-col items-center justify-center p-4">
         <div className="bg-white rounded-lg shadow-md p-6 max-w-md w-full text-center">
-          <p className="text-gray-700 mb-4">There was an error loading your sales data.</p>
-          <p className="text-red-500 mb-4">{assignmentError?.toString() || stallError?.toString() || 'Unknown error'}</p>
+          <p className="text-gray-700 mb-4">{t('salesPage.errorLoadingSalesData')}</p>
+          <p className="text-red-500 mb-4">{assignmentError?.toString() || stallError?.toString() || t('salesPage.unknownError')}</p>
           <button
             onClick={() => window.location.reload()}
             className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md transition duration-200"
           >
-            Retry
+            {t('salesPage.retry')}
           </button>
         </div>
       </div>
@@ -116,8 +119,8 @@ function SalesPage(): React.JSX.Element {
     return (
       <div className=" bg-gray-100 flex flex-col items-center justify-center p-4">
         <div className="bg-white rounded-lg shadow-md p-6 max-w-md w-full text-center">
-          <p className="text-gray-700 mb-4">You are not currently assigned to any stall.</p>
-          <p className="text-gray-500">Please contact your administrator.</p>
+          <p className="text-gray-700 mb-4">{t('salesPage.notAssignedToStall')}</p>
+          <p className="text-gray-500">{t('salesPage.contactAdmin')}</p>
         </div>
       </div>
     );
@@ -146,9 +149,9 @@ function SalesPage(): React.JSX.Element {
           isLoading={isLoading || isFetchingNextPage}
           isError={!!error}
           isEmpty={transactions.length === 0}
-          emptyMessage="No transactions yet"
-          errorMessage={`Failed to load transactions: ${(error as Error)?.message || 'Unknown error'}`}
-          loadingMessage="Loading transactions..."
+          emptyMessage={t('salesPage.noTransactionsYet')}
+          errorMessage={t('salesPage.failedToLoadTransactions', { error: (error as Error)?.message || t('salesPage.unknownError') })}
+          loadingMessage={t('salesPage.loadingTransactions')}
         />
       </div>
       

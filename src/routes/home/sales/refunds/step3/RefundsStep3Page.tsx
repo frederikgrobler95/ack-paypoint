@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import AmountKeypad from '../../../../../shared/ui/AmountKeypad';
 import { useTransaction } from '../../../../../queries/transactions';
 import { Transaction } from '../../../../../shared/contracts/transaction';
@@ -156,11 +157,13 @@ function RefundsStep3Page({ isTutorial = false, mockData }: WithTutorialProps): 
     });
   };
   
+  const { t } = useTranslation();
+  
   if (isLoading) {
     return (
-      <FlowContainer withHeaderOffset withBottomOffset>
+      <FlowContainer withNoHeaderOffset withBottomOffset>
         <div className="bg-white rounded-lg shadow-md p-6">
-          <p className="text-gray-600">Loading transaction details...</p>
+          <p className="text-gray-600">{t('refundsStep3.loadingTransactionDetails')}</p>
         </div>
       </FlowContainer>
     );
@@ -168,9 +171,9 @@ function RefundsStep3Page({ isTutorial = false, mockData }: WithTutorialProps): 
   
   if (isError || !transaction) {
     return (
-      <FlowContainer withHeaderOffset withBottomOffset>
+      <FlowContainer withNoHeaderOffset withBottomOffset>
         <div className="bg-white rounded-lg shadow-md p-6">
-          <p className="text-red-600">Error loading transaction details. Please try again.</p>
+          <p className="text-red-600">{t('refundsStep3.errorLoadingTransactionDetails')}</p>
         </div>
       </FlowContainer>
     );
@@ -179,23 +182,23 @@ function RefundsStep3Page({ isTutorial = false, mockData }: WithTutorialProps): 
   const isSubmitDisabled = amountCents <= 0 || (!isTutorial && transaction && amountCents > transaction.amountCents);
   
   return (
-    <FlowContainer withHeaderOffset withBottomOffset>
+    <FlowContainer withNoHeaderOffset withBottomOffset>
       <div className="flex-1 flex flex-col items-center justify-center">
         
         <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="text-center mb-4">
-            <p className="text-gray-600">Original Transaction Amount</p>
+            <p className="text-gray-600">{t('refundsStep3.originalTransactionAmount')}</p>
             <p className="text-3xl font-bold text-indigo-600">R {formatAmount(isTutorial ? (mockData?.amountCents || 10000) : transaction?.amountCents || 0)}</p>
           </div>
           
           <div className="border-t border-gray-200 pt-4 mt-4">
-            <p className="text-gray-600 text-center mb-2">Refund Amount</p>
+            <p className="text-gray-600 text-center mb-2">{t('refundsStep3.refundAmount')}</p>
             <p className="text-4xl font-bold text-center text-gray-800">R {formatAmount(amountCents)}</p>
           </div>
           
           {!isTutorial && transaction && amountCents > transaction.amountCents && (
             <div className="mt-4 text-center text-red-500 font-semibold">
-              Amount exceeds original transaction
+              {t('refundsStep3.amountExceedsOriginal')}
             </div>
           )}
         </div>

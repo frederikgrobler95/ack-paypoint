@@ -83,7 +83,7 @@ function CheckoutStep1Page(): React.JSX.Element {
   }, [qrCodeData, isQrCodeError, qrCodeInput, isQrCodeLoading, navigate, idempotencyKey, hasNavigated]);
   
   return (
-    <FlowContainer withHeaderOffset withBottomOffset>
+    <FlowContainer withNoHeaderOffset withBottomOffset>
       
       
       {/* QR Scanner Section - Show only when inputMethod is 'scan' */}

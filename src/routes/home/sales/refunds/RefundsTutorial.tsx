@@ -1,10 +1,12 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { FlowContainer } from '@/shared/ui';
 import { useTutorialStore } from '../../../../shared/stores/tutorialStore';
 import { useTutorial } from '../../../../hooks/useTutorial';
 
 function RefundsTutorial() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { markTutorialAsCompleted } = useTutorialStore();
   const { updateTutorialStatus, markTutorialCompleted } = useTutorial();
@@ -23,34 +25,34 @@ function RefundsTutorial() {
   };
 
   return (
-    <FlowContainer withHeaderOffset withBottomOffset>
+    <FlowContainer withNoHeaderOffset withBottomOffset>
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">Checkout (Refunds) Tutorial</h1>
+        <h1 className="text-2xl font-bold text-gray-800 mb-6">{t('refundsTutorial.title')}</h1>
         
         <div className="mb-6">
-          <h2 className="text-lg font-semibold text-gray-700 mb-3">Overview</h2>
+          <h2 className="text-lg font-semibold text-gray-700 mb-3">{t('refundsTutorial.overview')}</h2>
           <p className="text-gray-600 mb-4">
-            This tutorial will guide you through the process of processing a refund in the system.
+            {t('refundsTutorial.description')}
           </p>
           <p className="text-gray-600 mb-4">
-            You'll learn how to:
+            {t('refundsTutorial.learnHowTo')}
           </p>
           <ul className="list-disc list-inside text-gray-600 mb-4">
-            <li>Scan a customer's QR code for refund</li>
-            <li>Select a transaction to refund</li>
-            <li>Process the refund</li>
-            <li>View the refund receipt</li>
+            <li>{t('refundsTutorial.scanQrCode')}</li>
+            <li>{t('refundsTutorial.selectTransaction')}</li>
+            <li>{t('refundsTutorial.processRefund')}</li>
+            <li>{t('refundsTutorial.viewReceipt')}</li>
           </ul>
         </div>
         
         <div className="mb-6">
-          <h3 className="text-md font-semibold text-gray-800 mb-3">Steps</h3>
+          <h3 className="text-md font-semibold text-gray-800 mb-3">{t('refundsTutorial.steps')}</h3>
           <div className="bg-gray-50 p-4 rounded-lg">
             <ol className="list-decimal list-inside space-y-2">
-              <li className="text-gray-700">Scan Customer QR Code</li>
-              <li className="text-gray-700">Select Transaction</li>
-              <li className="text-gray-700">Process Refund</li>
-              <li className="text-gray-700">View Receipt</li>
+              <li className="text-gray-700">{t('refundsTutorial.scanQrCode')}</li>
+              <li className="text-gray-700">{t('refundsTutorial.selectTransaction')}</li>
+              <li className="text-gray-700">{t('refundsTutorial.processRefund')}</li>
+              <li className="text-gray-700">{t('refundsTutorial.viewReceipt')}</li>
             </ol>
           </div>
         </div>
@@ -60,7 +62,7 @@ function RefundsTutorial() {
             onClick={() => navigate('/')}
             className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
-            Back to Home
+            {t('refundsTutorial.backToHome')}
           </button>
           
           <div className="space-x-2">
@@ -68,14 +70,14 @@ function RefundsTutorial() {
               onClick={handleCompleteAllTutorials}
               className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
             >
-              Skip All Tutorials
+              {t('refundsTutorial.skipAllTutorials')}
             </button>
             
             <button
               onClick={handleStartTutorial}
               className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
-              Start Tutorial
+              {t('refundsTutorial.startTutorial')}
             </button>
           </div>
         </div>

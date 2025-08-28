@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import AmountKeypad from '../../../../shared/ui/AmountKeypad';
 import { FlowContainer } from '../../../../shared/ui';
 import { useFlowStore } from '../../../../shared/stores/flowStore';
@@ -7,6 +8,7 @@ import { useSalesFlowNavigation } from '../../../../hooks';
 import { withTutorial, WithTutorialProps } from '@/hocs';
 
 function SalesStep2Page({ isTutorial = false }: WithTutorialProps): React.JSX.Element {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const { qrCode, idempotencyKey } = location.state || {};
@@ -128,14 +130,14 @@ function SalesStep2Page({ isTutorial = false }: WithTutorialProps): React.JSX.El
 
   return (
     <>
-      <FlowContainer withHeaderOffset withBottomOffset>
+      <FlowContainer withNoHeaderOffset withBottomOffset>
         <div className="bg-white rounded-lg shadow-md p-6">
           
           <div className="text-center mb-6">
             <div className="text-4xl font-bold text-gray-900 mb-2">
               R {amountString}
             </div>
-          
+            <p className="text-gray-600">{t('salesStep2.amountDisplay')}</p>
           </div>
           
           <AmountKeypad
@@ -144,6 +146,7 @@ function SalesStep2Page({ isTutorial = false }: WithTutorialProps): React.JSX.El
             onClearPress={handleClearPress}
             onSubmitPress={handleSubmitPress}
             submitDisabled={parseFloat(amountString) <= 0}
+            submitText={t('salesStep2.confirmAmount')}
           />
         </div>
       </FlowContainer>

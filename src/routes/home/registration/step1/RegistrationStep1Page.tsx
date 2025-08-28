@@ -46,7 +46,7 @@ function RegistrationStep1Page({ isTutorial = false, mockData }: WithTutorialPro
   };
 
   return (
-    <FlowContainer withHeaderOffset withBottomOffset>
+    <FlowContainer withNoHeaderOffset withBottomOffset>
       {/* <div className="bg-white rounded-lg shadow-md p-6 mb-6">
         <h2 className="text-lg font-semibold text-gray-700 mb-2">Customer Information</h2>
         <p className="text-gray-600">Enter the customer's basic information to begin registration.</p>

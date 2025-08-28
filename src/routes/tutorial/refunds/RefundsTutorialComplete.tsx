@@ -34,7 +34,7 @@ function RefundsTutorialComplete() {
   };
 
   return (
-    <FlowContainer withHeaderOffset>
+    <FlowContainer withNoHeaderOffset>
       <div className=" bg-gray-50 flex flex-col justify-center  px-4 sm:px-6 lg:px-8">
         <div className="max-w-md mx-auto">
           <div className="bg-white rounded-lg shadow-md p-8 text-center">

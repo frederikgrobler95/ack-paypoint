@@ -63,7 +63,7 @@ function CheckoutStep3PageTutorial() {
   };
   
   return (
-    <FlowContainer withHeaderOffset withBottomOffset>
+    <FlowContainer withNoHeaderOffset withBottomOffset>
       <TutorialTour steps={checkoutStep3TutorialSteps} />
       
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
