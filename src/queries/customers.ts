@@ -1,5 +1,5 @@
 import { useQuery, useSuspenseQuery, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
-import { fetchDocument, fetchDocumentsPaginated } from '../services/queryService';
+import { fetchDocument, fetchDocuments, fetchDocumentsPaginated } from '../services/queryService';
 import { where } from 'firebase/firestore';
 import { Customer } from '../shared/contracts/customer';
 
@@ -26,14 +26,16 @@ export const fetchCustomersByQRCode = async (qrCodeId: string | null, pageSize: 
   return fetchDocumentsPaginated<Customer>('customers', pageSize, lastDocument, [where('qrCodeId', '==', null)], 'createdAt');
 };
 
-// Fetch all customers with pagination
-export const fetchCustomers = async (pageSize: number = 20, lastDocument?: any, searchTerm?: string) => {
+// Fetch all customers without pagination
+export const fetchCustomers = async (searchTerm?: string) => {
   // Add search filter if searchTerm is provided
   const constraints = searchTerm
-    ? [where('name', '>=', searchTerm), where('name', '<=', searchTerm + '\uf8ff')]
+    ? [where('name', '>=', searchTerm.toLowerCase()), where('name', '<=', searchTerm.toLowerCase() + '\uf8ff')]
     : [];
     
-  return fetchDocumentsPaginated<Customer>('customers', pageSize, lastDocument, constraints, 'name');
+  // Fetch all customers without pagination
+  const result = await fetchDocuments<Customer>('customers', constraints);
+  return { data: result, lastDoc: null };
 };
 
 // React Query hooks for customers
@@ -80,16 +82,14 @@ export const useSuspenseCustomersByQRCode = (qrCodeId: string | null, pageSize: 
   });
 };
 
-// Get all customers with infinite scrolling
-export const useCustomers = (pageSize: number = 20, searchTerm?: string) => {
-  return useInfiniteQuery({
+// Get all customers without pagination
+export const useCustomers = (searchTerm?: string) => {
+  return useQuery({
     queryKey: customerKeys.list(searchTerm || 'all'),
-    queryFn: async ({ pageParam }) => {
-      const result = await fetchCustomers(pageSize, pageParam, searchTerm);
+    queryFn: async () => {
+      const result = await fetchCustomers(searchTerm);
       return result;
     },
-    getNextPageParam: (lastPage) => lastPage.lastDoc,
-    initialPageParam: undefined,
   });
 };
 

@@ -29,7 +29,7 @@ function RefundsTutorialComplete() {
 
   const handleCompleteTutorial = () => {
     // Mark tutorial as completed and exit tutorial mode
-    markTutorialAsCompleted();
+    markTutorialAsCompleted('refunds');
     navigate('/');
   };
 

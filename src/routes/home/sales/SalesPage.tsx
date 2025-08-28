@@ -27,7 +27,7 @@ const TotalSalesCard: React.FC<{ totalCents: number }> = ({ totalCents }) => {
   
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-      <h2 className="text-lg font-semibold text-gray-700 mb-2">{t('totalSales')}</h2>
+      <h2 className="text-lg font-semibold text-gray-700 mb-2">{t('salesPage.totalSales')}</h2>
       <p className="text-3xl font-bold text-green-600">R{formattedAmount}</p>
     </div>
   );
@@ -126,7 +126,7 @@ function SalesPage(): React.JSX.Element {
     );
   }
   
-  const stallName = currentStall.name || "Your Stall";
+  const stallName = currentStall.name || t('salesPage.yourStall');
   
   // Create a wrapper function for refetch to match the expected signature
   const handleRefresh = async () => {
@@ -156,16 +156,16 @@ function SalesPage(): React.JSX.Element {
       </div>
       
       {/* FAB Button */}
-      <div className="fixed bottom-20 right-6">
+      <div className="fixed bottom-20 right-6 z-50">
         <button
           className="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
           onClick={() => {
             // Reset the sales flow when starting a new sale
-            useFlowStore.getState().resetSalesFlow();
+            useFlowStore.getState().startFlow();
             navigate('/sales/salesstep1');
           }}
         >
-          <span className="text-xl">+</span>
+          <span className="text-xl">{t('salesPage.newSale')}</span>
         </button>
       </div>
     </div>

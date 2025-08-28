@@ -1,6 +1,7 @@
 import { Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import i18n from './config/i18n'
 import { useAuth } from './contexts/AuthContext'
 import { useMyAssignment } from './contexts/MyAssignmentContext'
 import { StallType } from './shared/contracts/stall'
@@ -45,20 +46,6 @@ import GenerateScreen from './routes/admin/qrcodes/GenerateScreen'
 import RegistrationStep1Page from './routes/home/registration/step1/RegistrationStep1Page'
 import RegistrationStep2Page from './routes/home/registration/step2/RegistrationStep2Page'
 import RegistrationStep3Page from './routes/home/registration/step3/RegistrationStep3Page'
-import SalesStep1Tutorial from './routes/home/sales/step1/SalesStep1Tutorial'
-import SalesStep2Tutorial from './routes/home/sales/step2/SalesStep2Tutorial'
-import SalesStep3Tutorial from './routes/home/sales/step3/SalesStep3Tutorial'
-import CheckoutStep1Tutorial from './routes/home/checkout/step1/CheckoutStep1Tutorial'
-import RegistrationStep1Tutorial from './routes/home/registration/step1/RegistrationStep1Tutorial'
-import RefundsStep1Tutorial from './routes/home/sales/refunds/step1/RefundsStep1Tutorial'
-import RefundsStep2Tutorial from './routes/home/sales/refunds/step2/RefundsStep2Tutorial'
-import RefundsStep3Tutorial from './routes/home/sales/refunds/step3/RefundsStep3Tutorial'
-import RefundsStep4Tutorial from './routes/home/sales/refunds/step4/RefundsStep4Tutorial'
-import RegistrationStep2Tutorial from './routes/home/registration/step2/RegistrationStep2Tutorial'
-import RegistrationStep3Tutorial from './routes/home/registration/step3/RegistrationStep3Tutorial'
-import SalesTutorial from './routes/home/sales/SalesTutorial'
-import RefundsTutorial from './routes/home/sales/refunds/RefundsTutorial'
-import RegistrationTutorial from './routes/home/registration/RegistrationTutorial'
 import SalesPageTutorial from './routes/tutorial/sales/SalesPageTutorial'
 import SalesStep1PageTutorial from './routes/tutorial/sales/step1/SalesStep1PageTutorial'
 import SalesStep2PageTutorial from './routes/tutorial/sales/step2/SalesStep2PageTutorial'
@@ -184,6 +171,11 @@ function App(): React.JSX.Element {
       <ToastContainer />
       {location.pathname.startsWith('/tutorial') ? <MockHeader autoOpenDropdown={location.pathname === '/tutorial/refunds'} /> : <Header />}
       <PWANotification />
+
+      <h1>{t('hello_world')}</h1>
+      <button onClick={() => i18n.changeLanguage('en')}>English</button>
+      <button onClick={() => i18n.changeLanguage('fr')}>French</button>
+      <button onClick={() => i18n.changeLanguage('af')}>Afrikaans</button>
       
       <div className={`pt-16 ${location.pathname.startsWith('/tutorial') ? 'pb-4' : 'pb-16'}`}> {/* Adjust padding based on tutorial mode */}
         <Routes>

@@ -16,16 +16,19 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useRegistrations } from '@/queries/registrations';
 import { useMyAssignment } from '@/contexts/MyAssignmentContext';
 import { FlowContainer } from '@/shared/ui';
+import SharedList from '@/shared/ui/SharedList';
 import { useFlowStore } from '@/shared/stores/flowStore';
 
 // Define types for our dummy data
+import { Timestamp } from 'firebase/firestore';
 
 interface Customer {
   id: string;
   name: string;
   phone: string;
   email?: string;
-  registrationDate: string;
+  registrationDate: Timestamp | null;
+  operatorName: string;
 }
 // Component for displaying total registrations
 const TotalRegistrationsCard: React.FC<{ total: number }> = ({ total }) => {
@@ -40,18 +43,47 @@ const TotalRegistrationsCard: React.FC<{ total: number }> = ({ total }) => {
 
 // Component for displaying individual customers
 const CustomerCard: React.FC<{ customer: Customer }> = ({ customer }) => {
+  // Format the date to show only the time (HH:MM)
+  const formattedTime = customer.registrationDate
+    ? customer.registrationDate.toDate().toLocaleTimeString('en-GB', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      })
+    : 'Unknown Time';
+  
+  // Format the date to show only the date (DD/MM/YYYY)
+  const formattedDate = customer.registrationDate
+    ? customer.registrationDate.toDate().toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: '2-digit'
+      })
+    : 'Unknown Date';
+
   return (
-    <div className="bg-white rounded-lg shadow-sm p-4 mb-3 flex justify-between items-center">
-      <div className="flex items-center">
-        <div className="bg-gray-200 border-2 border-dashed rounded-xl w-16 h-16" />
-        <div className="ml-3">
-          <p className="text-lg font-bold text-gray-900">{customer.name}</p>
-          <p className="text-sm text-gray-500">{customer.phone}</p>
-          {customer.email && <p className="text-sm text-gray-500">{customer.email}</p>}
+    <div className="bg-white rounded-md shadow-sm p-3 mb-2 grid grid-cols-12 gap-2 items-center">
+      <div className="col-span-2 flex justify-start">
+        <div className="px-1.5 py-0.5 rounded text-xs font-semibold bg-blue-100 text-blue-800">
+          Reg
         </div>
       </div>
-      <div className="text-sm text-gray-500">
-        {customer.registrationDate}
+      <div className="col-span-6 overflow-hidden">
+        <p className="text-sm font-bold text-gray-900 truncate">{customer.name}</p>
+        <div className="flex items-center text-xs text-gray-500 truncate">
+          <span className="truncate">{customer.operatorName}</span>
+          <span className="mx-1 flex-shrink-0">•</span>
+          <span className="truncate">{customer.phone}</span>
+        </div>
+        {customer.email && (
+          <div className="text-xs text-gray-500 truncate">
+            {customer.email}
+          </div>
+        )}
+      </div>
+      <div className="col-span-4 flex flex-col items-end">
+        <div className="text-xs text-gray-500">{formattedDate}</div>
+        <div className="text-xs text-gray-500">{formattedTime}</div>
       </div>
     </div>
   );
@@ -81,10 +113,21 @@ function RegistrationPage(): React.JSX.Element {
   const customers: Customer[] = flatRegistrations?.map((registration: any) => ({
     id: registration.id,
     name: registration.customerName,
-    phone: registration.customerPhone,
-    email: registration.customerEmail,
-    registrationDate: registration.createdAt?.toDate().toISOString().split('T')[0] || 'Unknown Date',
+    phone: registration.customer?.phone || '',
+    email: registration.customer?.email || '',
+    registrationDate: registration.createdAt || null,
+    operatorName: registration.operatorName || 'Unknown Operator',
   })) || [];
+  
+  // Sort customers by registration date in descending order
+  const sortedCustomers = React.useMemo(() => {
+    return [...customers].sort((a, b) => {
+      if (!a.registrationDate || !b.registrationDate) return 0;
+      const dateA = a.registrationDate.toDate();
+      const dateB = b.registrationDate.toDate();
+      return dateB.getTime() - dateA.getTime();
+    });
+  }, [customers]);
   
   const totalRegistrations = flatRegistrations?.length || 0;
   
@@ -127,15 +170,12 @@ function RegistrationPage(): React.JSX.Element {
       <TotalRegistrationsCard total={totalRegistrations} />
       <div className="mb-4">
         <h2 className="text-xl font-semibold text-gray-700 mb-3">{t('recentCustomers')}</h2>
-        {customers.length > 0 ? (
-          customers.map((customer) => (
-            <CustomerCard key={customer.id} customer={customer} />
-          ))
-        ) : (
-          <div className="bg-white rounded-lg shadow-sm p-4 text-center text-gray-500">
-            {t('noRegistrationsYet')}
-          </div>
-        )}
+        <SharedList
+          data={sortedCustomers}
+          renderItem={(customer: Customer) => <CustomerCard customer={customer} />}
+          isEmpty={sortedCustomers.length === 0}
+          emptyMessage={t('noRegistrationsYet')}
+        />
       </div>
       
       {/* FAB Button */}
@@ -144,7 +184,7 @@ function RegistrationPage(): React.JSX.Element {
           className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
           onClick={() => {
             // Reset the registration flow when starting a new registration
-            useFlowStore.getState().resetRegistrationFlow();
+            useFlowStore.getState().startFlow();
             navigate('/registration/step1');
           }}
         >

@@ -6,37 +6,27 @@ import { useTransaction } from '../../../../../queries/transactions';
 import { Transaction } from '../../../../../shared/contracts/transaction';
 import { FlowContainer } from '@/shared/ui';
 import { useFlowStore } from '@/shared/stores/flowStore';
-import { useRefundsFlowNavigation } from '@/hooks';
-import { withTutorial, WithTutorialProps } from '@/hocs';
-
-function RefundsStep3Page({ isTutorial = false, mockData }: WithTutorialProps): React.JSX.Element {
+function RefundsStep3Page(): React.JSX.Element {
   const navigate = useNavigate();
   const location = useLocation();
   
   const { qrCode, idempotencyKey, transactionId: locationTransactionId } = location.state || {};
   
-  // Use mock data in tutorial mode, otherwise use location state
-  const transactionId = isTutorial ? mockData?.transactionId || 'tutorial-transaction-1' : locationTransactionId;
+  const transactionId = locationTransactionId;
   
   const { data: transaction, isLoading, isError } = useTransaction(transactionId);
   const [amountString, setAmountString] = useState('0.00');
   const [amountCents, setAmountCents] = useState(0);
   
-  // Redirect to previous steps if they are not complete
-  useRefundsFlowNavigation(3);
   
   // Update amount display when transaction loads
   useEffect(() => {
-    if (isTutorial) {
-      // Initialize with 0 but ensure we don't exceed the original amount
-      setAmountString('0.00');
-      setAmountCents(0);
-    } else if (transaction) {
+    if (transaction) {
       // Initialize with 0 but ensure we don't exceed the original amount
       setAmountString('0.00');
       setAmountCents(0);
     }
-  }, [transaction, isTutorial]);
+  }, [transaction]);
   
   const formatAmount = (cents: number) => {
     return `R ${(cents / 100).toFixed(2)}`;
@@ -80,7 +70,7 @@ function RefundsStep3Page({ isTutorial = false, mockData }: WithTutorialProps): 
     const newCents = Math.round(parseFloat(newAmountString) * 100);
 
     // Check if the new amount exceeds the maximum allowed
-    if (!isTutorial && newCents > transaction.amountCents) {
+    if (newCents > transaction.amountCents) {
       // In a real implementation, we would use the AlertProvider here
       // For now, we'll just return without updating the state
       return;
@@ -138,20 +128,20 @@ function RefundsStep3Page({ isTutorial = false, mockData }: WithTutorialProps): 
   };
 
   const handleSubmitPress = () => {
-    if (amountCents <= 0 || (!isTutorial && !transaction)) {
+    if (amountCents <= 0 || !transaction) {
       // In a real implementation, we would use the AlertProvider here
       // For now, we'll just return without navigating
       return;
     }
     
-    if (!isTutorial && transaction && amountCents > transaction.amountCents) {
+    if (transaction && amountCents > transaction.amountCents) {
       // In a real implementation, we would use the AlertProvider here
       // For now, we'll just return without navigating
       return;
     }
 
     // Mark step 3 as complete
-    useFlowStore.getState().setRefundsStepComplete(3);
+    useFlowStore.getState().setFlowData({ step: 3 });
     navigate('/sales/refunds/refundsstep4', {
       state: { qrCode, idempotencyKey, transactionId, amountCents }
     });
@@ -179,7 +169,7 @@ function RefundsStep3Page({ isTutorial = false, mockData }: WithTutorialProps): 
     );
   }
   
-  const isSubmitDisabled = amountCents <= 0 || (!isTutorial && transaction && amountCents > transaction.amountCents);
+  const isSubmitDisabled = amountCents <= 0 || (transaction && amountCents > transaction.amountCents);
   
   return (
     <FlowContainer withNoHeaderOffset withBottomOffset>
@@ -188,7 +178,7 @@ function RefundsStep3Page({ isTutorial = false, mockData }: WithTutorialProps): 
         <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="text-center mb-4">
             <p className="text-gray-600">{t('refundsStep3.originalTransactionAmount')}</p>
-            <p className="text-3xl font-bold text-indigo-600">R {formatAmount(isTutorial ? (mockData?.amountCents || 10000) : transaction?.amountCents || 0)}</p>
+            <p className="text-3xl font-bold text-indigo-600">R {formatAmount(transaction?.amountCents || 0)}</p>
           </div>
           
           <div className="border-t border-gray-200 pt-4 mt-4">
@@ -196,7 +186,7 @@ function RefundsStep3Page({ isTutorial = false, mockData }: WithTutorialProps): 
             <p className="text-4xl font-bold text-center text-gray-800">R {formatAmount(amountCents)}</p>
           </div>
           
-          {!isTutorial && transaction && amountCents > transaction.amountCents && (
+          {transaction && amountCents > transaction.amountCents && (
             <div className="mt-4 text-center text-red-500 font-semibold">
               {t('refundsStep3.amountExceedsOriginal')}
             </div>
@@ -217,4 +207,4 @@ function RefundsStep3Page({ isTutorial = false, mockData }: WithTutorialProps): 
   );
 }
 
-export default withTutorial(RefundsStep3Page, 'checkout');
+export default RefundsStep3Page;

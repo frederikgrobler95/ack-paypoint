@@ -70,7 +70,7 @@ function CheckoutStep1Page(): React.JSX.Element {
     if (qrCodeData && !hasNavigated && idempotencyKey) {
       setHasNavigated(true);
       // Set flow data and mark step 1 as complete
-      useFlowStore.getState().setCheckoutStepComplete(1);
+      useFlowStore.getState().setFlowData({ step: 1, qrCode: qrCodeData.id, idempotencyKey });
       navigate('/checkout/step2', {
         state: {
           qrCode: qrCodeData.id,

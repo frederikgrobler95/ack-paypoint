@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { FlowContainer } from '../../../../shared/ui';
 import { TutorialTour } from '../../../../components/tutorial';
 import { useTutorialStore } from '../../../../shared/stores/tutorialStore';
-import { useTutorialNavigation } from '../../../../hooks';
 import { useToast } from '../../../../contexts/ToastContext';
+import { timestampToDate } from '@/shared/utils';
 
 // Define the steps for the refunds step 2 tutorial
 const refundsStep2TutorialSteps = [
@@ -26,12 +26,12 @@ const refundsStep2TutorialSteps = [
 function RefundsStep2PageTutorial() {
   const navigate = useNavigate();
   const { mockRefundsData } = useTutorialStore();
-  const { navigateToNextTutorialStep, exitTutorial } = useTutorialNavigation();
+  const { setRefundsStepComplete } = useTutorialStore();
   const { showToast } = useToast();
   const [selectedTransactionId, setSelectedTransactionId] = useState<string | null>(null);
   
   // Filter to show only sale transactions (that can be refunded)
-  const saleTransactions = mockRefundsData.transactions.filter(t => t.type === 'sale');
+  const saleTransactions = mockRefundsData.transactions.filter((t: any) => t.type === 'sale');
   
   const handleTransactionSelect = (transactionId: string) => {
     setSelectedTransactionId(transactionId);
@@ -39,7 +39,8 @@ function RefundsStep2PageTutorial() {
     showToast('Transaction selected for refund', 'success');
     
     // Navigate to next step
-    navigateToNextTutorialStep(location.pathname);
+    setRefundsStepComplete(2);
+    navigate('/tutorial/refunds/step3');
   };
   
   const formatAmount = (cents: number) => {
@@ -76,7 +77,7 @@ function RefundsStep2PageTutorial() {
           </div>
         ) : (
           <div className="space-y-2">
-            {saleTransactions.map((transaction) => (
+            {saleTransactions.map((transaction: any) => (
               <div
                 key={transaction.id}
                 onClick={() => handleTransactionSelect(transaction.id)}
@@ -95,9 +96,7 @@ function RefundsStep2PageTutorial() {
                     <div className="text-right">
                       <p className="font-bold text-gray-800">R{formatAmount(transaction.amountCents)}</p>
                       <p className="text-gray-500 text-sm">
-                        {transaction.createdAt instanceof Date
-                          ? transaction.createdAt.toLocaleDateString()
-                          : 'Today'}
+                        {transaction.createdAt ? timestampToDate(transaction.createdAt).toLocaleDateString() : 'Today'}
                       </p>
                     </div>
                   </div>

@@ -14,37 +14,34 @@ function StallsPage(): React.JSX.Element {
     isLoading,
     isError,
     error,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
     refetch
-  } = useStalls(20, searchTerm)
+  } = useStalls(searchTerm)
   
-  // Log raw data from query
-  React.useEffect(() => {
-    if (stallsData) {
-      console.log('Raw stalls data from query:', stallsData)
-    }
-  }, [stallsData])
-  
-  // Flatten paginated data
+  // Get stall data
   const stalls = React.useMemo(() => {
-    if (!stallsData?.pages) return []
-    const flattenedStalls = stallsData.pages.flatMap(page => page.data)
-    console.log('Fetched stall data:', flattenedStalls)
-    return flattenedStalls
+    return stallsData?.data || []
   }, [stallsData])
   
   // Render individual stall item
   const renderStallItem = (stall: Stall, index: number) => (
     <div
-      className="p-4 cursor-pointer"
+      className="p-5 cursor-pointer hover:bg-gray-50 transition-colors duration-150"
       onClick={() => navigate(`/admin/stalls/stalldetails/${stall.id}`)}
     >
-      <div className="flex justify-between items-center">
-        <div>
-          <h3 className="font-semibold text-[#1A202C] text-base leading-6">{stall.name}</h3>
-          <p className="text-[#4A5568] text-sm leading-5 capitalize">{stall.type}</p>
+      <div className="flex items-center">
+        <div className="flex-shrink-0 h-12 w-12 rounded-lg bg-indigo-100 flex items-center justify-center">
+          <svg className="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+          </svg>
+        </div>
+        <div className="ml-4 min-w-0">
+          <h3 className="font-semibold text-gray-900 text-base truncate">{stall.name}</h3>
+          <p className="text-gray-500 text-sm capitalize">{stall.type}</p>
+        </div>
+        <div className="ml-auto">
+          <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
         </div>
       </div>
     </div>
@@ -53,20 +50,34 @@ function StallsPage(): React.JSX.Element {
   return (
     <div className="h-screen flex flex-col">
       <div className="p-4 flex-shrink-0">
-        <div className="flex gap-1 justify-between items-center mb-6">
-          <div className="w-64">
-            <input
-              type="text"
-              placeholder="Search stalls..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900 mb-1">Stalls</h1>
+          <p className="text-gray-500 text-sm">Manage marketplace stalls</p>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center">
+          <div className="w-full sm:w-64">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg className="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <input
+                type="text"
+                placeholder="Search stalls..."
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
           </div>
           <button
             onClick={() => navigate('/admin/stalls/add')}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium py-1 px-2 rounded-md transition duration-300 ease-in-out"
+            className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300 ease-in-out"
           >
+            <svg className="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
             Add New Stall
           </button>
         </div>
@@ -77,9 +88,7 @@ function StallsPage(): React.JSX.Element {
           data={stalls}
           renderItem={renderStallItem}
           onRefresh={refetch}
-          hasMore={hasNextPage}
-          loadMore={() => fetchNextPage()}
-          isLoading={isLoading || isFetchingNextPage}
+          isLoading={isLoading}
           isError={isError}
           isEmpty={stalls.length === 0}
           emptyMessage="No stalls found"

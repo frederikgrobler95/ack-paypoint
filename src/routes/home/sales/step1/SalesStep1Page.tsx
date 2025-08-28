@@ -1,20 +1,19 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
 import QrScanner, { QrScannerHandle } from '../../../../shared/ui/QrScanner';
-import MockQrScanner, { MockQrScannerHandle } from '../../../../shared/ui/MockQrScanner';
 import { useQRCodeValidationForSales, useQRCodeValidationForSalesByLabel } from '../../../../queries/qrCodes';
 import { FlowContainer } from '../../../../shared/ui';
 import { useFlowStore } from '../../../../shared/stores/flowStore';
-import { withTutorial, WithTutorialProps } from '../../../../hocs';
 
-function SalesStep1Page({ isTutorial = false }: WithTutorialProps): React.JSX.Element {
+function SalesStep1Page(): React.JSX.Element {
   const navigate = useNavigate();
-  const location = useLocation();
+  const { t } = useTranslation();
 
-  const [qrCodeInput, setQrCodeInput] = useState(location.state?.qrCode || '');
-  const [idempotencyKey, setIdempotencyKey] = useState(location.state?.idempotencyKey || '');
+  const { flowData, setFlowData } = useFlowStore();
+  const [qrCodeInput, setQrCodeInput] = useState(flowData.qrCode || '');
+  const [idempotencyKey, setIdempotencyKey] = useState(flowData.idempotencyKey || '');
   const [error, setError] = useState('');
   const qrScannerRef = useRef<QrScannerHandle>(null);
   const [inputMethod, setInputMethod] = useState<'scan' | 'manual'>('scan');
@@ -32,6 +31,7 @@ function SalesStep1Page({ isTutorial = false }: WithTutorialProps): React.JSX.El
   
   // Reset QR code input when switching input methods
   React.useEffect(() => {
+    
     setQrCodeInput('');
     setError('');
   }, [inputMethod]);
@@ -46,6 +46,7 @@ function SalesStep1Page({ isTutorial = false }: WithTutorialProps): React.JSX.El
     if (qrScannerRef.current) {
       try {
         const scannedCode = await qrScannerRef.current.captureQRCode();
+        console.log('scannedCode', scannedCode);
         validateQrCode(scannedCode, false);
       } catch (err) {
         setError(t('salesStep1.failedToScan'));
@@ -55,6 +56,7 @@ function SalesStep1Page({ isTutorial = false }: WithTutorialProps): React.JSX.El
   
   const handleManualSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('qrCodeInput', qrCodeInput);
     if (qrCodeInput.trim()) {
       validateQrCode(qrCodeInput, true);
     } else {
@@ -81,17 +83,12 @@ function SalesStep1Page({ isTutorial = false }: WithTutorialProps): React.JSX.El
         setHasNavigated(true);
         setIsManualSubmit(false); // Reset the flag
         // Set flow data and mark step 1 as complete
-        useFlowStore.getState().setSalesData({
+        setFlowData({
+          step: 1,
           qrCode: qrCodeData.id,
           idempotencyKey,
         });
-        useFlowStore.getState().setSalesStepComplete(1);
-        navigate('/sales/salesstep2', {
-          state: {
-            qrCode: qrCodeData.id,
-            idempotencyKey,
-          }
-        });
+        navigate('/sales/salesstep2');
       }
     } else if (isQrCodeError || (qrCodeInput && !isQrCodeLoading && !qrCodeData && !hasNavigated)) {
       setError(t('salesStep1.invalidQrCode'));
@@ -106,19 +103,13 @@ function SalesStep1Page({ isTutorial = false }: WithTutorialProps): React.JSX.El
       {inputMethod === 'scan' && (
         <div className="bg-white rounded-lg shadow-md p-4 mb-6">
         
-          {isTutorial ? (
-            <MockQrScanner
-              ref={qrScannerRef as React.RefObject<MockQrScannerHandle>}
-              onCodeScanned={(code) => validateQrCode(code, false)}
-              isActive={true}
-            />
-          ) : (
+         
             <QrScanner
               ref={qrScannerRef}
               onCodeScanned={(code) => validateQrCode(code, false)}
               isActive={true}
             />
-          )}
+        
           <button
             onClick={handleScanPress}
             className="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-md transition duration-200"
@@ -184,4 +175,4 @@ function SalesStep1Page({ isTutorial = false }: WithTutorialProps): React.JSX.El
   );
 }
 
-export default withTutorial(SalesStep1Page, 'sales');
+export default SalesStep1Page;

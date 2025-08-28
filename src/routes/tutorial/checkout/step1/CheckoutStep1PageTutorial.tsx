@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { FlowContainer } from '../../../../shared/ui';
 import { TutorialTour } from '../../../../components/tutorial';
 import { useTutorialStore } from '../../../../shared/stores/tutorialStore';
-import { useTutorialNavigation } from '../../../../hooks';
 import MockQrScanner from '../../../../shared/ui/MockQrScanner';
 
 // Define the steps for the checkout step 1 tutorial
@@ -27,7 +26,7 @@ const checkoutStep1TutorialSteps = [
 function CheckoutStep1PageTutorial() {
   const navigate = useNavigate();
   const { mockCheckoutData } = useTutorialStore();
-  const { navigateToNextTutorialStep, exitTutorial } = useTutorialNavigation();
+  const { setCheckoutStepComplete } = useTutorialStore();
   const [inputMethod, setInputMethod] = useState<'scan' | 'manual'>('scan');
   const [qrCodeInput, setQrCodeInput] = useState('');
   const [error, setError] = useState('');
@@ -42,7 +41,8 @@ function CheckoutStep1PageTutorial() {
       // Validate QR code (in tutorial, we just accept the mock QR code)
       if (mockCheckoutData.qrCode) {
         // Navigate to next step
-        navigateToNextTutorialStep('/tutorial/checkout/step1');
+        setCheckoutStepComplete(1);
+        navigate('/tutorial/checkout/step2');
       } else {
         setError('Invalid QR code. Please try again.');
       }
@@ -55,7 +55,8 @@ function CheckoutStep1PageTutorial() {
     e.preventDefault();
     if (qrCodeInput.trim()) {
       // In tutorial mode, we'll accept any input
-      navigateToNextTutorialStep('/tutorial/checkout/step1');
+      setCheckoutStepComplete(1);
+      navigate('/tutorial/checkout/step2');
     } else {
       setError('Please enter a QR code');
     }
@@ -78,7 +79,8 @@ function CheckoutStep1PageTutorial() {
               ref={mockQrScannerRef}
               onCodeScanned={(code) => {
                 // In tutorial mode, we just navigate to the next step
-                navigateToNextTutorialStep('/tutorial/checkout/step1');
+                setCheckoutStepComplete(1);
+                navigate('/tutorial/checkout/step2');
               }}
               isActive={true}
             />

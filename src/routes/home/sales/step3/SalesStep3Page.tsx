@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQRCodeCustomer } from '@/queries/qrCodes';
 import { useCreateTransactionMutation } from '@/mutations/useCreateTransactionMutation';
@@ -9,32 +9,17 @@ import { useMyAssignment } from '@/contexts/MyAssignmentContext';
 import { useSessionStore } from '@/shared/stores/sessionStore';
 import { FlowContainer } from '@/shared/ui';
 import { useFlowStore } from '@/shared/stores/flowStore';
-import { useSalesFlowNavigation } from '@/hooks';
-import { withTutorial, WithTutorialProps } from '@/hocs';
-
-function SalesStep3Page({ isTutorial = false, mockData }: WithTutorialProps): React.JSX.Element {
+function SalesStep3Page(): React.JSX.Element {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const location = useLocation();
   const { showToast: addToast } = useToast();
   const { assignment, stall } = useMyAssignment();
   const { user } = useSessionStore();
   const displayName = useSessionStore((state) => state.displayName);
   
-  const { qrCode: locationQrCode, amountCents: locationAmountCents, idempotencyKey } = location.state || {};
+  const { flowData } = useFlowStore();
+  const { qrCode, amountCents, idempotencyKey } = flowData;
   
-  // Use mock data in tutorial mode, otherwise use location state
-  const qrCode = isTutorial ? mockData?.qrCode || '' : locationQrCode;
-  const amountCents = isTutorial ? mockData?.amountCents || 10000 : locationAmountCents;
-  
-  const salesData = useFlowStore((state) => state.salesData);
-  const isSalesStep1Complete = useFlowStore((state) => state.isSalesStepComplete(1));
-  const isSalesStep2Complete = useFlowStore((state) => state.isSalesStepComplete(2));
-  const resetSalesFlow = useFlowStore((state) => state.resetSalesFlow);
-  
-  // Redirect to step 1 if step 1 is not complete
-  // Redirect to step 2 if step 2 is not complete
-  useSalesFlowNavigation(3);
   
   const { data: qrData, isLoading: isQrLoading, isError: isQrError, error: qrError } = useQRCodeCustomer(qrCode);
   const { mutate: createSale, isPending: isCreatingSale, isError: isSaleError, error: saleError } = useCreateTransactionMutation();
@@ -58,7 +43,8 @@ function SalesStep3Page({ isTutorial = false, mockData }: WithTutorialProps): Re
       onSuccess: () => {
         addToast('Transaction completed successfully', 'success');
         // Reset the sales flow after successful transaction
-        resetSalesFlow();
+        
+        useFlowStore.getState().clearFlow();
         navigate('/');
       },
       onError: (error: any) => {
@@ -159,23 +145,17 @@ function SalesStep3Page({ isTutorial = false, mockData }: WithTutorialProps): Re
           <div className="mb-6">
             <div className="flex justify-between items-center mb-2">
               <span className="text-gray-600">{t('salesStep3.customer')}:</span>
-              <span className="font-medium">{isTutorial ? mockData?.customerName || 'John Doe' : qrData?.customer.name}</span>
+              <span className="font-medium">{qrData?.customer.name}</span>
             </div>
             
             <div className="flex justify-between items-center mb-2">
               <span className="text-gray-600">{t('salesStep3.transactionAmount')}:</span>
-              <span className="font-medium text-lg">R {formatAmount(isTutorial ? (mockData?.amountCents || 10000) : amountCents || 0)}</span>
+              <span className="font-medium text-lg">R {formatAmount(amountCents || 0)}</span>
             </div>
           </div>
           
           <button
-            onClick={isTutorial ? () => {
-              // In tutorial mode, just show a success message and navigate to home
-              addToast(t('salesStep3.transactionCompletedSuccess'), 'success');
-              // Reset the sales flow after successful transaction
-              resetSalesFlow();
-              navigate('/');
-            } : handleConfirmTransaction}
+            onClick={handleConfirmTransaction}
             disabled={isCreatingSale}
             className={`w-full py-3 px-4 rounded-md font-semibold text-white transition duration-200 ${
               isCreatingSale
@@ -183,7 +163,7 @@ function SalesStep3Page({ isTutorial = false, mockData }: WithTutorialProps): Re
                 : 'bg-green-600 hover:bg-green-700'
             }`}
           >
-            {isTutorial ? t('salesStep3.completeTutorial') : (isCreatingSale ? t('salesStep3.processingTransaction') : t('salesStep3.confirmTransaction'))}
+            {isCreatingSale ? t('salesStep3.processingTransaction') : t('salesStep3.confirmTransaction')}
           </button>
           
           {isCreatingSale && (
@@ -197,4 +177,4 @@ function SalesStep3Page({ isTutorial = false, mockData }: WithTutorialProps): Re
   );
 }
 
-export default withTutorial(SalesStep3Page, 'sales');
+export default SalesStep3Page;

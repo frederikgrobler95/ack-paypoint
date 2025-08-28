@@ -6,4 +6,5 @@ export type User = {
   role: 'admin' | 'member';
   status?: 'active' | 'suspended';
   tutorialEnabled?: boolean;
+  signedIn?: boolean;
 };

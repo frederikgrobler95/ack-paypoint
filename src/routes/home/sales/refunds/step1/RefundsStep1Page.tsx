@@ -1,14 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
 import QrScanner, { QrScannerHandle } from '../../../../../shared/ui/QrScanner';
-import MockQrScanner, { MockQrScannerHandle } from '../../../../../shared/ui/MockQrScanner';
 import { useQRCodeValidationForSales, useQRCodeValidationForSalesByLabel } from '../../../../../queries/qrCodes';
 import { FlowContainer } from '@/shared/ui';
 import { useFlowStore } from '@/shared/stores/flowStore';
-import { withTutorial, WithTutorialProps } from '@/hocs';
-
-function RefundsStep1Page({ isTutorial = false }: WithTutorialProps): React.JSX.Element {
+function RefundsStep1Page(): React.JSX.Element {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -80,7 +79,7 @@ function RefundsStep1Page({ isTutorial = false }: WithTutorialProps): React.JSX.
         setHasNavigated(true);
         setIsManualSubmit(false); // Reset the flag
         // Set flow data and mark step 1 as complete
-        useFlowStore.getState().setRefundsStepComplete(1);
+        useFlowStore.getState().setFlowData({ step: 1, qrCode: qrCodeData.id, idempotencyKey });
         navigate('/sales/refunds/refundsstep2', {
           state: {
             qrCode: qrCodeData.id,
@@ -102,19 +101,11 @@ function RefundsStep1Page({ isTutorial = false }: WithTutorialProps): React.JSX.
       {inputMethod === 'scan' && (
         <div className="bg-white rounded-lg shadow-md p-4 mb-6">
           <h3 className="text-md font-semibold text-gray-800 mb-3">{t('refundsStep1.scanQrCode')}</h3>
-          {isTutorial ? (
-            <MockQrScanner
-              ref={qrScannerRef as React.RefObject<MockQrScannerHandle>}
-              onCodeScanned={(code) => validateQrCode(code, false)}
-              isActive={true}
-            />
-          ) : (
             <QrScanner
               ref={qrScannerRef}
               onCodeScanned={(code) => validateQrCode(code, false)}
               isActive={true}
             />
-          )}
           <button
             onClick={handleScanPress}
             className="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-md transition duration-200"
@@ -180,4 +171,4 @@ function RefundsStep1Page({ isTutorial = false }: WithTutorialProps): React.JSX.
   );
 }
 
-export default withTutorial(RefundsStep1Page, 'checkout');
+export default RefundsStep1Page;

@@ -1,616 +1,104 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { getFirestore, doc, updateDoc } from 'firebase/firestore';
-import { app } from '@/firebase';
-import { getAuth } from 'firebase/auth';
+import {
+  mockSalesData,
+  mockCheckoutData,
+  mockRefundsData,
+  mockRegistrationData,
+} from './mock';
 
-interface Transaction {
-  id: string;
-  operatorName: string;
-  customerName: string;
-  amountCents: number;
-  type: 'sale' | 'refund' | 'registration';
-  createdAt: any; // Firestore Timestamp
+// Define a generic structure for mock data
+interface MockData {
+  [key: string]: any;
 }
 
 interface TutorialState {
-  // Current tutorial info
-  currentTutorial: 'sales' | 'registration' | 'checkout' | 'refunds' | null;
+  // Tutorial Step Completion
+  sales: { step1: boolean; step2: boolean; step3: boolean };
+  checkout: { step1: boolean; step2: boolean; step3: boolean };
+  refunds: { step1: boolean; step2: boolean; step3: boolean };
+  registration: { step1: boolean; step2: boolean; step3: boolean };
+
+  // Mock Data for Tutorials
+  mockSalesData: MockData;
+  mockCheckoutData: MockData;
+  mockRefundsData: MockData;
+  mockRegistrationData: MockData;
+  mockData: MockData; // For generic QR scanner
+
+  // Current Tutorial State
+  currentTutorial: string | null;
   currentStep: number;
+  completedTutorials: string[];
   totalSteps: number;
-  
-  // Mock data
-  mockSalesData: {
-    qrCode: string;
-    customerName: string;
-    amountCents: number;
-    transactions: Transaction[];
-    totalSales: number;
-  };
-  
-  mockRegistrationData: {
-    qrCode: string;
-    customerName: string;
-    customerPhone: string;
-    customerEmail: string;
-    registrations: any[];
-    totalRegistrations: number;
-  };
-  
-  mockCheckoutData: {
-    qrCode: string;
-    customerName: string;
-    amountCents: number;
-    payments: Transaction[];
-    totalRevenue: number;
-    items: number;
-  };
-  
-  mockRefundsData: {
-    qrCode: string;
-    customerName: string;
-    originalAmountCents: number;
-    refundAmountCents: number;
-    transactions: Transaction[];
-    totalRefunds: number;
-  };
-  
-  // Add missing mockData property with proper structure
-  mockData: {
-    sales: {
-      qrCode: string;
-      customerName: string;
-      amountCents: number;
-      transactions: Transaction[];
-      totalSales: number;
-    };
-    registration: {
-      qrCode: string;
-      customerName: string;
-      phone: string; // Changed from customerPhone to phone to match component expectations
-      customerEmail: string;
-      registrations: any[];
-      totalRegistrations: number;
-    };
-    checkout: {
-      qrCode: string;
-      customerName: string;
-      amountCents: number;
-      payments: Transaction[];
-      totalRevenue: number;
-      items: { name: string }[]; // Changed from number to array to match component expectations
-    };
-    refunds: {
-      qrCode: string;
-      customerName: string;
-      originalAmountCents: number;
-      refundAmountCents: number;
-      transactions: Transaction[];
-      totalRefunds: number;
-    };
-  };
-  
-  // Tutorial progress
-  salesSteps: {
-    step1: boolean; // QR scanning
-    step2: boolean; // Transaction details
-    step3: boolean; // Payment confirmation
-  };
-  
-  registrationSteps: {
-    step1: boolean; // Customer details
-    step2: boolean; // QR scanning
-    step3: boolean; // Registration confirmation
-  };
-  
-  checkoutSteps: {
-    step1: boolean; // QR scanning
-    step2: boolean; // Payment amount
-    step3: boolean; // Payment confirmation
-  };
-  
-  refundsSteps: {
-    step1: boolean; // QR scanning
-    step2: boolean; // List customer transactions
-    step3: boolean; // Enter refund amount
-    step4: boolean; // Refund confirmation
-  };
-  
-  // Tutorial settings
-  tutorialEnabled: boolean;
-  
-  // Methods
-  setCurrentTutorial: (tutorial: 'sales' | 'registration' | 'checkout' | 'refunds' | null) => void;
-  setCurrentStep: (step: number) => void;
-  setTutorialEnabled: (enabled: boolean) => void;
-  markTutorialAsCompleted: () => void;
-  
-  
-  // Sales tutorial methods
-  completeSalesStep: (step: number) => void;
-  resetSalesTutorial: () => void;
-  
-  // Registration tutorial methods
-  completeRegistrationStep: (step: number) => void;
-  resetRegistrationTutorial: () => void;
-  
-  // Checkout tutorial methods
-  completeCheckoutStep: (step: number) => void;
-  resetCheckoutTutorial: () => void;
-  
-  // Refunds tutorial methods
-  completeRefundsStep: (step: number) => void;
-  resetRefundsTutorial: () => void;
-  
-  // Actions to update mock data
-  setMockSalesData: (data: Partial<TutorialState['mockSalesData']>) => void;
-  setMockRegistrationData: (data: Partial<TutorialState['mockRegistrationData']>) => void;
-  setMockCheckoutData: (data: Partial<TutorialState['mockCheckoutData']>) => void;
-  setMockRefundsData: (data: Partial<TutorialState['mockRefundsData']>) => void;
-  
-  // Add missing methods
+
+  // Actions
   setTotalSteps: (steps: number) => void;
   onCompleteTutorial: () => void;
-  resetCurrentTutorial: () => void;
+  setSalesStepComplete: (step: number) => void;
+  setCheckoutStepComplete: (step: number) => void;
+  setRefundsStepComplete: (step: number) => void;
+  setRegistrationStepComplete: (step: number) => void;
+
+  resetSalesTutorial: () => void;
+  resetCheckoutTutorial: () => void;
+  resetRefundsTutorial: () => void;
+  resetRegistrationTutorial: () => void;
+
+  setCurrentTutorial: (tutorial: string | null) => void;
+  setCurrentStep: (step: number) => void;
+  markTutorialAsCompleted: (tutorial: string) => void;
 }
 
-export const useTutorialStore = create<TutorialState>()(
-  persist(
-    (set, get) => ({
-      currentTutorial: null,
-      currentStep: 0,
-      tutorialEnabled: true,
-      totalSteps: 0, // Initialize totalSteps
-      mockData: {
-        sales: {
-          qrCode: 'BASAAR25-927382',
-          customerName: 'Sarel Seemonster',
-          amountCents: 10000, // 100.00 in cents
-          transactions: [
-            {
-              id: '1',
-              operatorName: 'Bennie Boekwurm',
-              customerName: 'Sarel Seemonster',
-              amountCents: 10000,
-              type: 'sale',
-              createdAt: new Date(),
-            },
-            {
-              id: '2',
-              operatorName: 'Bennie Boekwurm',
-              customerName: 'Karel Kraai',
-              amountCents: 15000,
-              type: 'sale',
-              createdAt: new Date(),
-            },
-          ],
-          totalSales: 25000, // 250.00 in cents
-        },
-        registration: {
-          qrCode: 'BASAAR25-927382',
-          customerName: 'Sarel Seemonster',
-          phone: '0821234567', // Changed from customerPhone to phone to match component expectations
-          customerEmail: 'sarel@wieliewalie.com',
-          registrations: [
-            {
-              id: '1',
-              customerName: 'Sarel Seemonster',
-              customerPhone: '0821234567',
-              customerEmail: 'sarel@wieliewalie.com',
-              qrCode: 'BASAAR25-927382',
-              registrationDate: new Date(),
-            },
-            {
-              id: '2',
-              customerName: 'Bennie Boekwurm',
-              customerPhone: '0839876543',
-              customerEmail: 'bennie@wieliewalie.com',
-              qrCode: 'BASAAR25-938746',
-              registrationDate: new Date(),
-            },
-          ],
-          totalRegistrations: 2,
-        },
-        checkout: {
-          qrCode: 'BASAAR25-927382',
-          customerName: 'Sarel Seemonster',
-          amountCents: 7500, // 75.00 in cents
-          payments: [
-            {
-              id: '1',
-              operatorName: 'Karel Kraai',
-              customerName: 'Sarel Seemonster',
-              amountCents: 7500,
-              type: 'sale',
-              createdAt: new Date(),
-            },
-            {
-              id: '2',
-              operatorName: 'Karel Kraai',
-              customerName: 'Bennie Boekwurm',
-              amountCents: 12000,
-              type: 'sale',
-              createdAt: new Date(),
-            },
-          ],
-          totalRevenue: 19500, // 195.00 in cents
-          items: [
-            { name: 'Item 1' },
-            { name: 'Item 2' },
-            { name: 'Item 3' },
-            { name: 'Item 4' },
-            { name: 'Item 5' }
-          ], // Changed from number to array to match component expectations
-        },
-        refunds: {
-          qrCode: 'BASAAR25-927382',
-          customerName: 'Sarel Seemonster',
-          originalAmountCents: 10000, // 100.00 in cents
-          refundAmountCents: 5000, // 50.00 in cents
-          transactions: [
-            {
-              id: '1',
-              operatorName: 'Tutorial Operator',
-              customerName: 'Sarel Seemonster',
-              amountCents: 10000,
-              type: 'sale',
-              createdAt: new Date(),
-            },
-            {
-              id: '2',
-              operatorName: 'Tutorial Operator',
-              customerName: 'Karel Kraai',
-              amountCents: 7500,
-              type: 'refund',
-              createdAt: new Date(),
-            },
-          ],
-          totalRefunds: 7500, // 75.00 in cents
-        }
-      },
-      mockSalesData: {
-        qrCode: 'BASAAR25-927382',
-        customerName: 'Sarel Seemonster',
-        amountCents: 10000, // 100.00 in cents
-        transactions: [
-          {
-            id: '1',
-            operatorName: 'Tutorial Operator',
-            customerName: 'John Doe',
-            amountCents: 10000,
-            type: 'sale',
-            createdAt: new Date(),
-          },
-          {
-            id: '2',
-            operatorName: 'Tutorial Operator',
-            customerName: 'Jane Smith',
-            amountCents: 15000,
-            type: 'sale',
-            createdAt: new Date(),
-          },
-        ],
-        totalSales: 25000, // 250.00 in cents
-      },
-      mockRegistrationData: {
-        qrCode: 'BASAAR25-927382',
-        customerName: 'Sarel Seemonster',
-        customerPhone: '0821234567',
-        customerEmail: 'sarel@wieliewalie',
-        registrations: [
-          {
-            id: '1',
-            customerName: 'Bennie Boekwurm',
-            customerPhone: '0821234567',
-            customerEmail: 'bennie@wieliewalie.com',
-            qrCode: 'BASAAR25-923241',
-            registrationDate: new Date(),
-          },
-          {
-            id: '2',
-            customerName: 'Karel Kraai',
-            customerPhone: '0839876543',
-            customerEmail: 'karel@wieliewalie.com',
-            qrCode: 'BASAAR25-989473',
-            registrationDate: new Date(),
-          },
-        ],
-        totalRegistrations: 2,
-      },
-      mockCheckoutData: {
-        qrCode: 'BASAAR25-927382',
-        customerName: 'Sarel Seemonster',
-        amountCents: 7500, // 75.00 in cents
-        payments: [
-          {
-            id: '1',
-            operatorName: 'Bennie Boekwurm',
-            customerName: 'Sarel Seemonster',
-            amountCents: 7500,
-            type: 'sale',
-            createdAt: new Date(),
-          },
-          {
-            id: '2',
-            operatorName: 'Karel Kraai',
-            customerName: 'Bennie Boekwurm',
-            amountCents: 12000,
-            type: 'sale',
-            createdAt: new Date(),
-          },
-        ],
-        totalRevenue: 19500, // 195.00 in cents
-        items: 5,
-      },
-      mockRefundsData: {
-        qrCode: 'BASAAR25-927382',
-        customerName: 'Sarel Seemonster',
-        originalAmountCents: 10000, // 100.00 in cents
-        refundAmountCents: 5000, // 50.00 in cents
-        transactions: [
-          {
-            id: '1',
-            operatorName: 'Tutorial Operator',
-            customerName: 'Sarel Seemonster',
-            amountCents: 10000,
-            type: 'sale',
-            createdAt: new Date(),
-          },
-          {
-            id: '2',
-            operatorName: 'Tutorial Operator',
-            customerName: 'Karel Kraai',
-            amountCents: 7500,
-            type: 'refund',
-            createdAt: new Date(),
-          },
-        ],
-        totalRefunds: 7500, // 75.00 in cents
-      },
-      salesSteps: {
-        step1: false,
-        step2: false,
-        step3: false,
-      },
-      registrationSteps: {
-        step1: false,
-        step2: false,
-        step3: false,
-      },
-      checkoutSteps: {
-        step1: false,
-        step2: false,
-        step3: false,
-      },
-      refundsSteps: {
-        step1: false,
-        step2: false,
-        step3: false,
-        step4: false,
-      },
-      
-      setCurrentTutorial: (tutorial) => {
-        // Only update if the tutorial is actually changing
-        set((state) => {
-          if (state.currentTutorial !== tutorial) {
-            return { currentTutorial: tutorial };
-          }
-          return {};
-        });
-      },
-      setCurrentStep: (step) => {
-        // Only update if the step is actually changing
-        set((state) => {
-          if (state.currentStep !== step) {
-            return { currentStep: step };
-          }
-          return {};
-        });
-      },
-      setTutorialEnabled: (enabled) => {
-        // Only update if the enabled state is actually changing
-        set((state) => {
-          if (state.tutorialEnabled !== enabled) {
-            return { tutorialEnabled: enabled };
-          }
-          return {};
-        });
-      },
-      
-      markTutorialAsCompleted: () => {
-        // Reset current tutorial state
-        get().resetCurrentTutorial();
-      },
-      
-      
-      completeSalesStep: (step) => {
-        set((state) => {
-          const stepKey = `step${step}` as keyof typeof state.salesSteps;
-          if (state.salesSteps[stepKey] !== true) {
-            return {
-              salesSteps: {
-                ...state.salesSteps,
-                [stepKey]: true,
-              },
-            };
-          }
-          return {};
-        });
-      },
-      
-      resetSalesTutorial: () => {
-        set({
-          salesSteps: {
-            step1: false,
-            step2: false,
-            step3: false,
-          },
-        });
-      },
-      
-      setMockSalesData: (data) => {
-        set((state) => ({
-          mockSalesData: {
-            ...state.mockSalesData,
-            ...data,
-          },
-        }));
-      },
-      
-      completeRegistrationStep: (step) => {
-        set((state) => {
-          const stepKey = `step${step}` as keyof typeof state.registrationSteps;
-          if (state.registrationSteps[stepKey] !== true) {
-            return {
-              registrationSteps: {
-                ...state.registrationSteps,
-                [stepKey]: true,
-              },
-            };
-          }
-          return {};
-        });
-      },
-      
-      resetRegistrationTutorial: () => {
-        set({
-          registrationSteps: {
-            step1: false,
-            step2: false,
-            step3: false,
-          },
-        });
-      },
-      
-      setMockRegistrationData: (data) => {
-        set((state) => ({
-          mockRegistrationData: {
-            ...state.mockRegistrationData,
-            ...data,
-          },
-        }));
-      },
-      
-      completeCheckoutStep: (step) => {
-        set((state) => {
-          const stepKey = `step${step}` as keyof typeof state.checkoutSteps;
-          if (state.checkoutSteps[stepKey] !== true) {
-            return {
-              checkoutSteps: {
-                ...state.checkoutSteps,
-                [stepKey]: true,
-              },
-            };
-          }
-          return {};
-        });
-      },
-      
-      resetCheckoutTutorial: () => {
-        set({
-          checkoutSteps: {
-            step1: false,
-            step2: false,
-            step3: false,
-          },
-        });
-      },
-      
-      setMockCheckoutData: (data) => {
-        set((state) => ({
-          mockCheckoutData: {
-            ...state.mockCheckoutData,
-            ...data,
-          },
-        }));
-      },
-      
-      completeRefundsStep: (step) => {
-        set((state) => {
-          const stepKey = `step${step}` as keyof typeof state.refundsSteps;
-          if (state.refundsSteps[stepKey] !== true) {
-            return {
-              refundsSteps: {
-                ...state.refundsSteps,
-                [stepKey]: true,
-              },
-            };
-          }
-          return {};
-        });
-      },
-      
-      resetRefundsTutorial: () => {
-        set({
-          refundsSteps: {
-            step1: false,
-            step2: false,
-            step3: false,
-            step4: false,
-          },
-        });
-      },
-      
-      setMockRefundsData: (data) => {
-        set((state) => ({
-          mockRefundsData: {
-            ...state.mockRefundsData,
-            ...data,
-          },
-        }));
-      },
-      
-      // Add implementation for missing methods
-      setTotalSteps: (steps) => {
-        // Only update if the total steps is actually changing
-        set((state) => {
-          if (state.totalSteps !== steps) {
-            return { totalSteps: steps };
-          }
-          return {};
-        });
-      },
-      
-      onCompleteTutorial: () => {
-        // This should be implemented based on the existing markTutorialAsCompleted
-        get().markTutorialAsCompleted();
-      },
-      
-      resetTutorial: () => {
-        set({
-          currentTutorial: null,
-          currentStep: 0,
-          tutorialEnabled: true,
-          salesSteps: {
-            step1: false,
-            step2: false,
-            step3: false,
-          },
-          registrationSteps: {
-            step1: false,
-            step2: false,
-            step3: false,
-          },
-          checkoutSteps: {
-            step1: false,
-            step2: false,
-            step3: false,
-          },
-        });
-      },
-      
-      resetCurrentTutorial: () => {
-        set({
-          currentTutorial: null,
-          currentStep: 0,
-        });
-      },
-    }),
-    {
-      name: 'tutorial-storage', // name of the item in the storage (must be unique)
-      partialize: (state) => ({
-        tutorialEnabled: state.tutorialEnabled,
-      }), // only persist the completion status and settings, not the current state
-    }
-  )
-);
+const initialTutorialState = {
+  sales: { step1: false, step2: false, step3: false },
+  checkout: { step1: false, step2: false, step3: false },
+  refunds: { step1: false, step2: false, step3: false },
+  registration: { step1: false, step2: false, step3: false },
+};
+
+export const useTutorialStore = create<TutorialState>((set) => ({
+  ...initialTutorialState,
+  mockSalesData,
+  mockCheckoutData,
+  mockRefundsData,
+  mockRegistrationData,
+  mockData: {},
+  currentTutorial: null,
+  currentStep: 0,
+  completedTutorials: [],
+  totalSteps: 0,
+
+  setSalesStepComplete: (step) =>
+    set((state) => ({
+      sales: { ...state.sales, [`step${step}`]: true },
+    })),
+
+  setCheckoutStepComplete: (step) =>
+    set((state) => ({
+      checkout: { ...state.checkout, [`step${step}`]: true },
+    })),
+
+  setRefundsStepComplete: (step) =>
+    set((state) => ({
+      refunds: { ...state.refunds, [`step${step}`]: true },
+    })),
+
+  setRegistrationStepComplete: (step) =>
+    set((state) => ({
+      registration: { ...state.registration, [`step${step}`]: true },
+    })),
+
+  resetSalesTutorial: () => set({ sales: initialTutorialState.sales }),
+  resetCheckoutTutorial: () => set({ checkout: initialTutorialState.checkout }),
+  resetRefundsTutorial: () => set({ refunds: initialTutorialState.refunds }),
+  resetRegistrationTutorial: () => set({ registration: initialTutorialState.registration }),
+
+  setCurrentTutorial: (tutorial) => set({ currentTutorial: tutorial, currentStep: 0 }),
+  setCurrentStep: (step) => set({ currentStep: step }),
+  setTotalSteps: (steps) => set({ totalSteps: steps }),
+  markTutorialAsCompleted: (tutorial) =>
+    set((state) => ({
+      completedTutorials: [...state.completedTutorials, tutorial],
+    })),
+  onCompleteTutorial: () => set({ currentTutorial: null, currentStep: 0 }),
+}));

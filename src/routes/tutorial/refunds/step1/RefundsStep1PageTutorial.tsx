@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { FlowContainer } from '../../../../shared/ui';
 import { TutorialTour } from '../../../../components/tutorial';
 import { useTutorialStore } from '../../../../shared/stores/tutorialStore';
-import { useTutorialNavigation } from '../../../../hooks';
 import { useToast } from '../../../../contexts/ToastContext';
 import QrScanner, { QrScannerHandle } from '../../../../shared/ui/QrScanner';
 import MockQrScanner, { MockQrScannerHandle } from '../../../../shared/ui/MockQrScanner';
@@ -31,7 +30,7 @@ const refundsStep1TutorialSteps = [
 function RefundsStep1PageTutorial() {
   const navigate = useNavigate();
   const { mockRefundsData } = useTutorialStore();
-  const { navigateToNextTutorialStep, exitTutorial } = useTutorialNavigation();
+  const { setRefundsStepComplete } = useTutorialStore();
   const { showToast } = useToast();
   
   const [qrCodeInput, setQrCodeInput] = useState('');
@@ -44,7 +43,8 @@ function RefundsStep1PageTutorial() {
     showToast('QR Code scanned successfully', 'success');
     
     // Navigate to next step
-    navigateToNextTutorialStep(location.pathname);
+    setRefundsStepComplete(1);
+    navigate('/tutorial/refunds/step2');
   };
   
   const handleManualSubmit = (e: React.FormEvent) => {
@@ -54,7 +54,8 @@ function RefundsStep1PageTutorial() {
       showToast('QR Code submitted successfully', 'success');
       
       // Navigate to next step
-      navigateToNextTutorialStep(location.pathname);
+      setRefundsStepComplete(1);
+      navigate('/tutorial/refunds/step2');
     } else {
       setError('Please enter a QR code');
     }

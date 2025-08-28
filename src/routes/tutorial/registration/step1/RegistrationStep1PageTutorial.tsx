@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { FlowContainer } from '../../../../shared/ui';
 import { TutorialTour } from '../../../../components/tutorial';
 import { useTutorialStore } from '../../../../shared/stores/tutorialStore';
-import { useTutorialNavigation } from '../../../../hooks';
 
 // Define the steps for the registration step 1 tutorial
 const registrationStep1TutorialSteps = [
@@ -26,7 +25,7 @@ const registrationStep1TutorialSteps = [
 function RegistrationStep1PageTutorial() {
   const navigate = useNavigate();
   const { mockRegistrationData } = useTutorialStore();
-  const { navigateToNextTutorialStep, exitTutorial } = useTutorialNavigation();
+  const { setRegistrationStepComplete } = useTutorialStore();
   const [name, setName] = useState(mockRegistrationData.customerName);
   const [phone, setPhone] = useState(mockRegistrationData.customerPhone);
   const [error, setError] = useState('');
@@ -47,7 +46,8 @@ function RegistrationStep1PageTutorial() {
     setError('');
     
     // Navigate to next step
-    navigateToNextTutorialStep('/tutorial/registration/step1');
+    setRegistrationStepComplete(1);
+    navigate('/tutorial/registration/step2');
   };
   
   return (

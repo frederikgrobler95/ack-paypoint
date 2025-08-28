@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { FlowContainer } from '../../../../shared/ui';
 import { TutorialTour } from '../../../../components/tutorial';
 import { useTutorialStore } from '../../../../shared/stores/tutorialStore';
-import { useTutorialNavigation } from '../../../../hooks';
 import MockQrScanner from '../../../../shared/ui/MockQrScanner';
 
 // Define the steps for the sales step 1 tutorial
@@ -26,8 +25,7 @@ const salesStep1TutorialSteps = [
 
 function SalesStep1PageTutorial() {
   const navigate = useNavigate();
-  const { mockSalesData } = useTutorialStore();
-  const { navigateToNextTutorialStep, exitTutorial } = useTutorialNavigation();
+  const { mockSalesData, setSalesStepComplete } = useTutorialStore();
   const [inputMethod, setInputMethod] = useState<'scan' | 'manual'>('scan');
   const [qrCodeInput, setQrCodeInput] = useState('');
   const [error, setError] = useState('');
@@ -42,7 +40,8 @@ function SalesStep1PageTutorial() {
       // Validate QR code (in tutorial, we just accept the mock QR code)
       if (mockSalesData.qrCode) {
         // Navigate to next step
-        navigateToNextTutorialStep('/tutorial/sales/step1');
+        setSalesStepComplete(1);
+        navigate('/tutorial/sales/step2');
       } else {
         setError('Invalid QR code. Please try again.');
       }
@@ -55,7 +54,8 @@ function SalesStep1PageTutorial() {
     e.preventDefault();
     if (qrCodeInput.trim()) {
       // In tutorial mode, we'll accept any input
-      navigateToNextTutorialStep('/tutorial/sales/step1');
+      setSalesStepComplete(1);
+      navigate('/tutorial/sales/step2');
     } else {
       setError('Please enter a QR code');
     }
@@ -79,7 +79,8 @@ function SalesStep1PageTutorial() {
               ref={mockQrScannerRef}
               onCodeScanned={(code) => {
                 // In tutorial mode, we just navigate to the next step
-                navigateToNextTutorialStep('/tutorial/sales/step1');
+                setSalesStepComplete(1);
+                navigate('/tutorial/sales/step2');
               }}
               isActive={true}
             />

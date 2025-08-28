@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { FlowContainer } from '../../../../shared/ui';
 import { TutorialTour } from '../../../../components/tutorial';
 import { useTutorialStore } from '../../../../shared/stores/tutorialStore';
-import { useTutorialNavigation } from '../../../../hooks';
 
 // Define the steps for the checkout step 2 tutorial
 const checkoutStep2TutorialSteps = [
@@ -22,7 +21,7 @@ const checkoutStep2TutorialSteps = [
 function CheckoutStep2PageTutorial() {
   const navigate = useNavigate();
   const { mockCheckoutData } = useTutorialStore();
-  const { navigateToNextTutorialStep, exitTutorial } = useTutorialNavigation();
+  const { setCheckoutStepComplete } = useTutorialStore();
   const [selectedMethod, setSelectedMethod] = useState<'card' | 'cash' | 'eft' | null>(null);
   const [error, setError] = useState('');
   
@@ -42,7 +41,8 @@ function CheckoutStep2PageTutorial() {
     setError('');
     
     // Navigate to next step
-    navigateToNextTutorialStep('/tutorial/checkout/step2');
+    setCheckoutStepComplete(2);
+    navigate('/tutorial/checkout/step3');
   };
   
   // Format amount in Rands

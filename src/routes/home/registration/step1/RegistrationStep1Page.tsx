@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
+import { useTranslation } from 'react-i18next';
 import { FlowContainer } from '@/shared/ui';
 import { useFlowStore } from '@/shared/stores/flowStore';
-import { withTutorial, WithTutorialProps } from '@/hocs';
-
-function RegistrationStep1Page({ isTutorial = false, mockData }: WithTutorialProps): React.JSX.Element {
+function RegistrationStep1Page(): React.JSX.Element {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
 
   // Initialize state from location state or with empty values
-  const [name, setName] = useState(location.state?.name || (isTutorial ? mockData?.customerName || '' : ''));
-  const [phoneNumber, setPhoneNumber] = useState(location.state?.phone || (isTutorial ? mockData?.phone || '' : ''));
+  const [name, setName] = useState(location.state?.name || '');
+  const [phoneNumber, setPhoneNumber] = useState(location.state?.phone || '');
   const [idempotencyKey, setIdempotencyKey] = useState(location.state?.idempotencyKey || '');
   const [error, setError] = useState('');
 
@@ -26,19 +26,19 @@ function RegistrationStep1Page({ isTutorial = false, mockData }: WithTutorialPro
     e.preventDefault();
     
     if (!name.trim()) {
-      setError('Name is required');
+      setError(t('registration.step1.error.nameRequired'));
       return;
     }
     
     if (!phoneNumber.trim()) {
-      setError('Phone number is required');
+      setError(t('registration.step1.error.phoneRequired'));
       return;
     }
     
     setError('');
     
     // Set flow data and mark step 1 as complete
-    useFlowStore.getState().setRegistrationStepComplete(1);
+    useFlowStore.getState().setFlowData({ step: 1, name, phone: phoneNumber, idempotencyKey });
     // Navigate to the next step with state
     navigate('/registration/step2', {
       state: { name, phone: phoneNumber, idempotencyKey }
@@ -56,11 +56,11 @@ function RegistrationStep1Page({ isTutorial = false, mockData }: WithTutorialPro
         <div className="bg-white rounded-lg shadow-sm p-4 mb-3">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-lg font-bold text-gray-900">Name</p>
-              <p className="text-sm text-gray-500">Customer's full name</p>
+              <p className="text-lg font-bold text-gray-900">{t('registration.step1.label.name')}</p>
+              <p className="text-sm text-gray-500">{t('registration.step1.description.name')}</p>
             </div>
             <div className="text-lg font-semibold text-gray-600">
-              Required
+              {t('registration.step1.label.required')}
             </div>
           </div>
           <div className="mt-3">
@@ -69,7 +69,7 @@ function RegistrationStep1Page({ isTutorial = false, mockData }: WithTutorialPro
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="Enter customer's name"
+              placeholder={t('registration.step1.placeholder.name')}
             />
           </div>
         </div>
@@ -77,11 +77,11 @@ function RegistrationStep1Page({ isTutorial = false, mockData }: WithTutorialPro
         <div className="bg-white rounded-lg shadow-sm p-4 mb-3">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-lg font-bold text-gray-900">Phone Number</p>
-              <p className="text-sm text-gray-500">Customer's contact number</p>
+              <p className="text-lg font-bold text-gray-900">{t('registration.step1.label.phoneNumber')}</p>
+              <p className="text-sm text-gray-500">{t('registration.step1.description.phoneNumber')}</p>
             </div>
             <div className="text-lg font-semibold text-gray-600">
-              Required
+              {t('registration.step1.label.required')}
             </div>
           </div>
           <div className="mt-3">
@@ -90,7 +90,7 @@ function RegistrationStep1Page({ isTutorial = false, mockData }: WithTutorialPro
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="Enter phone number"
+              placeholder={t('registration.step1.placeholder.phoneNumber')}
             />
           </div>
         </div>
@@ -106,11 +106,11 @@ function RegistrationStep1Page({ isTutorial = false, mockData }: WithTutorialPro
           type="submit"
           className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-md transition duration-200"
         >
-          Next
+          {t('registration.step1.button.next')}
         </button>
       </form>
     </FlowContainer>
   );
 }
 
-export default withTutorial(RegistrationStep1Page, 'registration');
+export default RegistrationStep1Page;

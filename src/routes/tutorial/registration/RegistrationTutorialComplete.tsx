@@ -20,7 +20,7 @@ function RegistrationTutorialComplete() {
     setCurrentStep(1);
     
     // Navigate to the first step
-    navigate('/tutorial/registration/step1');
+    navigate('/tutorial/registration/');
   };
 
   const handleGoHome = () => {

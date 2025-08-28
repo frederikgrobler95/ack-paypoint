@@ -1,23 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import AmountKeypad from '../../../../shared/ui/AmountKeypad';
 import { FlowContainer } from '../../../../shared/ui';
 import { useFlowStore } from '../../../../shared/stores/flowStore';
-import { useSalesFlowNavigation } from '../../../../hooks';
-import { withTutorial, WithTutorialProps } from '@/hocs';
 
-function SalesStep2Page({ isTutorial = false }: WithTutorialProps): React.JSX.Element {
+function SalesStep2Page(): React.JSX.Element {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const location = useLocation();
-  const { qrCode, idempotencyKey } = location.state || {};
-  const salesData = useFlowStore((state) => state.salesData);
-  const isSalesStep1Complete = useFlowStore((state) => state.isSalesStepComplete(1));
-  const setSalesStepComplete = useFlowStore((state) => state.setSalesStepComplete);
-  
-  // Redirect to step 1 if step 1 is not complete
-  useSalesFlowNavigation(2);
+  const { flowData, setFlowData } = useFlowStore();
   
   const [amountString, setAmountString] = useState('0.00');
   const [amountCents, setAmountCents] = useState(0);
@@ -118,14 +109,9 @@ function SalesStep2Page({ isTutorial = false }: WithTutorialProps): React.JSX.El
     }
 
     // Save flow data and mark step 2 as complete
-    useFlowStore.getState().setSalesData({
-      amountCents,
-    });
-    setSalesStepComplete(2);
+    setFlowData({ ...flowData, step: 2, amountCents });
 
-    navigate('/sales/salesstep3', {
-      state: { qrCode, idempotencyKey, amountCents }
-    });
+    navigate('/sales/salesstep3');
   };
 
   return (
@@ -137,7 +123,7 @@ function SalesStep2Page({ isTutorial = false }: WithTutorialProps): React.JSX.El
             <div className="text-4xl font-bold text-gray-900 mb-2">
               R {amountString}
             </div>
-            <p className="text-gray-600">{t('salesStep2.amountDisplay')}</p>
+        
           </div>
           
           <AmountKeypad
@@ -154,4 +140,4 @@ function SalesStep2Page({ isTutorial = false }: WithTutorialProps): React.JSX.El
   );
 }
 
-export default withTutorial(SalesStep2Page, 'sales');
+export default SalesStep2Page;

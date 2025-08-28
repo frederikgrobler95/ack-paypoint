@@ -17,6 +17,7 @@ import { usePayments } from '@/queries/payments';
 import { useMyAssignment } from '@/contexts/MyAssignmentContext';
 import { FlowContainer } from '@/shared/ui';
 import { useFlowStore } from '@/shared/stores/flowStore';
+import { timestampToDate } from '@/shared/utils';
 
 // Define types for our dummy data
 interface Transaction {
@@ -24,7 +25,7 @@ interface Transaction {
   customerName?: string;
   items: number;
   amountCents: number;
-  timestamp: string;
+  createdAt: any; // Firestore timestamp
 }
 
 
@@ -59,7 +60,7 @@ const TransactionCard: React.FC<{ transaction: Transaction }> = ({ transaction }
       </div>
       <div className="text-right">
         <div className="text-lg font-semibold text-green-600">R{formattedAmount}</div>
-        <div className="text-sm text-gray-500">{transaction.timestamp}</div>
+        <div className="text-sm text-gray-500">{transaction.createdAt ? timestampToDate(transaction.createdAt).toLocaleDateString() : 'Unknown Date'}</div>
       </div>
     </div>
   );
@@ -91,7 +92,7 @@ function CheckoutPage(): React.JSX.Element {
     customerName: payment.customerName,
     items: 1, // Payments don't have item counts, so we'll default to 1
     amountCents: payment.amountCents,
-    timestamp: payment.createdAt?.toDate().toISOString().split('T')[0] || 'Unknown Date',
+    createdAt: payment.createdAt,
   })) || [];
   
   const totalRevenueCents = flatPayments?.reduce((total: number, payment: any) => {
@@ -156,7 +157,7 @@ function CheckoutPage(): React.JSX.Element {
           className="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
           onClick={() => {
             // Reset the checkout flow when starting a new checkout
-            useFlowStore.getState().resetCheckoutFlow();
+            useFlowStore.getState().startFlow();
             navigate('/checkout/step1');
           }}
         >

@@ -4,7 +4,6 @@ import { QRCodeCanvas } from 'qrcode.react';
 import { FlowContainer } from '../../../../shared/ui';
 import { TutorialTour } from '../../../../components/tutorial';
 import { useTutorialStore } from '../../../../shared/stores/tutorialStore';
-import { useTutorialNavigation } from '../../../../hooks';
 
 // Define the steps for the registration step 3 tutorial
 const registrationStep3TutorialSteps = [
@@ -27,12 +26,14 @@ const registrationStep3TutorialSteps = [
 function RegistrationStep3PageTutorial() {
   const navigate = useNavigate();
   const { mockRegistrationData } = useTutorialStore();
-  const { navigateToNextTutorialStep, exitTutorial } = useTutorialNavigation();
+  const { setRegistrationStepComplete, markTutorialAsCompleted } = useTutorialStore();
   
   const handleConfirmRegistration = () => {
     // In tutorial mode, just show a success message and complete the tutorial
     // Navigate to next step (which will complete the tutorial)
-    navigateToNextTutorialStep('/tutorial/registration/step3');
+    setRegistrationStepComplete(3);
+    markTutorialAsCompleted('registration');
+    navigate('/tutorial/registration/complete');
   };
   
   return (

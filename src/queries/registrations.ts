@@ -13,6 +13,7 @@ export const registrationKeys = {
   byOperator: (operatorName: string) => [...registrationKeys.lists(), 'operator', operatorName] as const,
   byCustomer: (customerId: string) => [...registrationKeys.lists(), 'customer', customerId] as const,
   byQRCode: (qrCodeId: string) => [...registrationKeys.lists(), 'qrCode', qrCodeId] as const,
+  byStall: (stallId: string) => [...registrationKeys.lists(), 'stall', stallId] as const,
 };
 
 // Fetch a single registration by ID
@@ -33,6 +34,11 @@ export const fetchRegistrationsByCustomer = async (customerId: string, pageSize:
 // Fetch registrations by QR code ID with pagination
 export const fetchRegistrationsByQRCode = async (qrCodeId: string, pageSize: number = 20, lastDocument?: any): Promise<{ data: Registration[]; lastDoc: any }> => {
   return fetchDocumentsPaginated<Registration>('registrations', pageSize, lastDocument, [where('qrCodeId', '==', qrCodeId)]);
+};
+
+// Fetch registrations by stall ID with pagination
+export const fetchRegistrationsByStall = async (stallId: string, pageSize: number = 20, lastDocument?: any): Promise<{ data: Registration[]; lastDoc: any }> => {
+  return fetchDocumentsPaginated<Registration>('registrations', pageSize, lastDocument, [where('stallId', '==', stallId)]);
 };
 
 // Fetch all registrations with pagination
@@ -123,12 +129,37 @@ export const useRegistrationsByQRCode = (qrCodeId: string, pageSize: number = 20
   });
 };
 
+// Get registrations by stall ID with pagination
+export const useRegistrationsByStall = (stallId: string, pageSize: number = 20) => {
+  return useInfiniteQuery({
+    queryKey: registrationKeys.byStall(stallId),
+    queryFn: async ({ pageParam }) => {
+      const result = await fetchRegistrationsByStall(stallId, pageSize, pageParam);
+      return result;
+    },
+    getNextPageParam: (lastPage) => lastPage.lastDoc,
+    initialPageParam: undefined,
+    enabled: !!stallId,
+  });
+};
+
 // Get registrations by QR code ID (suspense version) with pagination
 export const useSuspenseRegistrationsByQRCode = (qrCodeId: string, pageSize: number = 20) => {
   return useSuspenseQuery({
     queryKey: registrationKeys.byQRCode(qrCodeId),
     queryFn: async () => {
       const result = await fetchRegistrationsByQRCode(qrCodeId, pageSize);
+      return result.data;
+    },
+  });
+};
+
+// Get registrations by stall ID (suspense version) with pagination
+export const useSuspenseRegistrationsByStall = (stallId: string, pageSize: number = 20) => {
+  return useSuspenseQuery({
+    queryKey: registrationKeys.byStall(stallId),
+    queryFn: async () => {
+      const result = await fetchRegistrationsByStall(stallId, pageSize);
       return result.data;
     },
   });

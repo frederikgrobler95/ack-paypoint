@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { onAuthStateChanged, signInWithUsernameAndPassword, signUpWithEmailAndPassword, signOut } from '../services/auth';
 import { User } from 'firebase/auth';
 import { useSessionStore } from '../shared/stores/sessionStore';
-import { doc, getDoc, getFirestore, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, getFirestore, updateDoc, onSnapshot } from 'firebase/firestore';
 import { app } from '../firebase';
 
 interface AuthContextType {
@@ -28,6 +28,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [role, setRole] = useState<'admin' | 'member' | null>(null);
   const [tutorialEnabled, setTutorialEnabled] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
+  const [userDocUnsubscribe, setUserDocUnsubscribe] = useState<(() => void) | null>(null);
   const sessionStore = useSessionStore();
 
   useEffect(() => {
@@ -50,12 +51,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             setTutorialEnabled(userTutorialEnabled);
             sessionStore.setRole(userRole);
             sessionStore.setDisplayName(userData.name || user.displayName);
+            sessionStore.setSignedIn(true);
+            
+            // Set up real-time listener for user document changes
+            if (userDocUnsubscribe) {
+              userDocUnsubscribe();
+            }
+            const unsubscribe = onSnapshot(doc(firestore, 'users', user.uid), (doc) => {
+              if (doc.exists()) {
+                const userData = doc.data();
+                // Check if signedIn property changed to false
+                if (userData.signedIn === false) {
+                  // Automatically sign out the user
+                  handleAutoSignOut();
+                }
+              }
+            });
+            setUserDocUnsubscribe(() => unsubscribe);
           } else {
             // Default values for new users
             setRole('member');
             setTutorialEnabled(true);
             sessionStore.setRole('member');
             sessionStore.setDisplayName(user.displayName);
+            sessionStore.setSignedIn(true);
           }
         } catch (error) {
           console.error('Error fetching user role:', error);
@@ -63,17 +82,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setTutorialEnabled(true);
           sessionStore.setRole('member');
           sessionStore.setDisplayName(user.displayName);
+          sessionStore.setSignedIn(true);
         }
       } else {
         setRole(null);
         setTutorialEnabled(false);
         sessionStore.clearSession();
+        sessionStore.setSignedIn(false);
+        
+        // Unsubscribe from user document listener if it exists
+        if (userDocUnsubscribe) {
+          userDocUnsubscribe();
+          setUserDocUnsubscribe(null);
+        }
       }
 
       setLoading(false);
     });
 
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+      // Clean up user document listener if it exists
+      if (userDocUnsubscribe) {
+        userDocUnsubscribe();
+      }
+    };
   }, []); // Remove sessionStore from dependencies to prevent re-runs
 
   const signin = async (username: string, password: string) => {
@@ -136,9 +169,36 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setRole(null);
       setTutorialEnabled(false);
       sessionStore.clearSession();
+      sessionStore.setSignedIn(false);
+      
+      // Unsubscribe from user document listener if it exists
+      if (userDocUnsubscribe) {
+        userDocUnsubscribe();
+        setUserDocUnsubscribe(null);
+      }
     } catch (error) {
       console.error('Sign out error:', error);
       throw error;
+    }
+  };
+  
+  const handleAutoSignOut = async () => {
+    try {
+      console.log('Auto-signing out user due to database change');
+      await signOut();
+      setCurrentUser(null);
+      setRole(null);
+      setTutorialEnabled(false);
+      sessionStore.clearSession();
+      sessionStore.setSignedIn(false);
+      
+      // Unsubscribe from user document listener
+      if (userDocUnsubscribe) {
+        userDocUnsubscribe();
+        setUserDocUnsubscribe(null);
+      }
+    } catch (error) {
+      console.error('Auto sign out error:', error);
     }
   };
 

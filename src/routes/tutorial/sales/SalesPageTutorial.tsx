@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTutorialStore } from '../../../shared/stores/tutorialStore';
 import { FlowContainer } from '../../../shared/ui';
 import { TutorialTour } from '../../../components/tutorial';
-import { useTutorialNavigation } from '../../../hooks';
+import { timestampToDate } from '../../../shared/utils';
 
 // Define the steps for the sales tutorial
 const salesTutorialSteps = [
@@ -29,7 +29,7 @@ const salesTutorialSteps = [
 function SalesPageTutorial() {
   const navigate = useNavigate();
   const { mockSalesData, setCurrentTutorial } = useTutorialStore();
-  const { navigateToTutorialStep, exitTutorial } = useTutorialNavigation();
+  const { setSalesStepComplete } = useTutorialStore();
   
   // Set current tutorial when component mounts
   React.useEffect(() => {
@@ -38,7 +38,8 @@ function SalesPageTutorial() {
   
   const handleStartSale = () => {
     // Navigate to the first step of the sales tutorial
-    navigateToTutorialStep('sales', 1);
+    setSalesStepComplete(1);
+    navigate('/tutorial/sales/step1');
   };
   
   const formatAmount = (cents: number) => {
@@ -61,7 +62,7 @@ function SalesPageTutorial() {
         <div className="mb-6 recent-transactions">
           <h2 className="text-xl font-semibold text-gray-700 mb-3">Recent Transactions</h2>
           {mockSalesData.transactions.length > 0 ? (
-            mockSalesData.transactions.map((transaction) => (
+            mockSalesData.transactions.map((transaction: any) => (
               <div key={transaction.id} className="bg-white rounded-lg shadow-sm p-4 mb-3">
                 <div className="flex justify-between items-center">
                   <div>
@@ -71,9 +72,7 @@ function SalesPageTutorial() {
                   <div className="text-right">
                     <p className="font-medium text-gray-800">R{formatAmount(transaction.amountCents)}</p>
                     <p className="text-gray-500 text-sm">
-                      {transaction.createdAt instanceof Date 
-                        ? transaction.createdAt.toLocaleDateString() 
-                        : 'Just now'}
+                      {transaction.createdAt ? timestampToDate(transaction.createdAt).toLocaleDateString() : 'Just now'}
                     </p>
                   </div>
                 </div>

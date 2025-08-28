@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import FormGroup from '../../shared/ui/FormGroup';
 import Button from '../../shared/ui/Button';
 
@@ -14,6 +15,7 @@ const AuthPage: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
   
   const { signin, signup } = useAuth();
 
@@ -30,8 +32,12 @@ const AuthPage: React.FC = () => {
       setLoading(true);
       if (isSignIn) {
         await signin(username, password);
+        // After successful sign in, redirect to home page
+        navigate('/');
       } else {
         await signup(name, username, email, password);
+        // After successful sign up, redirect to home page
+        navigate('/');
       }
     } catch (err: any) {
       console.error('Authentication error:', err);

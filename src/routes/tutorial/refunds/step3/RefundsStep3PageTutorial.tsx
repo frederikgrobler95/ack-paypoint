@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { FlowContainer } from '../../../../shared/ui';
 import { TutorialTour } from '../../../../components/tutorial';
 import { useTutorialStore } from '../../../../shared/stores/tutorialStore';
-import { useTutorialNavigation } from '../../../../hooks';
 import { useToast } from '../../../../contexts/ToastContext';
 import AmountKeypad from '../../../../shared/ui/AmountKeypad';
 
@@ -27,7 +26,7 @@ const refundsStep3TutorialSteps = [
 function RefundsStep3PageTutorial() {
   const navigate = useNavigate();
   const { mockRefundsData } = useTutorialStore();
-  const { navigateToNextTutorialStep } = useTutorialNavigation();
+  const { setRefundsStepComplete } = useTutorialStore();
   const { showToast } = useToast();
   
   const [amountString, setAmountString] = useState('0.00');
@@ -143,7 +142,8 @@ function RefundsStep3PageTutorial() {
     showToast('Refund details confirmed', 'success');
     
     // Navigate to next step
-    navigateToNextTutorialStep(location.pathname);
+    setRefundsStepComplete(3);
+    navigate('/tutorial/refunds/step4');
   };
   
   

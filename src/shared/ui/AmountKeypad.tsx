@@ -6,6 +6,7 @@ interface AmountKeypadProps {
   onClearPress: () => void;
   onSubmitPress: () => void;
   submitDisabled?: boolean;
+  submitText?: string;
 }
 
 const AmountKeypad: React.FC<AmountKeypadProps> = ({
@@ -14,6 +15,7 @@ const AmountKeypad: React.FC<AmountKeypadProps> = ({
   onClearPress,
   onSubmitPress,
   submitDisabled = false,
+  submitText = 'Confirm Amount',
 }) => {
   const renderNumberButton = (number: string) => (
     <button
@@ -62,7 +64,7 @@ const AmountKeypad: React.FC<AmountKeypadProps> = ({
           onClick={onSubmitPress}
           disabled={submitDisabled}
         >
-          Confirm Amount
+          {submitText}
         </button>
       </div>
     </div>

@@ -12,6 +12,7 @@ export const paymentKeys = {
   detail: (id: string) => [...paymentKeys.details(), id] as const,
   byOperator: (operatorId: string) => [...paymentKeys.lists(), 'operator', operatorId] as const,
   byCustomer: (customerId: string) => [...paymentKeys.lists(), 'customer', customerId] as const,
+  byStall: (stallId: string) => [...paymentKeys.lists(), 'stall', stallId] as const,
 };
 
 // Fetch a single payment by ID
@@ -27,6 +28,11 @@ export const fetchPaymentsByOperator = async (operatorId: string, pageSize: numb
 // Fetch payments by customer ID with pagination
 export const fetchPaymentsByCustomer = async (customerId: string, pageSize: number = 20, lastDocument?: any): Promise<{ data: Payment[]; lastDoc: any }> => {
   return fetchDocumentsPaginated<Payment>('payments', pageSize, lastDocument, [where('customerId', '==', customerId)]);
+};
+
+// Fetch payments by stall ID with pagination
+export const fetchPaymentsByStall = async (stallId: string, pageSize: number = 20, lastDocument?: any): Promise<{ data: Payment[]; lastDoc: any }> => {
+  return fetchDocumentsPaginated<Payment>('payments', pageSize, lastDocument, [where('stallId', '==', stallId)]);
 };
 
 // Fetch all payments with pagination
@@ -89,6 +95,31 @@ export const usePaymentsByCustomer = (customerId: string, pageSize: number = 20)
     getNextPageParam: (lastPage) => lastPage.lastDoc,
     initialPageParam: undefined,
     enabled: !!customerId,
+  });
+};
+
+// Get payments by stall ID with pagination
+export const usePaymentsByStall = (stallId: string, pageSize: number = 20) => {
+  return useInfiniteQuery({
+    queryKey: paymentKeys.byStall(stallId),
+    queryFn: async ({ pageParam }) => {
+      const result = await fetchPaymentsByStall(stallId, pageSize, pageParam);
+      return result;
+    },
+    getNextPageParam: (lastPage) => lastPage.lastDoc,
+    initialPageParam: undefined,
+    enabled: !!stallId,
+  });
+};
+
+// Get payments by stall ID (suspense version) with pagination
+export const useSuspensePaymentsByStall = (stallId: string, pageSize: number = 20) => {
+  return useSuspenseQuery({
+    queryKey: paymentKeys.byStall(stallId),
+    queryFn: async () => {
+      const result = await fetchPaymentsByStall(stallId, pageSize);
+      return result.data;
+    },
   });
 };
 

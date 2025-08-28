@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { FlowContainer } from '../../../../shared/ui';
 import { TutorialTour } from '../../../../components/tutorial';
 import { useTutorialStore } from '../../../../shared/stores/tutorialStore';
-import { useTutorialNavigation } from '../../../../hooks';
 import MockQrScanner from '../../../../shared/ui/MockQrScanner';
 
 // Define the steps for the registration step 2 tutorial
@@ -27,7 +26,7 @@ const registrationStep2TutorialSteps = [
 function RegistrationStep2PageTutorial() {
   const navigate = useNavigate();
   const { mockRegistrationData } = useTutorialStore();
-  const { navigateToNextTutorialStep, exitTutorial } = useTutorialNavigation();
+  const { setRegistrationStepComplete } = useTutorialStore();
   const [inputMethod, setInputMethod] = useState<'scan' | 'manual'>('scan');
   const [qrCodeInput, setQrCodeInput] = useState('');
   const [error, setError] = useState('');
@@ -42,7 +41,8 @@ function RegistrationStep2PageTutorial() {
       // Validate QR code (in tutorial, we just accept the mock QR code)
       if (mockRegistrationData.qrCode) {
         // Navigate to next step
-        navigateToNextTutorialStep('/tutorial/registration/step2');
+        setRegistrationStepComplete(2);
+        navigate('/tutorial/registration/step3');
       } else {
         setError('Invalid QR code. Please try again.');
       }
@@ -55,7 +55,8 @@ function RegistrationStep2PageTutorial() {
     e.preventDefault();
     if (qrCodeInput.trim()) {
       // In tutorial mode, we'll accept any input
-      navigateToNextTutorialStep('/tutorial/registration/step2');
+      setRegistrationStepComplete(2);
+      navigate('/tutorial/registration/step3');
     } else {
       setError('Please enter a QR code');
     }
@@ -102,7 +103,8 @@ function RegistrationStep2PageTutorial() {
               ref={mockQrScannerRef}
               onCodeScanned={(code) => {
                 // In tutorial mode, we just navigate to the next step
-                navigateToNextTutorialStep('/tutorial/registration/step2');
+                setRegistrationStepComplete(2);
+                navigate('/tutorial/registration/step3');
               }}
               isActive={true}
             />

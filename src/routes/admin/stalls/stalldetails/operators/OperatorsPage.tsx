@@ -14,16 +14,16 @@ function OperatorsPage(): React.JSX.Element {
   const { id: stallId } = useParams<{ id: string }>();
   const { showToast } = useToast();
   
+  // State for search functionality
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  
   // Fetch all users
   const {
     data: usersData,
     isLoading: isLoadingUsers,
     error: usersError,
-    fetchNextPage: fetchNextUsers,
-    hasNextPage: hasNextUsers,
-    isFetchingNextPage: isFetchingNextUsers,
     refetch: refetchUsers
-  } = useUsers(20)
+  } = useUsers()
   
   // Fetch the stall data
   const {
@@ -43,10 +43,22 @@ function OperatorsPage(): React.JSX.Element {
   // Mutation for assigning operators
   const { mutate: assignOperators, isPending: isAssigning } = useAssignOperatorsMutation()
   
-  // Flatten the paginated user data
+  // Get user data
   const flatUsers = React.useMemo(() => {
-    return usersData?.pages.flatMap((page: { data: User[] }) => page.data as User[]) || []
+    return usersData?.data || []
   }, [usersData])
+  
+  // Filter users based on search term
+  const filteredUsers = React.useMemo(() => {
+    if (!searchTerm) return flatUsers;
+    
+    const term = searchTerm.toLowerCase();
+    return flatUsers.filter((user: User) =>
+      user.name.toLowerCase().includes(term) ||
+      user.username.toLowerCase().includes(term) ||
+      user.email.toLowerCase().includes(term)
+    );
+  }, [flatUsers, searchTerm]);
   
   // Flatten the paginated assignment data
   const flatAssignments = React.useMemo(() => {
@@ -91,8 +103,8 @@ function OperatorsPage(): React.JSX.Element {
     
     // Create assignment data for all selected users
     const assignments = flatUsers
-      .filter(user => selectedUsers.has(user.id))
-      .map(user => ({
+      .filter((user: User) => selectedUsers.has(user.id))
+      .map((user: User) => ({
         userId: user.id,
         stallId: stallId,
         userName: user.name,
@@ -142,6 +154,11 @@ function OperatorsPage(): React.JSX.Element {
     );
   };
   
+  // Get selected user objects for displaying as pills
+  const selectedUserObjects = React.useMemo(() => {
+    return flatUsers.filter((user: User) => selectedUsers.has(user.id));
+  }, [flatUsers, selectedUsers]);
+  
   // Check if we're still loading initial data
   const isLoading = isLoadingUsers || isLoadingAssignments || isLoadingStall;
   const isError = !!usersError || !!assignmentsError || !!stallError;
@@ -149,7 +166,7 @@ function OperatorsPage(): React.JSX.Element {
   return (
     <div className="h-screen flex flex-col">
       <div className="p-4 flex-shrink-0">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center mb-4">
           <div></div>
           <button
             onClick={handleSaveOperators}
@@ -164,27 +181,59 @@ function OperatorsPage(): React.JSX.Element {
           </button>
         </div>
         
-        <div className="mb-4 p-4 bg-blue-50 rounded-lg">
-          <p className="text-blue-800">
-            <span className="font-semibold">Stall ID:</span> {stallId}
-          </p>
-          <p className="text-blue-800 mt-1">
-            Select users below to assign them as operators for this stall.
-            Checked users are currently assigned as operators.
-          </p>
+        {/* Selected operators as pills */}
+        {selectedUserObjects.length > 0 && (
+          <div className="mb-4">
+            <div className="flex flex-wrap gap-2">
+              {selectedUserObjects.map(user => (
+                <span
+                  key={user.id}
+                  className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800"
+                >
+                  {user.name}
+                  <button
+                    type="button"
+                    className="flex-shrink-0 ml-2 h-4 w-4 rounded-full inline-flex items-center justify-center text-indigo-600 hover:bg-indigo-200 hover:text-indigo-900 focus:outline-none"
+                    onClick={() => toggleUserSelection(user.id)}
+                  >
+                    <span className="sr-only">Remove</span>
+                    <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {/* Search bar */}
+        <div className="mb-4">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <input
+              type="text"
+              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              placeholder="Search users..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
         </div>
       </div>
       
       <div className="flex-1 px-4 pb-4 overflow-hidden">
         <SharedList<User>
-          data={flatUsers}
+          data={filteredUsers}
           renderItem={renderUserItem}
           onRefresh={handleRefresh}
-          hasMore={hasNextUsers}
-          loadMore={() => fetchNextUsers()}
-          isLoading={isLoading || isFetchingNextUsers}
+          isLoading={isLoading}
           isError={isError}
-          isEmpty={flatUsers.length === 0}
+          isEmpty={filteredUsers.length === 0}
           emptyMessage="No users found"
           errorMessage={`Failed to load data: ${usersError?.message || assignmentsError?.message || stallError?.message || 'Unknown error'}`}
           loadingMessage="Loading users and assignments..."

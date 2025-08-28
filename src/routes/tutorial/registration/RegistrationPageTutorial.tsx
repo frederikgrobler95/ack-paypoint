@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useTutorialStore } from '../../../shared/stores/tutorialStore';
 import { FlowContainer } from '../../../shared/ui';
 import { TutorialTour } from '../../../components/tutorial';
-import { useTutorialNavigation } from '../../../hooks';
 
 // Define the steps for the registration tutorial
 const registrationTutorialSteps = [
@@ -29,7 +28,7 @@ const registrationTutorialSteps = [
 function RegistrationPageTutorial() {
   const navigate = useNavigate();
   const { mockRegistrationData, setCurrentTutorial } = useTutorialStore();
-  const { navigateToTutorialStep, exitTutorial } = useTutorialNavigation();
+  const { setRegistrationStepComplete } = useTutorialStore();
   
   // Set current tutorial when component mounts
   React.useEffect(() => {
@@ -38,7 +37,8 @@ function RegistrationPageTutorial() {
   
   const handleStartRegistration = () => {
     // Navigate to the first step of the registration tutorial
-    navigateToTutorialStep('registration', 1);
+    setRegistrationStepComplete(1);
+    navigate('/tutorial/registration/step1');
   };
   
   return (
@@ -57,7 +57,7 @@ function RegistrationPageTutorial() {
         <div className="mb-6 recent-registrations">
           <h2 className="text-xl font-semibold text-gray-700 mb-3">Recent Registrations</h2>
           {mockRegistrationData.registrations.length > 0 ? (
-            mockRegistrationData.registrations.map((registration) => (
+            mockRegistrationData.registrations.map((registration: any) => (
               <div key={registration.id} className="bg-white rounded-lg shadow-sm p-4 mb-3">
                 <div className="flex justify-between items-center">
                   <div>

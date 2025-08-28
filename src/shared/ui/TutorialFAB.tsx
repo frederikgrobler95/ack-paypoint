@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTutorialNavigation } from '../../hooks';
+import { useTutorialStore } from '../stores/tutorialStore';
 
 interface TutorialFABProps {
   onClick?: () => void;
@@ -14,7 +14,7 @@ const TutorialFAB: React.FC<TutorialFABProps> = ({
   color = 'indigo',
   position = 'bottom-right'
 }) => {
-  const { exitTutorial } = useTutorialNavigation();
+  const { onCompleteTutorial } = useTutorialStore();
   
   const getPositionClasses = () => {
     switch (position) {
@@ -48,7 +48,7 @@ const TutorialFAB: React.FC<TutorialFABProps> = ({
   
   const handleTutorialExit = () => {
     if (window.confirm('Are you sure you want to exit the tutorial?')) {
-      exitTutorial();
+      onCompleteTutorial();
     }
   };
   

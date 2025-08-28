@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
+import { I18nextProvider } from 'react-i18next'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClient } from '@/queries/queryClient'
 import { FirebaseProvider } from './firebase/FirebaseContext'
@@ -13,7 +14,7 @@ import { auth } from './firebase'
 import { onAuthStateChanged } from 'firebase/auth'
 import App from './App'
 import ToastContainer from './shared/ui/ToastContainer'
-import './config/i18n'
+import i18n from './config/i18n'
 import './index.css'
 
 // State for tracking auth initialization
@@ -46,8 +47,12 @@ authInitializedPromise.then(() => {
               <ToastProvider>
                 <LoadingProvider>
                   <BrowserRouter>
-                    <App />
-                    <ToastContainer />
+                    <Suspense fallback="loading">
+                      <I18nextProvider i18n={i18n}>
+                        <App />
+                        <ToastContainer />
+                      </I18nextProvider>
+                    </Suspense>
                   </BrowserRouter>
                 </LoadingProvider>
               </ToastProvider>

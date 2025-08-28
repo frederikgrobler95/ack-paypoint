@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { FlowContainer } from '../../../../shared/ui';
 import { TutorialTour } from '../../../../components/tutorial';
 import { useTutorialStore } from '../../../../shared/stores/tutorialStore';
-import { useTutorialNavigation } from '../../../../hooks';
 
 // Define the steps for the checkout step 3 tutorial
 const checkoutStep3TutorialSteps = [
@@ -26,7 +25,7 @@ const checkoutStep3TutorialSteps = [
 function CheckoutStep3PageTutorial() {
   const navigate = useNavigate();
   const { mockCheckoutData, markTutorialAsCompleted } = useTutorialStore();
-  const { exitTutorial } = useTutorialNavigation();
+  const { setCheckoutStepComplete } = useTutorialStore();
   const [isProcessing, setIsProcessing] = useState(false);
   
   // Get payment method display name
@@ -47,7 +46,8 @@ function CheckoutStep3PageTutorial() {
     await new Promise(resolve => setTimeout(resolve, 1000));
     
     // Mark entire tutorial system as completed
-    markTutorialAsCompleted();
+    setCheckoutStepComplete(3);
+    markTutorialAsCompleted('checkout');
     
     // Navigate to home or next tutorial
     setIsProcessing(false);

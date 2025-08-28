@@ -4,7 +4,6 @@ import AmountKeypad from '../../../../shared/ui/AmountKeypad';
 import { FlowContainer } from '../../../../shared/ui';
 import { TutorialTour } from '../../../../components/tutorial';
 import { useTutorialStore } from '../../../../shared/stores/tutorialStore';
-import { useTutorialNavigation } from '../../../../hooks';
 
 // Define the steps for the sales step 2 tutorial
 const salesStep2TutorialSteps = [
@@ -26,8 +25,7 @@ const salesStep2TutorialSteps = [
 
 function SalesStep2PageTutorial() {
   const navigate = useNavigate();
-  const { mockSalesData } = useTutorialStore();
-  const { navigateToNextTutorialStep, exitTutorial } = useTutorialNavigation();
+  const { mockSalesData, setSalesStepComplete } = useTutorialStore();
   const [amountString, setAmountString] = useState('0.00');
   const [amountCents, setAmountCents] = useState(0);
   
@@ -127,7 +125,8 @@ function SalesStep2PageTutorial() {
     }
     
     // Navigate to next step
-    navigateToNextTutorialStep('/tutorial/sales/step2');
+    setSalesStepComplete(2);
+    navigate('/tutorial/sales/step3');
   };
   
   return (

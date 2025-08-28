@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useQRCodeCustomer } from '../../../../queries/qrCodes'
 import { FlowContainer } from '@/shared/ui';
 import { useFlowStore } from '@/shared/stores/flowStore';
-import { useCheckoutFlowNavigation } from '@/hooks';
 
 function CheckoutStep2Page(): React.JSX.Element {
   const navigate = useNavigate()
@@ -13,11 +12,10 @@ function CheckoutStep2Page(): React.JSX.Element {
   const { data: qrData, isLoading, isError } = useQRCodeCustomer(qrCode)
   
   // Redirect to step 1 if step 1 is not complete
-  useCheckoutFlowNavigation(2);
   
   const handlePaymentMethodSelect = (method: 'card' | 'cash' | 'eft') => {
     // Mark step 2 as complete
-    useFlowStore.getState().setCheckoutStepComplete(2);
+    useFlowStore.getState().setFlowData({ step: 2, method });
     navigate('/checkout/step3', {
       state: { qrCode, idempotencyKey, method }
     });

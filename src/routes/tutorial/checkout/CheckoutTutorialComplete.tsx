@@ -20,7 +20,7 @@ function CheckoutTutorialComplete() {
     setCurrentStep(1);
     
     // Navigate to the first step
-    navigate('/tutorial/checkout/step1');
+    navigate('/tutorial/checkout/');
   };
 
   const handleGoHome = () => {

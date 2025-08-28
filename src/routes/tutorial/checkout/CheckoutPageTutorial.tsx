@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useTutorialStore } from '../../../shared/stores/tutorialStore';
 import { FlowContainer } from '../../../shared/ui';
 import { TutorialTour } from '../../../components/tutorial';
-import { useTutorialNavigation } from '../../../hooks';
 
 // Define the steps for the checkout tutorial
 const checkoutTutorialSteps = [
@@ -29,7 +28,7 @@ const checkoutTutorialSteps = [
 function CheckoutPageTutorial() {
   const navigate = useNavigate();
   const { mockCheckoutData, setCurrentTutorial } = useTutorialStore();
-  const { navigateToTutorialStep, exitTutorial } = useTutorialNavigation();
+  const { setCheckoutStepComplete } = useTutorialStore();
   
   // Set current tutorial when component mounts
   React.useEffect(() => {
@@ -38,7 +37,8 @@ function CheckoutPageTutorial() {
   
   const handleStartCheckout = () => {
     // Navigate to the first step of the checkout tutorial
-    navigateToTutorialStep('checkout', 1);
+    setCheckoutStepComplete(1);
+    navigate('/tutorial/checkout/step1');
   };
   
   const formatAmount = (cents: number) => {
@@ -61,7 +61,7 @@ function CheckoutPageTutorial() {
         <div className="mb-6 recent-payments">
           <h2 className="text-xl font-semibold text-gray-700 mb-3">Recent Payments</h2>
           {mockCheckoutData.payments.length > 0 ? (
-            mockCheckoutData.payments.map((payment) => (
+            mockCheckoutData.payments.map((payment: any) => (
               <div key={payment.id} className="bg-white rounded-lg shadow-sm p-4 mb-3">
                 <div className="flex justify-between items-center">
                   <div>

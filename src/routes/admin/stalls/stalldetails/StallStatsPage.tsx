@@ -2,17 +2,32 @@ import React from 'react'
 import { useParams } from 'react-router-dom'
 import { useStall } from '@/queries/stalls'
 import { useTransactionsByStall } from '@/queries/transactions'
+import { useRegistrationsByStall } from '@/queries/registrations'
+import { usePaymentsByStall } from '@/queries/payments'
 import { useAdminCreateStallsReportMutation } from '@/mutations/useAdminCreateStallsReportMutation'
 import { downloadBlob } from '@/services/downloadService'
+import { timestampToDate } from '@/shared/utils'
 
 function StallStatsPage(): React.JSX.Element {
   const { id } = useParams<{ id: string }>()
   const { data: stall, isLoading: isStallLoading, error: stallError } = useStall(id!)
-  const { 
-    data: transactionsData, 
-    isLoading: isTransactionsLoading, 
-    error: transactionsError 
+  const {
+    data: transactionsData,
+    isLoading: isTransactionsLoading,
+    error: transactionsError
   } = useTransactionsByStall(id!, 20)
+  
+  const {
+    data: registrationsData,
+    isLoading: isRegistrationsLoading,
+    error: registrationsError
+  } = useRegistrationsByStall(id!, 20)
+  
+  const {
+    data: paymentsData,
+    isLoading: isPaymentsLoading,
+    error: paymentsError
+  } = usePaymentsByStall(id!, 20)
   
   const { mutate: createStallReport, isPending: isCreatingReport } = useAdminCreateStallsReportMutation()
   
@@ -20,6 +35,14 @@ function StallStatsPage(): React.JSX.Element {
   const flatTransactions = React.useMemo(() => {
     return transactionsData?.pages.flatMap((page: any) => page.data || []) || []
   }, [transactionsData])
+  
+  const flatRegistrations = React.useMemo(() => {
+    return registrationsData?.pages.flatMap((page: any) => page.data || []) || []
+  }, [registrationsData])
+  
+  const flatPayments = React.useMemo(() => {
+    return paymentsData?.pages.flatMap((page: any) => page.data || []) || []
+  }, [paymentsData])
   
   // Calculate statistics
   const totalSales = React.useMemo(() => {
@@ -60,7 +83,7 @@ function StallStatsPage(): React.JSX.Element {
     })
   }
   
-  if (isStallLoading || isTransactionsLoading) {
+  if (isStallLoading || isTransactionsLoading || isRegistrationsLoading || isPaymentsLoading) {
     return (
       <div className="flex justify-center items-center h-32">
         <div className="text-center">
@@ -71,12 +94,12 @@ function StallStatsPage(): React.JSX.Element {
     )
   }
   
-  if (stallError || transactionsError) {
+  if (stallError || transactionsError || registrationsError || paymentsError) {
     return (
       <div className="flex justify-center items-center h-32">
         <div className="text-center p-4 bg-red-50 rounded-lg">
           <p className="text-red-600 font-medium">
-            Failed to load stall statistics: {(stallError as Error)?.message || (transactionsError as Error)?.message || 'Unknown error'}
+            Failed to load stall statistics: {(stallError as Error)?.message || (transactionsError as Error)?.message || (registrationsError as Error)?.message || (paymentsError as Error)?.message || 'Unknown error'}
           </p>
         </div>
       </div>
@@ -99,68 +122,156 @@ function StallStatsPage(): React.JSX.Element {
       {stall && (
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">{stall.name} Statistics</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-blue-50 rounded-lg p-4">
-              <h3 className="text-lg font-medium text-blue-800 mb-2">Total Sales</h3>
-              <p className="text-2xl font-bold text-blue-600">R{totalSales.toFixed(2)}</p>
+          {stall.type === 'commerce' ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-blue-50 rounded-lg p-4">
+                <h3 className="text-lg font-medium text-blue-800 mb-2">Total Sales</h3>
+                <p className="text-2xl font-bold text-blue-600">R{totalSales.toFixed(2)}</p>
+              </div>
+              
+              <div className="bg-red-50 rounded-lg p-4">
+                <h3 className="text-lg font-medium text-red-800 mb-2">Total Refunds</h3>
+                <p className="text-2xl font-bold text-red-600">R{totalRefunds.toFixed(2)}</p>
+              </div>
+              
+              <div className="bg-green-50 rounded-lg p-4">
+                <h3 className="text-lg font-medium text-green-800 mb-2">Net Sales</h3>
+                <p className="text-2xl font-bold text-green-600">R{netSales.toFixed(2)}</p>
+              </div>
             </div>
-            
-            <div className="bg-red-50 rounded-lg p-4">
-              <h3 className="text-lg font-medium text-red-800 mb-2">Total Refunds</h3>
-              <p className="text-2xl font-bold text-red-600">R{totalRefunds.toFixed(2)}</p>
+          ) : stall.type === 'registration' ? (
+            <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+              <div className="bg-blue-50 rounded-lg p-4">
+                <h3 className="text-lg font-medium text-blue-800 mb-2">Total Customers Registered</h3>
+                <p className="text-2xl font-bold text-blue-600">{flatRegistrations.length}</p>
+              </div>
             </div>
-            
-            <div className="bg-green-50 rounded-lg p-4">
-              <h3 className="text-lg font-medium text-green-800 mb-2">Net Sales</h3>
-              <p className="text-2xl font-bold text-green-600">R{netSales.toFixed(2)}</p>
+          ) : stall.type === 'checkout' ? (
+            <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+              <div className="bg-green-50 rounded-lg p-4">
+                <h3 className="text-lg font-medium text-green-800 mb-2">Total Payments Created</h3>
+                <p className="text-2xl font-bold text-green-600">{flatPayments.length}</p>
+              </div>
             </div>
-          </div>
+          ) : null}
         </div>
       )}
       
       <div className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">Recent Transactions</h2>
-        {flatTransactions.length === 0 ? (
-          <p className="text-gray-500">No transactions found for this stall.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Date
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Type
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Amount
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {flatTransactions.slice(0, 10).map((transaction: any) => (
-                  <tr key={transaction.id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(transaction.timestamp).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        transaction.type === 'sale' 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        {transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      R{(transaction.amountCents / 100).toFixed(2)}
-                    </td>
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">Recent Activity</h2>
+        {stall?.type === 'commerce' ? (
+          flatTransactions.length === 0 ? (
+            <p className="text-gray-500">No transactions found for this stall.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Date
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Type
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Amount
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {flatTransactions.slice(0, 10).map((transaction: any) => (
+                    <tr key={transaction.id}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {transaction.createdAt ? timestampToDate(transaction.createdAt).toLocaleDateString() : 'N/A'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          transaction.type === 'sale'
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        R{(transaction.amountCents / 100).toFixed(2)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )
+        ) : stall?.type === 'registration' ? (
+          flatRegistrations.length === 0 ? (
+            <p className="text-gray-500">No registrations found for this stall.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Date
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Customer Name
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {flatRegistrations.slice(0, 10).map((registration: any) => (
+                    <tr key={registration.id}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {registration.createdAt ? new Date(registration.createdAt.toDate()).toLocaleDateString() : 'N/A'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {registration.customerName}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )
+        ) : stall?.type === 'checkout' ? (
+          flatPayments.length === 0 ? (
+            <p className="text-gray-500">No payments found for this stall.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Date
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Customer Name
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Amount
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {flatPayments.slice(0, 10).map((payment: any) => (
+                    <tr key={payment.id}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {payment.createdAt ? new Date(payment.createdAt.toDate()).toLocaleDateString() : 'N/A'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {payment.customerName}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        R{(payment.amountCents / 100).toFixed(2)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )
+        ) : (
+          <p className="text-gray-500">No activity found for this stall.</p>
         )}
       </div>
     </div>

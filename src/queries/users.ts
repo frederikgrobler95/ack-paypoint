@@ -1,5 +1,5 @@
 import { useQuery, useSuspenseQuery, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
-import { fetchDocument, fetchDocumentsPaginated } from '../services/queryService';
+import { fetchDocument, fetchDocuments } from '../services/queryService';
 import { where } from 'firebase/firestore';
 import { User } from '../shared/contracts/user';
 
@@ -17,14 +17,16 @@ export const fetchUser = async (id: string): Promise<User | null> => {
   return fetchDocument<User>('users', id);
 };
 
-// Fetch all users with pagination
-export const fetchUsers = async (pageSize: number = 20, lastDocument?: any, searchTerm?: string) => {
+// Fetch all users without pagination
+export const fetchUsers = async (searchTerm?: string) => {
   // Add search filter if searchTerm is provided
   const constraints = searchTerm
-    ? [where('name', '>=', searchTerm), where('name', '<=', searchTerm + '\uf8ff')]
+    ? [where('name', '>=', searchTerm.toLowerCase()), where('name', '<=', searchTerm.toLowerCase() + '\uf8ff')]
     : [];
     
-  return fetchDocumentsPaginated<User>('users', pageSize, lastDocument, constraints, 'name');
+  // Fetch all users without pagination
+  const result = await fetchDocuments<User>('users', constraints);
+  return { data: result, lastDoc: null };
 };
 
 // React Query hooks for users
@@ -46,20 +48,14 @@ export const useSuspenseUser = (id: string) => {
   });
 };
 
-// Get all users with infinite scrolling
-export const useUsers = (pageSize: number = 20, searchTerm?: string) => {
-  return useInfiniteQuery({
+// Get all users without pagination
+export const useUsers = (searchTerm?: string) => {
+  return useQuery({
     queryKey: userKeys.list(searchTerm || 'all'),
-    queryFn: async ({ pageParam }) => {
-      const result = await fetchUsers(pageSize, pageParam, searchTerm);
+    queryFn: async () => {
+      const result = await fetchUsers(searchTerm);
       return result;
     },
-    getNextPageParam: (lastPage) => {
-      // Return the lastDoc if it exists and we got a full page of results
-      const hasMore = lastPage.data.length === pageSize && lastPage.lastDoc;
-      return hasMore ? lastPage.lastDoc : undefined;
-    },
-    initialPageParam: undefined,
   });
 };
 

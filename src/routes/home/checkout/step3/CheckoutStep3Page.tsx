@@ -7,7 +7,6 @@ import { PaymentMethod } from '@/shared/contracts/payment';
 import { useMyAssignment } from '@/contexts/MyAssignmentContext';
 import { FlowContainer } from '@/shared/ui';
 import { useFlowStore } from '@/shared/stores/flowStore';
-import { useCheckoutFlowNavigation } from '@/hooks';
 
 function CheckoutStep3Page(): React.JSX.Element {
   const navigate = useNavigate();
@@ -19,8 +18,6 @@ function CheckoutStep3Page(): React.JSX.Element {
   const { assignment, stall } = useMyAssignment();
   const { mutate: checkoutCustomer, isPending: isCheckoutLoading, isError: isCheckoutError, error: checkoutError } = useCreatePaymentMutation();
   
-  // Redirect to previous steps if they are not complete
-  useCheckoutFlowNavigation(3);
   
   // Format amount in Rands
   const formatAmount = (cents: number) => {
@@ -53,7 +50,7 @@ function CheckoutStep3Page(): React.JSX.Element {
     }, {
       onSuccess: () => {
         // Reset the checkout flow after successful checkout
-        useFlowStore.getState().resetCheckoutFlow();
+        useFlowStore.getState().clearFlow();
         navigate('/');
       },
       onError: (error: any) => {

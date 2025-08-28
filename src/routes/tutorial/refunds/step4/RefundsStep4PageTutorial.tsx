@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { FlowContainer } from '../../../../shared/ui';
 import { TutorialTour } from '../../../../components/tutorial';
 import { useTutorialStore } from '../../../../shared/stores/tutorialStore';
-import { useTutorialNavigation } from '../../../../hooks';
 import { useToast } from '../../../../contexts/ToastContext';
 
 // Define the steps for the refunds step 4 tutorial
@@ -22,13 +21,14 @@ const refundsStep4TutorialSteps = [
 function RefundsStep4PageTutorial() {
   const navigate = useNavigate();
   const { mockRefundsData } = useTutorialStore();
-  const { navigateToNextTutorialStep, exitTutorial } = useTutorialNavigation();
+  const { setRefundsStepComplete } = useTutorialStore();
   const { showToast } = useToast();
   
   const handleConfirmRefund = () => {
     // In tutorial mode, just show a success message and navigate to refunds complete page
     showToast('Refund processed successfully', 'success');
     // Navigate to refunds tutorial complete page
+    setRefundsStepComplete(4);
     navigate('/tutorial/refunds/complete');
   };
   

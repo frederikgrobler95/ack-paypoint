@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { FlowContainer } from '../../../../shared/ui';
 import { TutorialTour } from '../../../../components/tutorial';
 import { useTutorialStore } from '../../../../shared/stores/tutorialStore';
-import { useTutorialNavigation } from '../../../../hooks';
 import { useToast } from '../../../../contexts/ToastContext';
 
 // Define the steps for the sales step 3 tutorial
@@ -22,8 +21,7 @@ const salesStep3TutorialSteps = [
 
 function SalesStep3PageTutorial() {
   const navigate = useNavigate();
-  const { mockSalesData } = useTutorialStore();
-  const { navigateToNextTutorialStep, exitTutorial } = useTutorialNavigation();
+  const { mockSalesData, setSalesStepComplete, markTutorialAsCompleted } = useTutorialStore();
   const { showToast } = useToast();
   
   const handleConfirmTransaction = () => {
@@ -31,7 +29,9 @@ function SalesStep3PageTutorial() {
     showToast('Transaction completed successfully', 'success');
     
     // Navigate to next step (which will complete the tutorial)
-    navigateToNextTutorialStep('/tutorial/sales/step3');
+    setSalesStepComplete(3);
+    markTutorialAsCompleted('sales');
+    navigate('/tutorial/sales/complete');
   };
   
   const formatAmount = (cents: number) => {

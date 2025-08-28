@@ -11,7 +11,7 @@ function RefundsPage(): React.JSX.Element {
   
   const handleStartRefund = () => {
     // Reset the refunds flow when starting a new refund
-    useFlowStore.getState().resetRefundsFlow();
+    useFlowStore.getState().startFlow();
     navigate('/sales/refunds/refundsstep1');
   };
   
