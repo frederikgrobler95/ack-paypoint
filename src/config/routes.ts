@@ -206,6 +206,31 @@ export const routeConfig: RouteConfig[] = [
     name: 'Tutorial - Sales Complete'
   },
   {
+    path: '/tutorial/refunds',
+    name: 'Tutorial - Refunds',
+    isTopLevel: true
+  },
+  {
+    path: '/tutorial/refunds/step1',
+    name: 'Tutorial - Refunds Step 1'
+  },
+  {
+    path: '/tutorial/refunds/step2',
+    name: 'Tutorial - Refunds Step 2'
+  },
+  {
+    path: '/tutorial/refunds/step3',
+    name: 'Tutorial - Refunds Step 3'
+  },
+  {
+    path: '/tutorial/refunds/step4',
+    name: 'Tutorial - Refunds Step 4'
+  },
+  {
+    path: '/tutorial/refunds/complete',
+    name: 'Tutorial - Refunds Complete'
+  },
+  {
     path: '/tutorial/checkout',
     name: 'Tutorial - Checkout',
     isTopLevel: true

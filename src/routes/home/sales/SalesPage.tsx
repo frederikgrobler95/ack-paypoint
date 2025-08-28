@@ -84,7 +84,7 @@ function SalesPage(): React.JSX.Element {
   // Show loading state
   if (isAssignmentLoading || isStallLoading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
+      <div className=" bg-gray-100 flex flex-col items-center justify-center p-4">
         <div className="bg-white rounded-lg shadow-md p-6 max-w-md w-full text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mb-4"></div>
           <p className="text-gray-600">Loading sales data...</p>
@@ -96,7 +96,7 @@ function SalesPage(): React.JSX.Element {
   // Show error state
   if (assignmentError || stallError) {
     return (
-      <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
+      <div className=" bg-gray-100 flex flex-col items-center justify-center p-4">
         <div className="bg-white rounded-lg shadow-md p-6 max-w-md w-full text-center">
           <p className="text-gray-700 mb-4">There was an error loading your sales data.</p>
           <p className="text-red-500 mb-4">{assignmentError?.toString() || stallError?.toString() || 'Unknown error'}</p>
@@ -114,7 +114,7 @@ function SalesPage(): React.JSX.Element {
   // Show message if no stall is assigned
   if (!currentStallId || !currentStall) {
     return (
-      <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
+      <div className=" bg-gray-100 flex flex-col items-center justify-center p-4">
         <div className="bg-white rounded-lg shadow-md p-6 max-w-md w-full text-center">
           <p className="text-gray-700 mb-4">You are not currently assigned to any stall.</p>
           <p className="text-gray-500">Please contact your administrator.</p>

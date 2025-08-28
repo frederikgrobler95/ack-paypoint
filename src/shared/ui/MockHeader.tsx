@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouteName } from '../../hooks/useRouteName';
 import { shouldShowBackButton } from '../../config/routes';
@@ -9,13 +9,15 @@ interface MockHeaderProps {
   showNavigation?: boolean;
   showUserControls?: boolean;
   showBackButton?: boolean;
+  autoOpenDropdown?: boolean; // New prop to control dropdown state
 }
 
 function MockHeader({
   title,
   showNavigation = true,
   showUserControls = true,
-  showBackButton
+  showBackButton,
+  autoOpenDropdown = false
 }: MockHeaderProps): React.JSX.Element {
   const { currentUser, role } = useAuth();
   const location = useLocation();
@@ -87,7 +89,7 @@ function MockHeader({
                   <span className="text-xs bg-indigo-600 px-2 py-1 rounded">
                     {role === 'admin' ? 'Admin' : 'Member'}
                   </span>
-                  <MockDropdownMenu />
+                  <MockDropdownMenu autoOpen={autoOpenDropdown} />
                 </div>
               </div>
             )}
@@ -113,7 +115,7 @@ function MockHeader({
         </div>
         {showUserControls && currentUser && (
           <div className="flex space-x-2">
-            <MockDropdownMenu />
+            <MockDropdownMenu autoOpen={autoOpenDropdown} />
           </div>
         )}
       </div>
@@ -122,22 +124,73 @@ function MockHeader({
 }
 
 // Mock dropdown menu component that looks like the real one but doesn't function
-function MockDropdownMenu() {
+function MockDropdownMenu({ autoOpen = false }: { autoOpen?: boolean }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+  
   const handleMockAction = (e: React.MouseEvent) => {
     e.preventDefault();
+    setIsOpen(false); // Close the dropdown menu
+  };
+  
+  const handleRefundClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsOpen(false); // Close the dropdown menu
+    navigate('/tutorial/refunds/step1');
   };
 
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen);
+  };
+
+  // Effect to automatically open the dropdown when autoOpen prop is true
+  React.useEffect(() => {
+    if (autoOpen) {
+      setIsOpen(true);
+    }
+  }, [autoOpen]);
+
   return (
-    <div className="relative z-5">
+    <div className="relative">
       <button
-        onClick={handleMockAction}
-        className="text-white cursor-default focus:outline-none"
-        aria-label="User menu (disabled in tutorial)"
+        className="text-white focus:outline-none header-menu-button opacity-50 cursor-not-allowed"
+        aria-label="User menu"
+        disabled
       >
         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
         </svg>
       </button>
+      
+      {/* Mock dropdown menu */}
+      {isOpen && (
+        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+          <button
+            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left cursor-default opacity-50"
+            disabled
+          >
+            Profile
+          </button>
+          <button
+            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left cursor-default opacity-50"
+            disabled
+          >
+            Settings
+          </button>
+          <button
+            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left refunds-link opacity-50"
+            disabled
+          >
+            Refunds
+          </button>
+          <button
+            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left cursor-default opacity-50"
+            disabled
+          >
+            Sign out
+          </button>
+        </div>
+      )}
     </div>
   );
 }

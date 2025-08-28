@@ -4,35 +4,33 @@ import { FlowContainer } from '../../../shared/ui';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useTutorialStore } from '../../../shared/stores/tutorialStore';
 
-function SalesTutorialComplete() {
+function RefundsTutorialComplete() {
   const navigate = useNavigate();
   const {
-    resetSalesTutorial,
+    resetRefundsTutorial,
     setCurrentTutorial,
-    setCurrentStep
+    setCurrentStep,
+    markTutorialAsCompleted
   } = useTutorialStore();
 
   const handleRestartTutorial = async () => {
     try {
       // Reset the tutorial store state
-      resetSalesTutorial();
+      resetRefundsTutorial();
       setCurrentTutorial('sales');
       setCurrentStep(1);
       
-      // Navigate to the first step
+      // Navigate to the first step of sales tutorial
       navigate('/tutorial/sales');
     } catch (error) {
       console.error('Error restarting tutorial:', error);
     }
   };
 
-  const handleContinueToRefunds = () => {
-    // Set up the refunds tutorial
-    setCurrentTutorial('refunds');
-    setCurrentStep(0);
-    
-    // Navigate to the refunds tutorial
-    navigate('/tutorial/refunds');
+  const handleCompleteTutorial = () => {
+    // Mark tutorial as completed and exit tutorial mode
+    markTutorialAsCompleted();
+    navigate('/');
   };
 
   return (
@@ -49,35 +47,41 @@ function SalesTutorialComplete() {
             
             {/* Title */}
             <h1 className="text-2xl font-bold text-gray-900 mb-4">
-              Sales Tutorial Complete!
+              Refunds Tutorial Complete!
             </h1>
             
             {/* Description */}
             <p className="text-gray-600 mb-6">
-              Congratulations! You've successfully completed the sales tutorial.
-              You now know how to process sales transactions and handle customer payments.
+              Congratulations! You've successfully completed the refunds tutorial.
+              You now know how to process refund transactions by accessing refunds from the header dropdown menu,
+              scanning customer QR codes, selecting transactions at the current stall,
+              setting refund amounts, and confirming refunds.
             </p>
             
-            {/* Next Tutorial Info */}
+            {/* Tutorial Summary */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
               <h3 className="text-lg font-semibold text-blue-900 mb-2">
-                Next: Learn Refunds
+                What You've Learned
               </h3>
-              <p className="text-blue-700 text-sm">
-                Continue your training by learning how to process refunds. This tutorial will show you how to handle refund requests from the header menu.
-              </p>
+              <ul className="text-blue-700 text-sm space-y-1 text-left">
+                <li>• How to access refunds from the header menu</li>
+                <li>• Finding and selecting transactions to refund</li>
+                <li>• Setting full or partial refund amounts</li>
+                <li>• Selecting appropriate refund reasons</li>
+                <li>• Confirming and processing refunds safely</li>
+              </ul>
             </div>
             
             {/* Action Buttons */}
             <div className="space-y-4">
               <button
-                onClick={handleContinueToRefunds}
-                className="w-full flex items-center justify-center px-4 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200"
+                onClick={handleCompleteTutorial}
+                className="w-full flex items-center justify-center px-4 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-200"
               >
                 <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
-                Continue to Refunds Tutorial
+                Complete Tutorial & Exit
               </button>
               
               <button
@@ -87,14 +91,14 @@ function SalesTutorialComplete() {
                 <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
-                Restart Sales Tutorial
+                Go to Sales Tutorial
               </button>
             </div>
             
             {/* Additional Info */}
             <div className="mt-8 pt-6 border-t border-gray-200">
               <p className="text-sm text-gray-500">
-                You can always restart this tutorial later from the settings menu.
+                Click "Go to Sales Tutorial" to learn how to process sales transactions.
               </p>
             </div>
           </div>
@@ -104,4 +108,4 @@ function SalesTutorialComplete() {
   );
 }
 
-export default SalesTutorialComplete;
+export default RefundsTutorialComplete;

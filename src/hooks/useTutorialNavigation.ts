@@ -5,9 +5,9 @@ import { StallType } from '../shared/contracts/stall';
 
 interface TutorialNavigationHook {
   navigateToNextTutorialStep: (currentPath: string) => void;
-  completeTutorialFlow: (tutorialType: 'sales' | 'registration' | 'checkout') => Promise<void>;
+  completeTutorialFlow: (tutorialType: 'sales' | 'registration' | 'checkout' | 'refunds') => Promise<void>;
   exitTutorial: () => void;
-  navigateToTutorialStep: (tutorialType: 'sales' | 'registration' | 'checkout', step?: number) => void;
+  navigateToTutorialStep: (tutorialType: 'sales' | 'registration' | 'checkout' | 'refunds', step?: number) => void;
 }
 
 export const useTutorialNavigation = (): TutorialNavigationHook => {
@@ -52,17 +52,26 @@ export const useTutorialNavigation = (): TutorialNavigationHook => {
         '/tutorial/checkout/step1',
         '/tutorial/checkout/step2',
         '/tutorial/checkout/step3'
+      ],
+      refunds: [
+        '/tutorial/refunds',
+        '/tutorial/refunds/step1',
+        '/tutorial/refunds/step2',
+        '/tutorial/refunds/step3',
+        '/tutorial/refunds/step4'
       ]
     };
 
     // Determine which tutorial we're in based on the current path
-    let tutorialType: 'sales' | 'registration' | 'checkout' | null = null;
+    let tutorialType: 'sales' | 'registration' | 'checkout' | 'refunds' | null = null;
     if (currentPath.startsWith('/tutorial/sales')) {
       tutorialType = 'sales';
     } else if (currentPath.startsWith('/tutorial/registration')) {
       tutorialType = 'registration';
     } else if (currentPath.startsWith('/tutorial/checkout')) {
       tutorialType = 'checkout';
+    } else if (currentPath.startsWith('/tutorial/refunds')) {
+      tutorialType = 'refunds';
     }
 
     if (!tutorialType) {
@@ -94,9 +103,12 @@ export const useTutorialNavigation = (): TutorialNavigationHook => {
   /**
    * Complete a tutorial flow and mark it as completed
    */
-  const completeTutorialFlow = async (tutorialType: 'sales' | 'registration' | 'checkout') => {
+  const completeTutorialFlow = async (tutorialType: 'sales' | 'registration' | 'checkout' | 'refunds') => {
     try {
-      await markTutorialCompleted(tutorialType);
+      // Only mark tutorial as completed for the original tutorial types
+      if (tutorialType !== 'refunds') {
+        await markTutorialCompleted(tutorialType);
+      }
       
       // Navigate to the completion page
       navigate(`/tutorial/${tutorialType}/complete`);
@@ -116,7 +128,7 @@ export const useTutorialNavigation = (): TutorialNavigationHook => {
    * Navigate to a specific tutorial step
    */
   const navigateToTutorialStep = (
-    tutorialType: 'sales' | 'registration' | 'checkout', 
+    tutorialType: 'sales' | 'registration' | 'checkout' | 'refunds',
     step?: number
   ) => {
     if (step === undefined) {

@@ -15,7 +15,7 @@ interface Transaction {
 
 interface TutorialState {
   // Current tutorial info
-  currentTutorial: 'sales' | 'registration' | 'checkout' | null;
+  currentTutorial: 'sales' | 'registration' | 'checkout' | 'refunds' | null;
   currentStep: number;
   totalSteps: number;
   
@@ -46,6 +46,15 @@ interface TutorialState {
     items: number;
   };
   
+  mockRefundsData: {
+    qrCode: string;
+    customerName: string;
+    originalAmountCents: number;
+    refundAmountCents: number;
+    transactions: Transaction[];
+    totalRefunds: number;
+  };
+  
   // Add missing mockData property with proper structure
   mockData: {
     sales: {
@@ -71,6 +80,14 @@ interface TutorialState {
       totalRevenue: number;
       items: { name: string }[]; // Changed from number to array to match component expectations
     };
+    refunds: {
+      qrCode: string;
+      customerName: string;
+      originalAmountCents: number;
+      refundAmountCents: number;
+      transactions: Transaction[];
+      totalRefunds: number;
+    };
   };
   
   // Tutorial progress
@@ -92,11 +109,18 @@ interface TutorialState {
     step3: boolean; // Payment confirmation
   };
   
+  refundsSteps: {
+    step1: boolean; // QR scanning
+    step2: boolean; // List customer transactions
+    step3: boolean; // Enter refund amount
+    step4: boolean; // Refund confirmation
+  };
+  
   // Tutorial settings
   tutorialEnabled: boolean;
   
   // Methods
-  setCurrentTutorial: (tutorial: 'sales' | 'registration' | 'checkout' | null) => void;
+  setCurrentTutorial: (tutorial: 'sales' | 'registration' | 'checkout' | 'refunds' | null) => void;
   setCurrentStep: (step: number) => void;
   setTutorialEnabled: (enabled: boolean) => void;
   markTutorialAsCompleted: () => void;
@@ -114,10 +138,15 @@ interface TutorialState {
   completeCheckoutStep: (step: number) => void;
   resetCheckoutTutorial: () => void;
   
+  // Refunds tutorial methods
+  completeRefundsStep: (step: number) => void;
+  resetRefundsTutorial: () => void;
+  
   // Actions to update mock data
   setMockSalesData: (data: Partial<TutorialState['mockSalesData']>) => void;
   setMockRegistrationData: (data: Partial<TutorialState['mockRegistrationData']>) => void;
   setMockCheckoutData: (data: Partial<TutorialState['mockCheckoutData']>) => void;
+  setMockRefundsData: (data: Partial<TutorialState['mockRefundsData']>) => void;
   
   // Add missing methods
   setTotalSteps: (steps: number) => void;
@@ -212,6 +241,31 @@ export const useTutorialStore = create<TutorialState>()(
             { name: 'Item 4' },
             { name: 'Item 5' }
           ], // Changed from number to array to match component expectations
+        },
+        refunds: {
+          qrCode: 'BASAAR25-927382',
+          customerName: 'Sarel Seemonster',
+          originalAmountCents: 10000, // 100.00 in cents
+          refundAmountCents: 5000, // 50.00 in cents
+          transactions: [
+            {
+              id: '1',
+              operatorName: 'Tutorial Operator',
+              customerName: 'Sarel Seemonster',
+              amountCents: 10000,
+              type: 'sale',
+              createdAt: new Date(),
+            },
+            {
+              id: '2',
+              operatorName: 'Tutorial Operator',
+              customerName: 'Karel Kraai',
+              amountCents: 7500,
+              type: 'refund',
+              createdAt: new Date(),
+            },
+          ],
+          totalRefunds: 7500, // 75.00 in cents
         }
       },
       mockSalesData: {
@@ -288,6 +342,31 @@ export const useTutorialStore = create<TutorialState>()(
         totalRevenue: 19500, // 195.00 in cents
         items: 5,
       },
+      mockRefundsData: {
+        qrCode: 'BASAAR25-927382',
+        customerName: 'Sarel Seemonster',
+        originalAmountCents: 10000, // 100.00 in cents
+        refundAmountCents: 5000, // 50.00 in cents
+        transactions: [
+          {
+            id: '1',
+            operatorName: 'Tutorial Operator',
+            customerName: 'Sarel Seemonster',
+            amountCents: 10000,
+            type: 'sale',
+            createdAt: new Date(),
+          },
+          {
+            id: '2',
+            operatorName: 'Tutorial Operator',
+            customerName: 'Karel Kraai',
+            amountCents: 7500,
+            type: 'refund',
+            createdAt: new Date(),
+          },
+        ],
+        totalRefunds: 7500, // 75.00 in cents
+      },
       salesSteps: {
         step1: false,
         step2: false,
@@ -302,6 +381,12 @@ export const useTutorialStore = create<TutorialState>()(
         step1: false,
         step2: false,
         step3: false,
+      },
+      refundsSteps: {
+        step1: false,
+        step2: false,
+        step3: false,
+        step4: false,
       },
       
       setCurrentTutorial: (tutorial) => {
@@ -435,6 +520,41 @@ export const useTutorialStore = create<TutorialState>()(
         set((state) => ({
           mockCheckoutData: {
             ...state.mockCheckoutData,
+            ...data,
+          },
+        }));
+      },
+      
+      completeRefundsStep: (step) => {
+        set((state) => {
+          const stepKey = `step${step}` as keyof typeof state.refundsSteps;
+          if (state.refundsSteps[stepKey] !== true) {
+            return {
+              refundsSteps: {
+                ...state.refundsSteps,
+                [stepKey]: true,
+              },
+            };
+          }
+          return {};
+        });
+      },
+      
+      resetRefundsTutorial: () => {
+        set({
+          refundsSteps: {
+            step1: false,
+            step2: false,
+            step3: false,
+            step4: false,
+          },
+        });
+      },
+      
+      setMockRefundsData: (data) => {
+        set((state) => ({
+          mockRefundsData: {
+            ...state.mockRefundsData,
             ...data,
           },
         }));

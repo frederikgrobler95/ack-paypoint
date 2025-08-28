@@ -43,7 +43,7 @@ function RoleSelectionPage(): React.JSX.Element {
   
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col justify-center">
+      <div className=" bg-gray-50 flex flex-col justify-center">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mb-4"></div>
           <p className="text-gray-600">Loading user...</p>
@@ -54,7 +54,7 @@ function RoleSelectionPage(): React.JSX.Element {
   
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col justify-center">
+      <div className=" bg-gray-50 flex flex-col justify-center">
         <div className="text-center">
           <p className="text-red-600">Error loading user: {(error as Error).message}</p>
           <button 
@@ -70,7 +70,7 @@ function RoleSelectionPage(): React.JSX.Element {
   
   if (!user) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col justify-center">
+      <div className=" bg-gray-50 flex flex-col justify-center">
         <div className="text-center">
           <p className="text-red-600">User not found</p>
           <button 

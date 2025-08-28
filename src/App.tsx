@@ -82,6 +82,13 @@ import CheckoutStep3PageTutorial from './routes/tutorial/checkout/step3/Checkout
 import RegistrationTutorialComplete from './routes/tutorial/registration/RegistrationTutorialComplete'
 import SalesTutorialComplete from './routes/tutorial/sales/SalesTutorialComplete'
 import CheckoutTutorialComplete from './routes/tutorial/checkout/CheckoutTutorialComplete'
+// Refunds Tutorial Components
+import RefundsPageTutorial from './routes/tutorial/refunds/RefundsPageTutorial'
+import RefundsStep1PageTutorial from './routes/tutorial/refunds/step1/RefundsStep1PageTutorial'
+import RefundsStep2PageTutorial from './routes/tutorial/refunds/step2/RefundsStep2PageTutorial'
+import RefundsStep3PageTutorial from './routes/tutorial/refunds/step3/RefundsStep3PageTutorial'
+import RefundsStep4PageTutorial from './routes/tutorial/refunds/step4/RefundsStep4PageTutorial'
+import RefundsTutorialComplete from './routes/tutorial/refunds/RefundsTutorialComplete'
 
 function App(): React.JSX.Element {
   const { currentUser, loading, tutorialEnabled } = useAuth();
@@ -150,7 +157,7 @@ function App(): React.JSX.Element {
   // Show loading state while auth is initializing
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col justify-center">
+      <div className=" bg-gray-50 flex flex-col justify-center">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mb-4"></div>
           <p className="text-gray-600">Loading...</p>
@@ -173,7 +180,7 @@ function App(): React.JSX.Element {
     <>
       <GlobalSpinner />
       <ToastContainer />
-      {location.pathname.startsWith('/tutorial') ? <MockHeader /> : <Header />}
+      {location.pathname.startsWith('/tutorial') ? <MockHeader autoOpenDropdown={location.pathname === '/tutorial/refunds'} /> : <Header />}
       <PWANotification />
       
       <div className={`pt-16 ${location.pathname.startsWith('/tutorial') ? 'pb-4' : 'pb-16'}`}> {/* Adjust padding based on tutorial mode */}
@@ -194,6 +201,12 @@ function App(): React.JSX.Element {
           <Route path="/tutorial/registration/complete" element={<RegistrationTutorialComplete />} />
           <Route path="/tutorial/sales/complete" element={<SalesTutorialComplete />} />
           <Route path="/tutorial/checkout/complete" element={<CheckoutTutorialComplete />} />
+          <Route path="/tutorial/refunds" element={<RefundsPageTutorial />} />
+          <Route path="/tutorial/refunds/step1" element={<RefundsStep1PageTutorial />} />
+          <Route path="/tutorial/refunds/step2" element={<RefundsStep2PageTutorial />} />
+          <Route path="/tutorial/refunds/step3" element={<RefundsStep3PageTutorial />} />
+          <Route path="/tutorial/refunds/step4" element={<RefundsStep4PageTutorial />} />
+          <Route path="/tutorial/refunds/complete" element={<RefundsTutorialComplete />} />
           
           {/* Main App Routes - Only accessible when not in tutorial mode */}
           {!shouldRestrictToTutorial() && (
