@@ -130,15 +130,7 @@ function RefundsStep1PageTutorial() {
       )}
       
       {/* Info Section */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h3 className="text-sm font-medium text-blue-800 mb-2">
-          Refund Process
-        </h3>
-        <p className="text-sm text-blue-700">
-          After scanning or entering the QR code, you'll see all transactions for this customer at the current stall.
-          You can then select which transaction to refund.
-        </p>
-      </div>
+      
     </FlowContainer>
   );
 }

@@ -163,34 +163,7 @@ function MockDropdownMenu({ autoOpen = false }: { autoOpen?: boolean }) {
       </button>
       
       {/* Mock dropdown menu */}
-      {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-          <button
-            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left cursor-default opacity-50"
-            disabled
-          >
-            Profile
-          </button>
-          <button
-            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left cursor-default opacity-50"
-            disabled
-          >
-            Settings
-          </button>
-          <button
-            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left refunds-link opacity-50"
-            disabled
-          >
-            Refunds
-          </button>
-          <button
-            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left cursor-default opacity-50"
-            disabled
-          >
-            Sign out
-          </button>
-        </div>
-      )}
+     
     </div>
   );
 }

@@ -27,7 +27,7 @@ const refundsTutorialSteps = [
 
 function RefundsPageTutorial() {
   const navigate = useNavigate();
-  const { mockRefundsData, setCurrentTutorial } = useTutorialStore();
+  const { mockSalesData, setCurrentTutorial } = useTutorialStore();
   const { navigateToTutorialStep, exitTutorial } = useTutorialNavigation();
   
   // Set current tutorial when component mounts
@@ -78,20 +78,18 @@ function RefundsPageTutorial() {
       </div>
       
       <div className="p-4">
-        {/* Tutorial Introduction */}
-        
-        {/* Refunds Overview Card */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-lg font-semibold text-gray-700 mb-2">Total Refunds (Tutorial)</h2>
-          <p className="text-3xl font-bold text-red-600">R{formatAmount(mockRefundsData.totalRefunds)}</p>
+        {/* Sales Overview Card */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6 sales-overview">
+          <h2 className="text-lg font-semibold text-gray-700 mb-2">Total Sales (Tutorial)</h2>
+          <p className="text-3xl font-bold text-green-600">R{formatAmount(mockSalesData.totalSales)}</p>
           <p className="text-gray-500 text-sm mt-2">This is mock data for tutorial purposes</p>
         </div>
         
-        {/* Recent Refunds */}
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-700 mb-3">Recent Refund Transactions</h2>
-          {mockRefundsData.transactions.length > 0 ? (
-            mockRefundsData.transactions.filter(t => t.type === 'refund').map((transaction) => (
+        {/* Recent Transactions */}
+        <div className="mb-6 recent-transactions">
+          <h2 className="text-xl font-semibold text-gray-700 mb-3">Recent Transactions</h2>
+          {mockSalesData.transactions.length > 0 ? (
+            mockSalesData.transactions.map((transaction) => (
               <div key={transaction.id} className="bg-white rounded-lg shadow-sm p-4 mb-3">
                 <div className="flex justify-between items-center">
                   <div>
@@ -99,36 +97,29 @@ function RefundsPageTutorial() {
                     <p className="text-gray-500 text-sm">{transaction.operatorName}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-medium text-red-600">-R{formatAmount(transaction.amountCents)}</p>
+                    <p className="font-medium text-gray-800">R{formatAmount(transaction.amountCents)}</p>
                     <p className="text-gray-500 text-sm">
-                      {transaction.createdAt instanceof Date
-                        ? transaction.createdAt.toLocaleDateString()
+                      {transaction.createdAt instanceof Date 
+                        ? transaction.createdAt.toLocaleDateString() 
                         : 'Just now'}
                     </p>
                   </div>
-                </div>
-                <div className="mt-2">
-                  <span className="inline-block bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">
-                    Refund
-                  </span>
                 </div>
               </div>
             ))
           ) : (
             <div className="bg-white rounded-lg shadow-sm p-4 text-center text-gray-500">
-              No refund transactions yet
+              No transactions yet
             </div>
           )}
         </div>
+        
+       
+        
+        {/* Tutorial Controls */}
+        
       </div>
-      
-      {/* Overlay to disable header interactions */}
-      <div className="fixed inset-0 z-40 pointer-events-none">
-        <div className="absolute top-0 left-0 right-0 h-16 bg-black bg-opacity-20"></div>
-      </div>
-      
-      {/* Additional overlay specifically for header menu button */}
-      <div className="fixed top-0 right-0 w-20 h-16 z-45 bg-transparent pointer-events-auto cursor-not-allowed"></div>
+    
     </FlowContainer>
   );
 }

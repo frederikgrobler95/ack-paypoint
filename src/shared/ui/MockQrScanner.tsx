@@ -59,11 +59,7 @@ const MockQrScanner = React.forwardRef<MockQrScannerHandle, MockQrScannerProps>(
             In tutorial mode, this scanner simulates scanning a QR code.
           </p>
           
-          <div className="bg-blue-50 p-3 rounded-lg">
-            <p className="text-sm text-blue-800">
-              <span className="font-medium">Mock QR Code:</span> {mockData.sales.qrCode}
-            </p>
-          </div>
+          
         </div>
       </div>
       

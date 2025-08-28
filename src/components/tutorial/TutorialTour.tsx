@@ -21,9 +21,15 @@ const TutorialTour: React.FC<TutorialTourProps> = ({ steps, run = true }) => {
     }
   };
 
+  // Add hideCloseButton: true to all steps
+  const stepsWithHiddenCloseButton = steps.map(step => ({
+    ...step,
+    hideCloseButton: true
+  }));
+
   return (
     <Joyride
-      steps={steps}
+      steps={stepsWithHiddenCloseButton}
       run={run}
       continuous
       showSkipButton={false}
@@ -32,6 +38,9 @@ const TutorialTour: React.FC<TutorialTourProps> = ({ steps, run = true }) => {
       disableOverlayClose
       disableScrolling={false}
       spotlightPadding={10}
+      locale={{
+        last: 'Next'
+      }}
       styles={{
         options: {
           arrowColor: '#fff',

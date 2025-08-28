@@ -40,7 +40,7 @@ function RefundsStep4PageTutorial() {
     <FlowContainer withHeaderOffset withBottomOffset>
       <TutorialTour steps={refundsStep4TutorialSteps} />
       
-      <div className="refund-confirmation">
+      <div className="refund-confirmation p-4">
         {/* Customer Information */}
         <div className="bg-white rounded-lg shadow-md p-4 mb-4">
           <h2 className="text-lg font-semibold text-gray-800 mb-2">Customer</h2>
