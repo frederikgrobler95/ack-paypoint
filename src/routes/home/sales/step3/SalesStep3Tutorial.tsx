@@ -24,11 +24,10 @@ const salesTutorialSteps = [
 
 function SalesStep3Tutorial() {
   const navigate = useNavigate();
-  const { mockData, onCompleteTutorial, markTutorialAsCompleted, setSalesTutorialCompleted } = useTutorialStore();
+  const { mockData, onCompleteTutorial, markTutorialAsCompleted } = useTutorialStore();
 
   const handleCompleteTutorial = () => {
     onCompleteTutorial();
-    setSalesTutorialCompleted(true);
     markTutorialAsCompleted();
     // Navigate back to the main tutorial page
     navigate('/tutorial/sales');

@@ -3,10 +3,6 @@ import { updateUserTutorialStatus, markTutorialAsCompleted, markAllTutorialsAsCo
 
 interface TutorialState {
   tutorialEnabled: boolean;
-  tutorialCompleted: boolean;
-  salesTutorialCompleted: boolean;
-  checkoutTutorialCompleted: boolean;
-  registrationTutorialCompleted: boolean;
 }
 
 interface TutorialMethods {
@@ -20,15 +16,8 @@ export const useTutorial = (): TutorialState & TutorialMethods => {
   const {
     currentUser,
     tutorialEnabled,
-    tutorialCompleted,
-    salesTutorialCompleted,
-    checkoutTutorialCompleted,
-    registrationTutorialCompleted,
     setTutorialEnabled,
-    setTutorialCompleted,
-    setSalesTutorialCompleted,
-    setCheckoutTutorialCompleted,
-    setRegistrationTutorialCompleted
+    setTutorialCompleted
   } = useAuth();
 
   const updateTutorialStatus = async (tutorialData: Partial<TutorialState>) => {
@@ -42,18 +31,6 @@ export const useTutorial = (): TutorialState & TutorialMethods => {
       // Update local state
       if (tutorialData.tutorialEnabled !== undefined) {
         await setTutorialEnabled(tutorialData.tutorialEnabled);
-      }
-      if (tutorialData.tutorialCompleted !== undefined) {
-        await setTutorialCompleted(tutorialData.tutorialCompleted);
-      }
-      if (tutorialData.salesTutorialCompleted !== undefined) {
-        await setSalesTutorialCompleted(tutorialData.salesTutorialCompleted);
-      }
-      if (tutorialData.checkoutTutorialCompleted !== undefined) {
-        await setCheckoutTutorialCompleted(tutorialData.checkoutTutorialCompleted);
-      }
-      if (tutorialData.registrationTutorialCompleted !== undefined) {
-        await setRegistrationTutorialCompleted(tutorialData.registrationTutorialCompleted);
       }
     } catch (error) {
       console.error('Error updating tutorial status:', error);
@@ -71,18 +48,6 @@ export const useTutorial = (): TutorialState & TutorialMethods => {
         // Mark a specific tutorial as completed
         await markTutorialAsCompleted(currentUser.uid, tutorialType);
         
-        // Update local state
-        switch (tutorialType) {
-          case 'sales':
-            await setSalesTutorialCompleted(true);
-            break;
-          case 'checkout':
-            await setCheckoutTutorialCompleted(true);
-            break;
-          case 'registration':
-            await setRegistrationTutorialCompleted(true);
-            break;
-        }
       } else {
         // Mark all tutorials as completed
         await markAllTutorialsAsCompleted(currentUser.uid);
@@ -106,9 +71,6 @@ export const useTutorial = (): TutorialState & TutorialMethods => {
       // Update local state
       await setTutorialEnabled(true);
       await setTutorialCompleted(false);
-      await setSalesTutorialCompleted(false);
-      await setCheckoutTutorialCompleted(false);
-      await setRegistrationTutorialCompleted(false);
     } catch (error) {
       console.error('Error resetting tutorial:', error);
       throw error;
@@ -116,16 +78,12 @@ export const useTutorial = (): TutorialState & TutorialMethods => {
   };
 
   const isTutorialActive = () => {
-    return tutorialEnabled && !tutorialCompleted;
+    return tutorialEnabled;
   };
 
   return {
     // State
     tutorialEnabled,
-    tutorialCompleted,
-    salesTutorialCompleted,
-    checkoutTutorialCompleted,
-    registrationTutorialCompleted,
     
     // Methods
     markTutorialCompleted,

@@ -9,7 +9,6 @@ export interface AdminUpdateUserRoleInput {
   role: 'admin' | 'member';
   tutorialMode?: boolean;
   tutorialEnabled?: boolean;
-  tutorialCompleted?: boolean;
 }
 
 // Function to update user role directly
@@ -32,10 +31,6 @@ const adminUpdateUserRole = async (input: AdminUpdateUserRoleInput): Promise<{ s
       updateData.tutorialEnabled = input.tutorialEnabled;
     }
     
-    // Only include tutorialCompleted if it's provided
-    if (input.tutorialCompleted !== undefined) {
-      updateData.tutorialCompleted = input.tutorialCompleted;
-    }
     
     await updateDoc(userDocRef, updateData);
     

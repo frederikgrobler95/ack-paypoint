@@ -20,15 +20,12 @@ const checkoutStep3TutorialSteps = [
     target: '.confirm-button',
     content: 'Click this button to confirm and complete the checkout tutorial.',
   },
-  {
-    target: '.tutorial-navigation',
-    content: 'Use these buttons to navigate between tutorial steps or exit the tutorial.',
-  },
+  
 ];
 
 function CheckoutStep3PageTutorial() {
   const navigate = useNavigate();
-  const { mockCheckoutData, setCheckoutTutorialCompleted, markTutorialAsCompleted } = useTutorialStore();
+  const { mockCheckoutData, markTutorialAsCompleted } = useTutorialStore();
   const { exitTutorial } = useTutorialNavigation();
   const [isProcessing, setIsProcessing] = useState(false);
   
@@ -49,15 +46,8 @@ function CheckoutStep3PageTutorial() {
     // Simulate processing delay
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    // Mark checkout tutorial as completed
-    setCheckoutTutorialCompleted(true);
-    
-    // Check if all tutorials are completed
-    const state = useTutorialStore.getState();
-    if (state.salesTutorialCompleted && state.registrationTutorialCompleted && state.checkoutTutorialCompleted) {
-      // Mark entire tutorial system as completed
-      markTutorialAsCompleted();
-    }
+    // Mark entire tutorial system as completed
+    markTutorialAsCompleted();
     
     // Navigate to home or next tutorial
     setIsProcessing(false);
@@ -77,31 +67,7 @@ function CheckoutStep3PageTutorial() {
       <TutorialTour steps={checkoutStep3TutorialSteps} />
       
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">Checkout Tutorial - Step 3: Confirm Checkout</h1>
-        
-        <div className="mb-6">
-          <h2 className="text-lg font-semibold text-gray-700 mb-3">Tutorial Instructions</h2>
-          <p className="text-gray-600 mb-4">
-            In this step, you'll learn how to confirm and complete a checkout transaction.
-          </p>
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <p className="text-blue-800">
-              <span className="font-medium">Tip:</span> Follow the guided tour instructions to learn how to use this page.
-            </p>
-          </div>
-        </div>
-        
-        <div className="mb-6">
-          <h3 className="text-md font-semibold text-gray-800 mb-3">Mock Customer Information</h3>
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <p className="text-gray-700 mb-2">
-              <span className="font-medium">Customer:</span> {mockCheckoutData.customerName}
-            </p>
-            <p className="text-gray-700">
-              <span className="font-medium">Outstanding Amount:</span> {formatAmount(mockCheckoutData.amountCents)}
-            </p>
-          </div>
-        </div>
+       
         
         {/* Customer Details */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6 customer-details-section">
@@ -157,25 +123,7 @@ function CheckoutStep3PageTutorial() {
       </div>
       
       {/* Tutorial Navigation */}
-      <div className="fixed bottom-4 left-0 right-0 bg-white p-4 border-t border-gray-200 tutorial-navigation">
-        <div className="flex justify-between">
-          <button
-            onClick={exitTutorial}
-            className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            Exit Tutorial
-          </button>
-          
-          <div className="space-x-2">
-            <button
-              onClick={() => navigate('/tutorial/checkout/step2')}
-              className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              Back
-            </button>
-          </div>
-        </div>
-      </div>
+      
     </FlowContainer>
   );
 }

@@ -50,10 +50,6 @@ export declare const onAuthStateChanged: (callback: (user: User | null) => void)
  */
 export declare const updateUserTutorialStatus: (userId: string, tutorialData: {
   tutorialEnabled?: boolean;
-  tutorialCompleted?: boolean;
-  salesTutorialCompleted?: boolean;
-  checkoutTutorialCompleted?: boolean;
-  registrationTutorialCompleted?: boolean;
 }) => Promise<void>;
 
 /**

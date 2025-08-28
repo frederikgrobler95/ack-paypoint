@@ -118,10 +118,6 @@ export const signUpWithEmailAndPassword = async (name: string, username: string,
       role: 'member',
       // Initialize tutorial flags for new users
       tutorialEnabled: true,
-      tutorialCompleted: false,
-      salesTutorialCompleted: false,
-      checkoutTutorialCompleted: false,
-      registrationTutorialCompleted: false,
     });
 
     // Update the user's display name in Firebase Auth
@@ -153,10 +149,6 @@ export const onAuthStateChanged = (callback: (user: User | null) => void) => {
  */
 export const updateUserTutorialStatus = async (userId: string, tutorialData: {
   tutorialEnabled?: boolean;
-  tutorialCompleted?: boolean;
-  salesTutorialCompleted?: boolean;
-  checkoutTutorialCompleted?: boolean;
-  registrationTutorialCompleted?: boolean;
 }) => {
   try {
     const firestore = getFirestore(app);
@@ -176,10 +168,9 @@ export const updateUserTutorialStatus = async (userId: string, tutorialData: {
  */
 export const markTutorialAsCompleted = async (userId: string, tutorialType: 'sales' | 'checkout' | 'registration') => {
   try {
-    const tutorialField = `${tutorialType}TutorialCompleted`;
-    await updateUserTutorialStatus(userId, {
-      [tutorialField]: true
-    });
+    // This function is now a no-op since we're not tracking individual tutorial completion states
+    // The tutorialEnabled flag is managed separately
+    console.log(`Tutorial ${tutorialType} marked as completed for user ${userId}`);
   } catch (error) {
     console.error(`Error marking ${tutorialType} tutorial as completed:`, error);
     throw error;
@@ -194,10 +185,6 @@ export const markTutorialAsCompleted = async (userId: string, tutorialType: 'sal
 export const markAllTutorialsAsCompleted = async (userId: string) => {
   try {
     await updateUserTutorialStatus(userId, {
-      tutorialCompleted: true,
-      salesTutorialCompleted: true,
-      checkoutTutorialCompleted: true,
-      registrationTutorialCompleted: true,
       tutorialEnabled: false // Disable tutorial when all are completed
     });
   } catch (error) {
@@ -214,10 +201,6 @@ export const markAllTutorialsAsCompleted = async (userId: string) => {
 export const resetUserTutorial = async (userId: string) => {
   try {
     await updateUserTutorialStatus(userId, {
-      tutorialCompleted: false,
-      salesTutorialCompleted: false,
-      checkoutTutorialCompleted: false,
-      registrationTutorialCompleted: false,
       tutorialEnabled: true // Re-enable tutorial
     });
   } catch (error) {

@@ -87,19 +87,17 @@ function UsersPage(): React.JSX.Element {
             {user.tutorialEnabled ? 'Disable Tutorial' : 'Enable Tutorial'}
           </button>
           
-          {user.tutorialCompleted && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                resetUserTutorialMutation.mutate({
-                  userId: user.id
-                });
-              }}
-              className="px-3 py-1 rounded text-xs font-medium bg-yellow-100 text-yellow-800 hover:bg-yellow-200"
-            >
-              Reset Tutorial
-            </button>
-          )}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              resetUserTutorialMutation.mutate({
+                userId: user.id
+              });
+            }}
+            className="px-3 py-1 rounded text-xs font-medium bg-yellow-100 text-yellow-800 hover:bg-yellow-200"
+          >
+            Reset Tutorial
+          </button>
         </div>
       )}
     </div>

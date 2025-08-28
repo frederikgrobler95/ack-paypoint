@@ -58,7 +58,6 @@ function AddUsersScreen(): React.JSX.Element {
         email: singleUser.email,
         role: singleUser.role,
         tutorialEnabled: true, // Enable tutorial by default for new users
-        tutorialCompleted: false
       });
       
       // Reset form and show success
@@ -147,7 +146,6 @@ function AddUsersScreen(): React.JSX.Element {
             email: userData.email,
             role: userData.role,
             tutorialEnabled: true, // Enable tutorial by default for new users
-            tutorialCompleted: false
           });
         } catch (error) {
           errors.push(`Row ${i + 1}: ${(error as Error).message}`);

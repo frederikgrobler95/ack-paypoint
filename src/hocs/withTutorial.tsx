@@ -29,9 +29,6 @@ const withTutorial = <P extends object>(
       setCurrentTutorial,
       setCurrentStep,
       setTotalSteps,
-      setSalesTutorialCompleted,
-      setCheckoutTutorialCompleted,
-      setRegistrationTutorialCompleted,
     } = useTutorialStore();
 
     // Initialize tutorial when component mounts
@@ -50,10 +47,9 @@ const withTutorial = <P extends object>(
       // Set the initial step to 1
       setCurrentStep(1);
       
-      // Cleanup when component unmounts
-      return () => {
-        setCurrentTutorial(null);
-      };
+      // Note: We don't cleanup setCurrentTutorial(null) here because
+      // the tutorial state should persist across navigation between tutorial steps
+      // Only the main app should reset the tutorial state when truly exiting
     }, [tutorialType, setCurrentTutorial, setTotalSteps, setCurrentStep]);
 
     const onNextStep = () => {
@@ -69,19 +65,6 @@ const withTutorial = <P extends object>(
     };
 
     const onCompleteTutorial = () => {
-      // Mark tutorial as completed based on type
-      if (tutorialType === 'sales') {
-        setSalesTutorialCompleted(true);
-      } else if (tutorialType === 'checkout') {
-        setCheckoutTutorialCompleted(true);
-      } else if (tutorialType === 'registration') {
-        setRegistrationTutorialCompleted(true);
-      }
-      
-      // Mark tutorial as completed in AuthContext if all tutorials are completed
-      // For now, we'll just mark the current tutorial as completed
-      // In a real implementation, you might want to check if all tutorials are completed
-      
       // Reset current tutorial
       setCurrentTutorial(null);
     };

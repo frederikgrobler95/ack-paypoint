@@ -5,6 +5,7 @@ export { default as Button } from './Button';
 export { default as Input } from './Input';
 export { default as FormGroup } from './FormGroup';
 export { default as Header } from './Header';
+export { default as MockHeader } from './MockHeader';
 export { default as GlobalSpinner } from './GlobalSpinner';
 export { default as Toast } from './Toast';
 export { default as DropdownMenu } from './DropdownMenu';

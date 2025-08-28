@@ -14,7 +14,6 @@ const adminResetUserTutorial = async (input: AdminResetUserTutorialInput): Promi
     const userDocRef = doc(db, 'users', input.userId);
     await updateDoc(userDocRef, {
       tutorialEnabled: true,
-      tutorialCompleted: false,
       updatedAt: serverTimestamp(),
     });
     

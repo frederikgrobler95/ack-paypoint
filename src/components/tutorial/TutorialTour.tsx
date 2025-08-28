@@ -9,21 +9,14 @@ interface TutorialTourProps {
 
 const TutorialTour: React.FC<TutorialTourProps> = ({ steps, run = true }) => {
   const {
-    currentStep,
-    setCurrentStep,
     onCompleteTutorial
   } = useTutorialStore();
 
   const handleJoyrideCallback = (data: CallBackProps) => {
     const { action, index, status, type } = data;
 
-    // Update current step when it changes
-    if (type === 'step:after') {
-      setCurrentStep(index + 1);
-    }
-
     // Handle tour completion
-    if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
+    if (status === STATUS.FINISHED) {
       onCompleteTutorial();
     }
   };
@@ -33,8 +26,8 @@ const TutorialTour: React.FC<TutorialTourProps> = ({ steps, run = true }) => {
       steps={steps}
       run={run}
       continuous
-      showSkipButton
-      showProgress
+      showSkipButton={false}
+      showProgress={false}
       scrollToFirstStep
       disableOverlayClose
       disableScrolling={false}
@@ -47,7 +40,7 @@ const TutorialTour: React.FC<TutorialTourProps> = ({ steps, run = true }) => {
           primaryColor: '#3b82f6', // indigo-500
           textColor: '#374151', // gray-700
           width: 300,
-          zIndex: 10000,
+          zIndex: 99999, // Increased z-index to ensure it's above navigation
         },
         buttonNext: {
           backgroundColor: '#3b82f6', // indigo-500
@@ -58,9 +51,17 @@ const TutorialTour: React.FC<TutorialTourProps> = ({ steps, run = true }) => {
         buttonSkip: {
           color: '#6b7280', // gray-500
         },
+        tooltip: {
+          zIndex: 99999, // Ensure tooltip is also above navigation
+        },
+        tooltipContainer: {
+          zIndex: 99999, // Ensure tooltip container is above navigation
+        },
+        overlay: {
+          zIndex: 99998, // Overlay should be just below the tooltip
+        },
       }}
       callback={handleJoyrideCallback}
-      stepIndex={currentStep - 1} // Joyride uses 0-based index
     />
   );
 };

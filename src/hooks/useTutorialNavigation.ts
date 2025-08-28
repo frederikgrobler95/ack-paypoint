@@ -1,5 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useTutorial } from './useTutorial';
+import { useMyAssignment } from '../contexts/MyAssignmentContext';
+import { StallType } from '../shared/contracts/stall';
 
 interface TutorialNavigationHook {
   navigateToNextTutorialStep: (currentPath: string) => void;
@@ -11,6 +13,21 @@ interface TutorialNavigationHook {
 export const useTutorialNavigation = (): TutorialNavigationHook => {
   const navigate = useNavigate();
   const { markTutorialCompleted } = useTutorial();
+  const { stall } = useMyAssignment();
+
+  // Helper function to map stall type to tutorial type
+  const getRequiredTutorialForStall = (stallType: StallType): 'sales' | 'registration' | 'checkout' => {
+    switch (stallType) {
+      case 'registration':
+        return 'registration';
+      case 'checkout':
+        return 'checkout';
+      case 'commerce':
+        return 'sales';
+      default:
+        return 'sales'; // fallback
+    }
+  };
 
   /**
    * Navigate to the next step in the tutorial based on current path
@@ -63,9 +80,9 @@ export const useTutorialNavigation = (): TutorialNavigationHook => {
       return;
     }
 
-    // If we're at the last step, complete the tutorial
+    // If we're at the last step, navigate to completion page
     if (currentIndex === steps.length - 1) {
-      completeTutorialFlow(tutorialType);
+      navigate(`/tutorial/${tutorialType}/complete`);
       return;
     }
 
@@ -81,22 +98,8 @@ export const useTutorialNavigation = (): TutorialNavigationHook => {
     try {
       await markTutorialCompleted(tutorialType);
       
-      // Navigate to the next incomplete tutorial or home if all completed
-      switch (tutorialType) {
-        case 'sales':
-          // After completing sales, go to registration if not completed
-          navigate('/tutorial/registration');
-          break;
-        case 'registration':
-          // After completing registration, go to checkout if not completed
-          navigate('/tutorial/checkout');
-          break;
-        case 'checkout':
-          // After completing checkout, all tutorials are done
-          // The App.tsx redirect logic should handle navigating to home
-          navigate('/');
-          break;
-      }
+      // Navigate to the completion page
+      navigate(`/tutorial/${tutorialType}/complete`);
     } catch (error) {
       console.error('Error completing tutorial flow:', error);
     }

@@ -1,6 +1,8 @@
 import { Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 import React, { useEffect } from 'react'
 import { useAuth } from './contexts/AuthContext'
+import { useMyAssignment } from './contexts/MyAssignmentContext'
+import { StallType } from './shared/contracts/stall'
 import AuthPage from './routes/auth/AuthPage'
 import Home from './routes/home/Home'
 import RegistrationPage from './routes/home/registration/RegistrationPage'
@@ -62,6 +64,7 @@ import SalesStep2PageTutorial from './routes/tutorial/sales/step2/SalesStep2Page
 import SalesStep3PageTutorial from './routes/tutorial/sales/step3/SalesStep3PageTutorial'
 import BottomNavigation from './shared/ui/BottomNavigation'
 import Header from './shared/ui/Header'
+import MockHeader from './shared/ui/MockHeader'
 import { PWANotification } from './components'
 import GlobalSpinner from './shared/ui/GlobalSpinner'
 import ToastContainer from './shared/ui/ToastContainer'
@@ -75,33 +78,72 @@ import CheckoutPageTutorial from './routes/tutorial/checkout/CheckoutPageTutoria
 import CheckoutStep1PageTutorial from './routes/tutorial/checkout/step1/CheckoutStep1PageTutorial'
 import CheckoutStep2PageTutorial from './routes/tutorial/checkout/step2/CheckoutStep2PageTutorial'
 import CheckoutStep3PageTutorial from './routes/tutorial/checkout/step3/CheckoutStep3PageTutorial'
+// Tutorial Completion Components
+import RegistrationTutorialComplete from './routes/tutorial/registration/RegistrationTutorialComplete'
+import SalesTutorialComplete from './routes/tutorial/sales/SalesTutorialComplete'
+import CheckoutTutorialComplete from './routes/tutorial/checkout/CheckoutTutorialComplete'
 
 function App(): React.JSX.Element {
-  const { currentUser, loading, tutorialEnabled, tutorialCompleted, salesTutorialCompleted, checkoutTutorialCompleted, registrationTutorialCompleted } = useAuth();
+  const { currentUser, loading, tutorialEnabled } = useAuth();
+  const { stall, isLoading: assignmentLoading } = useMyAssignment();
   const location = useLocation();
   const navigate = useNavigate();
-  
+
+  // Helper function to map stall type to tutorial type
+  const getRequiredTutorialForStall = (stallType: StallType): 'sales' | 'registration' | 'checkout' => {
+    switch (stallType) {
+      case 'registration':
+        return 'registration';
+      case 'checkout':
+        return 'checkout';
+      case 'commerce':
+        return 'sales';
+      default:
+        return 'sales'; // fallback
+    }
+  };
+// Helper function to check if user should be restricted to tutorial mode
+  const shouldRestrictToTutorial = () => {
+    return tutorialEnabled && currentUser;
+  };
+
   // Redirect to tutorial if tutorial is enabled and user is not already on a tutorial page
-  // Redirect to main app if tutorial is completed
+  // Redirect to main app if tutorial is completed</search>
+
   useEffect(() => {
-    if (tutorialCompleted && location.pathname.startsWith('/tutorial')) {
-      // Redirect to the main app
-      navigate('/');
-    } else if (tutorialEnabled && !tutorialCompleted && currentUser && !location.pathname.startsWith('/tutorial')) {
-      // Redirect to the appropriate tutorial page based on completion status
-      // Priority order: Sales → Registration → Checkout
-      if (!salesTutorialCompleted) {
-        navigate('/tutorial/sales');
-      } else if (!registrationTutorialCompleted) {
-        navigate('/tutorial/registration');
-      } else if (!checkoutTutorialCompleted) {
-        navigate('/tutorial/checkout');
+    // Only run this effect if we have the necessary data
+    if (loading || assignmentLoading) return;
+    
+    // If user is not authenticated, don't do anything
+    if (!currentUser) return;
+    
+    // Check if we're already on a tutorial page
+    const isOnTutorialPage = location.pathname.startsWith('/tutorial');
+    
+    // Check if user should be restricted to tutorial mode
+    const restrictToTutorial = shouldRestrictToTutorial();
+    
+    // If user should be in tutorial mode but is not on a tutorial page, redirect to appropriate tutorial
+    if (restrictToTutorial && !isOnTutorialPage) {
+      // If user has a stall assignment, redirect to the appropriate tutorial for their stall
+      if (stall?.type) {
+        const requiredTutorial = getRequiredTutorialForStall(stall.type);
+        // Only navigate if we're not already going to the correct tutorial
+        if (location.pathname !== `/tutorial/${requiredTutorial}`) {
+          navigate(`/tutorial/${requiredTutorial}`);
+        }
       } else {
-        // All tutorials completed, mark tutorial as completed
-        // This should be handled by the tutorial store
+        // Fallback: If no stall assignment, redirect to sales tutorial
+        if (location.pathname !== '/tutorial/sales') {
+          navigate('/tutorial/sales');
+        }
       }
     }
-  }, [tutorialEnabled, tutorialCompleted, salesTutorialCompleted, checkoutTutorialCompleted, registrationTutorialCompleted, currentUser, location.pathname, navigate]);
+    // If user is not supposed to be in tutorial mode but is on a tutorial page, redirect to home
+    else if (!restrictToTutorial && isOnTutorialPage && location.pathname !== '/') {
+      navigate('/');
+    }
+  }, [tutorialEnabled, currentUser, location.pathname, stall, loading, assignmentLoading]); // Remove navigate from dependencies
   
   console.log('App: rendering with loading state:', loading, 'and currentUser:', currentUser);
 
@@ -131,55 +173,12 @@ function App(): React.JSX.Element {
     <>
       <GlobalSpinner />
       <ToastContainer />
-      <Header />
+      {location.pathname.startsWith('/tutorial') ? <MockHeader /> : <Header />}
       <PWANotification />
       
-      <div className="pb-16 pt-16"> {/* Add padding to prevent content from being hidden behind bottom nav and fixed header */}
+      <div className={`pt-16 ${location.pathname.startsWith('/tutorial') ? 'pb-4' : 'pb-16'}`}> {/* Adjust padding based on tutorial mode */}
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/registration" element={<RegistrationPage />} />
-          <Route path="/sales" element={<SalesPage />} />
-          <Route path="/sales/salesstep1" element={<SalesStep1Page />} />
-          <Route path="/sales/salesstep2" element={<SalesStep2Page />} />
-          <Route path="/sales/salesstep3" element={<SalesStep3Page />} />
-          <Route path="/sales/refunds" element={<RefundsPage />} />
-          <Route path="/sales/refunds/refundsstep1" element={<RefundsStep1Page />} />
-          <Route path="/sales/refunds/refundsstep2" element={<RefundsStep2Page />} />
-          <Route path="/sales/refunds/refundsstep3" element={<RefundsStep3Page />} />
-          <Route path="/sales/refunds/refundsstep4" element={<RefundsStep4Page />} />
-            <Route path="/registration/step1" element={<RegistrationStep1Page />} />
-          <Route path="/registration/step2" element={<RegistrationStep2Page />} />
-          <Route path="/registration/step3" element={<RegistrationStep3Page />} />
-          <Route path="/checkout" element={<CheckoutPage />} />
-          <Route path="/checkout/step1" element={<CheckoutStep1Page />} />
-          <Route path="/checkout/step2" element={<CheckoutStep2Page />} />
-          <Route path="/checkout/step3" element={<CheckoutStep3Page />} />
-          <Route path="/admin" element={<AdminPage />}>
-            <Route index element={<DashboardPage />} />
-            <Route path="dashboard" element={<DashboardPage />} />
-            <Route path="users" element={<UsersPage />} />
-            <Route path="users/add" element={<AddUsersScreen />} />
-            <Route path="users/role/:id" element={<RoleSelectionPage />} />
-            <Route path="users/addUser" element={<AddUserPage />} />
-            <Route path="users/userdetails/:id" element={<UserDetailsPage />} />
-            <Route path="stalls" element={<StallsPage />} />
-            <Route path="stalls/add" element={<AddStallScreen />} />
-            <Route path="stalls/stalldetails/:id" element={<StallDetailsPage />} />
-            <Route path="stalls/stalldetails/:id/operators" element={<OperatorsPage />} />
-            <Route path="stalls/stalldetails/:id/stats" element={<StallStatsPage />} />
-            <Route path="customers" element={<CustomersPage />} />
-            <Route path="customers/create" element={<CreateCustomersScreen />} />
-            <Route path="customers/customerdetails/:id" element={<CustomerDetailsPage />} />
-            <Route path="customers/reissue-qr-screen/:id" element={<ReissueQrCodeScreen />} />
-            <Route path="customers/reissue-qr/:id" element={<ReissueQrCodePage />} />
-            <Route path="qrcodes" element={<QRCodesPage />} />
-            <Route path="qrcodes/generate" element={<GenerateScreen />} />
-            <Route path="qrcodes/batches" element={<BatchesPage />} />
-            <Route path="qrcodes/batches/batchdetails/:id" element={<BatchDetailsPage />} />
-            <Route path="qrcodes/batches/create" element={<CreateBatchPage />} />
-          </Route>
-          
-          {/* Tutorial Routes */}
+          {/* Tutorial Routes - Always accessible */}
           <Route path="/tutorial/sales" element={<SalesPageTutorial />} />
           <Route path="/tutorial/sales/step1" element={<SalesStep1PageTutorial />} />
           <Route path="/tutorial/sales/step2" element={<SalesStep2PageTutorial />} />
@@ -188,14 +187,65 @@ function App(): React.JSX.Element {
           <Route path="/tutorial/checkout/step1" element={<CheckoutStep1PageTutorial />} />
           <Route path="/tutorial/checkout/step2" element={<CheckoutStep2PageTutorial />} />
           <Route path="/tutorial/checkout/step3" element={<CheckoutStep3PageTutorial />} />
-          {/* Registration Tutorial Routes */}
           <Route path="/tutorial/registration" element={<RegistrationPageTutorial />} />
           <Route path="/tutorial/registration/step1" element={<RegistrationStep1PageTutorial />} />
           <Route path="/tutorial/registration/step2" element={<RegistrationStep2PageTutorial />} />
           <Route path="/tutorial/registration/step3" element={<RegistrationStep3PageTutorial />} />
+          <Route path="/tutorial/registration/complete" element={<RegistrationTutorialComplete />} />
+          <Route path="/tutorial/sales/complete" element={<SalesTutorialComplete />} />
+          <Route path="/tutorial/checkout/complete" element={<CheckoutTutorialComplete />} />
+          
+          {/* Main App Routes - Only accessible when not in tutorial mode */}
+          {!shouldRestrictToTutorial() && (
+            <>
+              <Route path="/" element={<Home />} />
+              <Route path="/registration" element={<RegistrationPage />} />
+              <Route path="/sales" element={<SalesPage />} />
+              <Route path="/sales/salesstep1" element={<SalesStep1Page />} />
+              <Route path="/sales/salesstep2" element={<SalesStep2Page />} />
+              <Route path="/sales/salesstep3" element={<SalesStep3Page />} />
+              <Route path="/sales/refunds" element={<RefundsPage />} />
+              <Route path="/sales/refunds/refundsstep1" element={<RefundsStep1Page />} />
+              <Route path="/sales/refunds/refundsstep2" element={<RefundsStep2Page />} />
+              <Route path="/sales/refunds/refundsstep3" element={<RefundsStep3Page />} />
+              <Route path="/sales/refunds/refundsstep4" element={<RefundsStep4Page />} />
+              <Route path="/registration/step1" element={<RegistrationStep1Page />} />
+              <Route path="/registration/step2" element={<RegistrationStep2Page />} />
+              <Route path="/registration/step3" element={<RegistrationStep3Page />} />
+              <Route path="/checkout" element={<CheckoutPage />} />
+              <Route path="/checkout/step1" element={<CheckoutStep1Page />} />
+              <Route path="/checkout/step2" element={<CheckoutStep2Page />} />
+              <Route path="/checkout/step3" element={<CheckoutStep3Page />} />
+              <Route path="/admin" element={<AdminPage />}>
+                <Route index element={<DashboardPage />} />
+                <Route path="dashboard" element={<DashboardPage />} />
+                <Route path="users" element={<UsersPage />} />
+                <Route path="users/add" element={<AddUsersScreen />} />
+                <Route path="users/role/:id" element={<RoleSelectionPage />} />
+                <Route path="users/addUser" element={<AddUserPage />} />
+                <Route path="users/userdetails/:id" element={<UserDetailsPage />} />
+                <Route path="stalls" element={<StallsPage />} />
+                <Route path="stalls/add" element={<AddStallScreen />} />
+                <Route path="stalls/stalldetails/:id" element={<StallDetailsPage />} />
+                <Route path="stalls/stalldetails/:id/operators" element={<OperatorsPage />} />
+                <Route path="stalls/stalldetails/:id/stats" element={<StallStatsPage />} />
+                <Route path="customers" element={<CustomersPage />} />
+                <Route path="customers/create" element={<CreateCustomersScreen />} />
+                <Route path="customers/customerdetails/:id" element={<CustomerDetailsPage />} />
+                <Route path="customers/reissue-qr-screen/:id" element={<ReissueQrCodeScreen />} />
+                <Route path="customers/reissue-qr/:id" element={<ReissueQrCodePage />} />
+                <Route path="qrcodes" element={<QRCodesPage />} />
+                <Route path="qrcodes/generate" element={<GenerateScreen />} />
+                <Route path="qrcodes/batches" element={<BatchesPage />} />
+                <Route path="qrcodes/batches/batchdetails/:id" element={<BatchDetailsPage />} />
+                <Route path="qrcodes/batches/create" element={<CreateBatchPage />} />
+              </Route>
+            </>
+          )}
         </Routes>
       </div>
-      <BottomNavigation />
+      {/* Hide bottom navigation during tutorial mode */}
+      {!location.pathname.startsWith('/tutorial') && <BottomNavigation />}
     </>
   )
 }

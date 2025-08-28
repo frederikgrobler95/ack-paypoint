@@ -24,11 +24,10 @@ const checkoutTutorialSteps = [
 
 function RefundsStep4Tutorial() {
   const navigate = useNavigate();
-  const { mockData, onCompleteTutorial, markTutorialAsCompleted, setCheckoutTutorialCompleted } = useTutorialStore();
+  const { mockData, onCompleteTutorial, markTutorialAsCompleted } = useTutorialStore();
 
   const handleCompleteTutorial = () => {
     onCompleteTutorial();
-    setCheckoutTutorialCompleted(true);
     markTutorialAsCompleted();
     // Navigate back to the main tutorial page
     navigate('/tutorial/checkout');

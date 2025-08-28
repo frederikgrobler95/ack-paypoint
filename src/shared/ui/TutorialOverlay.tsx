@@ -52,7 +52,7 @@ const TutorialOverlay: React.FC<TutorialOverlayProps> = ({
         position: 'absolute',
         top: `${top}px`,
         left: `${left}px`,
-        zIndex: 10000,
+        zIndex: 99999,
         maxWidth: '300px',
       });
     }
@@ -65,15 +65,16 @@ const TutorialOverlay: React.FC<TutorialOverlayProps> = ({
   return (
     <>
       {/* Overlay to highlight the target element */}
-      <div 
-        className="fixed inset-0 bg-black bg-opacity-50 z-50 pointer-events-none"
+      <div
+        className="fixed inset-0 bg-black bg-opacity-50 pointer-events-none"
         style={{
+          zIndex: 99998,
           clipPath: targetElement ? `polygon(
-            0% 0%, 
-            0% 100%, 
-            100% 100%, 
-            100% 0%, 
-            0% 0%, 
+            0% 0%,
+            0% 100%,
+            100% 100%,
+            100% 0%,
+            0% 0%,
             ${targetElement.getBoundingClientRect().left}px ${targetElement.getBoundingClientRect().top}px,
             ${targetElement.getBoundingClientRect().left}px ${targetElement.getBoundingClientRect().bottom}px,
             ${targetElement.getBoundingClientRect().right}px ${targetElement.getBoundingClientRect().bottom}px,
@@ -84,9 +85,9 @@ const TutorialOverlay: React.FC<TutorialOverlayProps> = ({
       />
       
       {/* Tutorial message box */}
-      <div 
-        className="fixed bg-white rounded-lg shadow-xl p-4 border border-gray-200 z-50"
-        style={overlayStyle}
+      <div
+        className="fixed bg-white rounded-lg shadow-xl p-4 border border-gray-200"
+        style={{...overlayStyle, zIndex: 99999}}
       >
         <div className="mb-3">
           <h3 className="font-bold text-lg text-gray-800">Tutorial Step {step} of {totalSteps}</h3>

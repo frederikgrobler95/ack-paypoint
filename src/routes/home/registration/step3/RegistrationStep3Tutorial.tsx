@@ -28,11 +28,10 @@ const registrationTutorialSteps = [
 
 function RegistrationStep3Tutorial() {
   const navigate = useNavigate();
-  const { mockData, onCompleteTutorial, markTutorialAsCompleted, setRegistrationTutorialCompleted } = useTutorialStore();
+  const { mockData, onCompleteTutorial, markTutorialAsCompleted } = useTutorialStore();
 
   const handleCompleteTutorial = () => {
     onCompleteTutorial();
-    setRegistrationTutorialCompleted(true);
     markTutorialAsCompleted();
     // Navigate back to the main tutorial page
     navigate('/tutorial/registration');

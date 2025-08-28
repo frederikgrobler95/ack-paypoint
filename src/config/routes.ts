@@ -202,6 +202,10 @@ export const routeConfig: RouteConfig[] = [
     name: 'Tutorial - Sales Step 3'
   },
   {
+    path: '/tutorial/sales/complete',
+    name: 'Tutorial - Sales Complete'
+  },
+  {
     path: '/tutorial/checkout',
     name: 'Tutorial - Checkout',
     isTopLevel: true
@@ -236,6 +240,10 @@ export const routeConfig: RouteConfig[] = [
     name: 'Tutorial - Registration Step 3'
   },
   {
+    path: '/tutorial/registration/complete',
+    name: 'Tutorial - Registration Complete'
+  },
+  {
     path: '/tutorial/checkout',
     name: 'Tutorial - Checkout',
     isTopLevel: true
@@ -251,6 +259,10 @@ export const routeConfig: RouteConfig[] = [
   {
     path: '/tutorial/checkout/step3',
     name: 'Tutorial - Checkout Step 3'
+  },
+  {
+    path: '/tutorial/checkout/complete',
+    name: 'Tutorial - Checkout Complete'
   }
 ];
 

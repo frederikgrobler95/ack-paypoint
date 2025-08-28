@@ -5,15 +5,8 @@ interface AuthContextType {
     role: 'admin' | 'member' | null;
     loading: boolean;
     tutorialEnabled: boolean;
-    tutorialCompleted: boolean;
-    salesTutorialCompleted: boolean;
-    checkoutTutorialCompleted: boolean;
-    registrationTutorialCompleted: boolean;
     setTutorialEnabled: (enabled: boolean) => Promise<void>;
     setTutorialCompleted: (completed: boolean) => Promise<void>;
-    setSalesTutorialCompleted: (completed: boolean) => Promise<void>;
-    setCheckoutTutorialCompleted: (completed: boolean) => Promise<void>;
-    setRegistrationTutorialCompleted: (completed: boolean) => Promise<void>;
     signin: (username: string, password: string) => Promise<void>;
     signup: (name: string, username: string, email: string, password: string) => Promise<void>;
     signout: () => Promise<void>;
