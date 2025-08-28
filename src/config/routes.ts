@@ -182,6 +182,75 @@ export const routeConfig: RouteConfig[] = [
         name: 'Create Batch'
       }
     ]
+  },
+  // Tutorial Routes
+  {
+    path: '/tutorial/sales',
+    name: 'Tutorial - Sales',
+    isTopLevel: true
+  },
+  {
+    path: '/tutorial/sales/step1',
+    name: 'Tutorial - Sales Step 1'
+  },
+  {
+    path: '/tutorial/sales/step2',
+    name: 'Tutorial - Sales Step 2'
+  },
+  {
+    path: '/tutorial/sales/step3',
+    name: 'Tutorial - Sales Step 3'
+  },
+  {
+    path: '/tutorial/checkout',
+    name: 'Tutorial - Checkout',
+    isTopLevel: true
+  },
+  {
+    path: '/tutorial/checkout/step1',
+    name: 'Tutorial - Checkout Step 1'
+  },
+  {
+    path: '/tutorial/checkout/step2',
+    name: 'Tutorial - Checkout Step 2'
+  },
+  {
+    path: '/tutorial/checkout/step3',
+    name: 'Tutorial - Checkout Step 3'
+  },
+  {
+    path: '/tutorial/registration',
+    name: 'Tutorial - Registration',
+    isTopLevel: true
+  },
+  {
+    path: '/tutorial/registration/step1',
+    name: 'Tutorial - Registration Step 1'
+  },
+  {
+    path: '/tutorial/registration/step2',
+    name: 'Tutorial - Registration Step 2'
+  },
+  {
+    path: '/tutorial/registration/step3',
+    name: 'Tutorial - Registration Step 3'
+  },
+  {
+    path: '/tutorial/checkout',
+    name: 'Tutorial - Checkout',
+    isTopLevel: true
+  },
+  {
+    path: '/tutorial/checkout/step1',
+    name: 'Tutorial - Checkout Step 1'
+  },
+  {
+    path: '/tutorial/checkout/step2',
+    name: 'Tutorial - Checkout Step 2'
+  },
+  {
+    path: '/tutorial/checkout/step3',
+    name: 'Tutorial - Checkout Step 3'
   }
 ];
 

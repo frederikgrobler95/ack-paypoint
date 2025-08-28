@@ -3,25 +3,39 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import AmountKeypad from '../../../../../shared/ui/AmountKeypad';
 import { useTransaction } from '../../../../../queries/transactions';
 import { Transaction } from '../../../../../shared/contracts/transaction';
+import { FlowContainer } from '@/shared/ui';
+import { useFlowStore } from '@/shared/stores/flowStore';
+import { useRefundsFlowNavigation } from '@/hooks';
+import { withTutorial, WithTutorialProps } from '@/hocs';
 
-function RefundsStep3Page(): React.JSX.Element {
+function RefundsStep3Page({ isTutorial = false, mockData }: WithTutorialProps): React.JSX.Element {
   const navigate = useNavigate();
   const location = useLocation();
   
-  const { qrCode, idempotencyKey, transactionId } = location.state || {};
+  const { qrCode, idempotencyKey, transactionId: locationTransactionId } = location.state || {};
+  
+  // Use mock data in tutorial mode, otherwise use location state
+  const transactionId = isTutorial ? mockData?.transactionId || 'tutorial-transaction-1' : locationTransactionId;
   
   const { data: transaction, isLoading, isError } = useTransaction(transactionId);
   const [amountString, setAmountString] = useState('0.00');
   const [amountCents, setAmountCents] = useState(0);
   
+  // Redirect to previous steps if they are not complete
+  useRefundsFlowNavigation(3);
+  
   // Update amount display when transaction loads
   useEffect(() => {
-    if (transaction) {
+    if (isTutorial) {
+      // Initialize with 0 but ensure we don't exceed the original amount
+      setAmountString('0.00');
+      setAmountCents(0);
+    } else if (transaction) {
       // Initialize with 0 but ensure we don't exceed the original amount
       setAmountString('0.00');
       setAmountCents(0);
     }
-  }, [transaction]);
+  }, [transaction, isTutorial]);
   
   const formatAmount = (cents: number) => {
     return `R ${(cents / 100).toFixed(2)}`;
@@ -65,7 +79,7 @@ function RefundsStep3Page(): React.JSX.Element {
     const newCents = Math.round(parseFloat(newAmountString) * 100);
 
     // Check if the new amount exceeds the maximum allowed
-    if (newCents > transaction.amountCents) {
+    if (!isTutorial && newCents > transaction.amountCents) {
       // In a real implementation, we would use the AlertProvider here
       // For now, we'll just return without updating the state
       return;
@@ -123,41 +137,55 @@ function RefundsStep3Page(): React.JSX.Element {
   };
 
   const handleSubmitPress = () => {
-    if (amountCents <= 0 || !transaction) {
+    if (amountCents <= 0 || (!isTutorial && !transaction)) {
+      // In a real implementation, we would use the AlertProvider here
+      // For now, we'll just return without navigating
+      return;
+    }
+    
+    if (!isTutorial && transaction && amountCents > transaction.amountCents) {
       // In a real implementation, we would use the AlertProvider here
       // For now, we'll just return without navigating
       return;
     }
 
-    if (amountCents > transaction.amountCents) {
-      // In a real implementation, we would use the AlertProvider here
-      // For now, we'll just return without navigating
-      return;
-    }
-
+    // Mark step 3 as complete
+    useFlowStore.getState().setRefundsStepComplete(3);
     navigate('/sales/refunds/refundsstep4', {
       state: { qrCode, idempotencyKey, transactionId, amountCents }
     });
   };
   
   if (isLoading) {
-    return <div>Loading transaction details...</div>;
+    return (
+      <FlowContainer withHeaderOffset withBottomOffset>
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <p className="text-gray-600">Loading transaction details...</p>
+        </div>
+      </FlowContainer>
+    );
   }
   
   if (isError || !transaction) {
-    return <div>Error loading transaction details. Please try again.</div>;
+    return (
+      <FlowContainer withHeaderOffset withBottomOffset>
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <p className="text-red-600">Error loading transaction details. Please try again.</p>
+        </div>
+      </FlowContainer>
+    );
   }
   
-  const isSubmitDisabled = amountCents <= 0 || amountCents > transaction.amountCents;
+  const isSubmitDisabled = amountCents <= 0 || (!isTutorial && transaction && amountCents > transaction.amountCents);
   
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 flex flex-col items-center justify-center p-4">
+    <FlowContainer withHeaderOffset withBottomOffset>
+      <div className="flex-1 flex flex-col items-center justify-center">
         
         <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="text-center mb-4">
             <p className="text-gray-600">Original Transaction Amount</p>
-            <p className="text-3xl font-bold text-indigo-600">R {formatAmount(transaction.amountCents)}</p>
+            <p className="text-3xl font-bold text-indigo-600">R {formatAmount(isTutorial ? (mockData?.amountCents || 10000) : transaction?.amountCents || 0)}</p>
           </div>
           
           <div className="border-t border-gray-200 pt-4 mt-4">
@@ -165,7 +193,7 @@ function RefundsStep3Page(): React.JSX.Element {
             <p className="text-4xl font-bold text-center text-gray-800">R {formatAmount(amountCents)}</p>
           </div>
           
-          {amountCents > transaction.amountCents && (
+          {!isTutorial && transaction && amountCents > transaction.amountCents && (
             <div className="mt-4 text-center text-red-500 font-semibold">
               Amount exceeds original transaction
             </div>
@@ -182,8 +210,8 @@ function RefundsStep3Page(): React.JSX.Element {
           />
         </div>
       </div>
-    </div>
+    </FlowContainer>
   );
 }
 
-export default RefundsStep3Page;
+export default withTutorial(RefundsStep3Page, 'checkout');

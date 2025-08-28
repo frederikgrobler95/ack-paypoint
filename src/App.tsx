@@ -1,5 +1,5 @@
-import { Routes, Route, useLocation } from 'react-router-dom'
-import React from 'react'
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom'
+import React, { useEffect } from 'react'
 import { useAuth } from './contexts/AuthContext'
 import AuthPage from './routes/auth/AuthPage'
 import Home from './routes/home/Home'
@@ -42,15 +42,67 @@ import GenerateScreen from './routes/admin/qrcodes/GenerateScreen'
 import RegistrationStep1Page from './routes/home/registration/step1/RegistrationStep1Page'
 import RegistrationStep2Page from './routes/home/registration/step2/RegistrationStep2Page'
 import RegistrationStep3Page from './routes/home/registration/step3/RegistrationStep3Page'
+import SalesStep1Tutorial from './routes/home/sales/step1/SalesStep1Tutorial'
+import SalesStep2Tutorial from './routes/home/sales/step2/SalesStep2Tutorial'
+import SalesStep3Tutorial from './routes/home/sales/step3/SalesStep3Tutorial'
+import CheckoutStep1Tutorial from './routes/home/checkout/step1/CheckoutStep1Tutorial'
+import RegistrationStep1Tutorial from './routes/home/registration/step1/RegistrationStep1Tutorial'
+import RefundsStep1Tutorial from './routes/home/sales/refunds/step1/RefundsStep1Tutorial'
+import RefundsStep2Tutorial from './routes/home/sales/refunds/step2/RefundsStep2Tutorial'
+import RefundsStep3Tutorial from './routes/home/sales/refunds/step3/RefundsStep3Tutorial'
+import RefundsStep4Tutorial from './routes/home/sales/refunds/step4/RefundsStep4Tutorial'
+import RegistrationStep2Tutorial from './routes/home/registration/step2/RegistrationStep2Tutorial'
+import RegistrationStep3Tutorial from './routes/home/registration/step3/RegistrationStep3Tutorial'
+import SalesTutorial from './routes/home/sales/SalesTutorial'
+import RefundsTutorial from './routes/home/sales/refunds/RefundsTutorial'
+import RegistrationTutorial from './routes/home/registration/RegistrationTutorial'
+import SalesPageTutorial from './routes/tutorial/sales/SalesPageTutorial'
+import SalesStep1PageTutorial from './routes/tutorial/sales/step1/SalesStep1PageTutorial'
+import SalesStep2PageTutorial from './routes/tutorial/sales/step2/SalesStep2PageTutorial'
+import SalesStep3PageTutorial from './routes/tutorial/sales/step3/SalesStep3PageTutorial'
 import BottomNavigation from './shared/ui/BottomNavigation'
 import Header from './shared/ui/Header'
 import { PWANotification } from './components'
 import GlobalSpinner from './shared/ui/GlobalSpinner'
 import ToastContainer from './shared/ui/ToastContainer'
+// Registration Tutorial Components
+import RegistrationPageTutorial from './routes/tutorial/registration/RegistrationPageTutorial'
+import RegistrationStep1PageTutorial from './routes/tutorial/registration/step1/RegistrationStep1PageTutorial'
+import RegistrationStep2PageTutorial from './routes/tutorial/registration/step2/RegistrationStep2PageTutorial'
+import RegistrationStep3PageTutorial from './routes/tutorial/registration/step3/RegistrationStep3PageTutorial'
+// Checkout Tutorial Components
+import CheckoutPageTutorial from './routes/tutorial/checkout/CheckoutPageTutorial'
+import CheckoutStep1PageTutorial from './routes/tutorial/checkout/step1/CheckoutStep1PageTutorial'
+import CheckoutStep2PageTutorial from './routes/tutorial/checkout/step2/CheckoutStep2PageTutorial'
+import CheckoutStep3PageTutorial from './routes/tutorial/checkout/step3/CheckoutStep3PageTutorial'
 
 function App(): React.JSX.Element {
-  const { currentUser, loading } = useAuth();
+  const { currentUser, loading, tutorialEnabled, tutorialCompleted, salesTutorialCompleted, checkoutTutorialCompleted, registrationTutorialCompleted } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+  
+  // Redirect to tutorial if tutorial is enabled and user is not already on a tutorial page
+  // Redirect to main app if tutorial is completed
+  useEffect(() => {
+    if (tutorialCompleted && location.pathname.startsWith('/tutorial')) {
+      // Redirect to the main app
+      navigate('/');
+    } else if (tutorialEnabled && !tutorialCompleted && currentUser && !location.pathname.startsWith('/tutorial')) {
+      // Redirect to the appropriate tutorial page based on completion status
+      // Priority order: Sales → Registration → Checkout
+      if (!salesTutorialCompleted) {
+        navigate('/tutorial/sales');
+      } else if (!registrationTutorialCompleted) {
+        navigate('/tutorial/registration');
+      } else if (!checkoutTutorialCompleted) {
+        navigate('/tutorial/checkout');
+      } else {
+        // All tutorials completed, mark tutorial as completed
+        // This should be handled by the tutorial store
+      }
+    }
+  }, [tutorialEnabled, tutorialCompleted, salesTutorialCompleted, checkoutTutorialCompleted, registrationTutorialCompleted, currentUser, location.pathname, navigate]);
+  
   console.log('App: rendering with loading state:', loading, 'and currentUser:', currentUser);
 
   // Show loading state while auth is initializing
@@ -126,7 +178,21 @@ function App(): React.JSX.Element {
             <Route path="qrcodes/batches/batchdetails/:id" element={<BatchDetailsPage />} />
             <Route path="qrcodes/batches/create" element={<CreateBatchPage />} />
           </Route>
-        
+          
+          {/* Tutorial Routes */}
+          <Route path="/tutorial/sales" element={<SalesPageTutorial />} />
+          <Route path="/tutorial/sales/step1" element={<SalesStep1PageTutorial />} />
+          <Route path="/tutorial/sales/step2" element={<SalesStep2PageTutorial />} />
+          <Route path="/tutorial/sales/step3" element={<SalesStep3PageTutorial />} />
+          <Route path="/tutorial/checkout" element={<CheckoutPageTutorial />} />
+          <Route path="/tutorial/checkout/step1" element={<CheckoutStep1PageTutorial />} />
+          <Route path="/tutorial/checkout/step2" element={<CheckoutStep2PageTutorial />} />
+          <Route path="/tutorial/checkout/step3" element={<CheckoutStep3PageTutorial />} />
+          {/* Registration Tutorial Routes */}
+          <Route path="/tutorial/registration" element={<RegistrationPageTutorial />} />
+          <Route path="/tutorial/registration/step1" element={<RegistrationStep1PageTutorial />} />
+          <Route path="/tutorial/registration/step2" element={<RegistrationStep2PageTutorial />} />
+          <Route path="/tutorial/registration/step3" element={<RegistrationStep3PageTutorial />} />
         </Routes>
       </div>
       <BottomNavigation />

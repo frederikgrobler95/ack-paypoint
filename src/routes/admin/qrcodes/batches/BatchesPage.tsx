@@ -38,8 +38,8 @@ function BatchesPage(): React.JSX.Element {
   )
   
   return (
-    <>
-      <div className="p-4">
+    <div className="h-screen flex flex-col">
+      <div className="p-4 flex-shrink-0">
         <div className="flex justify-between items-center mb-6">
           <div></div>
           <button
@@ -49,7 +49,9 @@ function BatchesPage(): React.JSX.Element {
             Create New Batch
           </button>
         </div>
-        
+      </div>
+      
+      <div className="flex-1 px-4 pb-4 overflow-hidden">
         <SharedList
           data={batches || []}
           renderItem={renderBatchItem}
@@ -62,7 +64,7 @@ function BatchesPage(): React.JSX.Element {
           loadingMessage="Loading QR code batches..."
         />
       </div>
-    </>
+    </div>
   )
 }
 

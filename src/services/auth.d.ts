@@ -41,5 +41,42 @@ export declare const signUpWithEmailAndPassword: (name: string, username: string
  * @returns Unsubscribe function
  */
 export declare const onAuthStateChanged: (callback: (user: User | null) => void) => import("@firebase/util").Unsubscribe;
+
+/**
+ * Updates a user's tutorial completion status
+ * @param userId - The user's ID
+ * @param tutorialData - The tutorial completion data to update
+ * @returns Promise that resolves when the update is complete
+ */
+export declare const updateUserTutorialStatus: (userId: string, tutorialData: {
+  tutorialEnabled?: boolean;
+  tutorialCompleted?: boolean;
+  salesTutorialCompleted?: boolean;
+  checkoutTutorialCompleted?: boolean;
+  registrationTutorialCompleted?: boolean;
+}) => Promise<void>;
+
+/**
+ * Marks a specific tutorial as completed for a user
+ * @param userId - The user's ID
+ * @param tutorialType - The type of tutorial to mark as completed
+ * @returns Promise that resolves when the update is complete
+ */
+export declare const markTutorialAsCompleted: (userId: string, tutorialType: 'sales' | 'checkout' | 'registration') => Promise<void>;
+
+/**
+ * Marks all tutorials as completed for a user
+ * @param userId - The user's ID
+ * @returns Promise that resolves when the update is complete
+ */
+export declare const markAllTutorialsAsCompleted: (userId: string) => Promise<void>;
+
+/**
+ * Resets a user's tutorial progress
+ * @param userId - The user's ID
+ * @returns Promise that resolves when the reset is complete
+ */
+export declare const resetUserTutorial: (userId: string) => Promise<void>;
+
 export { auth };
 export type { User };

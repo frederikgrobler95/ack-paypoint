@@ -1,6 +1,6 @@
 // Authentication service for Firebase
 import { auth, app } from './firebase'; // Import the configured auth instance
-import { getFirestore, doc, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, collection, query, where, getDocs, updateDoc } from 'firebase/firestore';
 import type { User } from 'firebase/auth';
 import {
   signInWithEmailAndPassword as firebaseSignIn,
@@ -116,6 +116,12 @@ export const signUpWithEmailAndPassword = async (name: string, username: string,
       username,
       email,
       role: 'member',
+      // Initialize tutorial flags for new users
+      tutorialEnabled: true,
+      tutorialCompleted: false,
+      salesTutorialCompleted: false,
+      checkoutTutorialCompleted: false,
+      registrationTutorialCompleted: false,
     });
 
     // Update the user's display name in Firebase Auth
@@ -137,6 +143,87 @@ export const signUpWithEmailAndPassword = async (name: string, username: string,
  */
 export const onAuthStateChanged = (callback: (user: User | null) => void) => {
   return firebaseOnAuthStateChanged(auth, callback);
+};
+
+/**
+ * Updates a user's tutorial completion status
+ * @param userId - The user's ID
+ * @param tutorialData - The tutorial completion data to update
+ * @returns Promise that resolves when the update is complete
+ */
+export const updateUserTutorialStatus = async (userId: string, tutorialData: {
+  tutorialEnabled?: boolean;
+  tutorialCompleted?: boolean;
+  salesTutorialCompleted?: boolean;
+  checkoutTutorialCompleted?: boolean;
+  registrationTutorialCompleted?: boolean;
+}) => {
+  try {
+    const firestore = getFirestore(app);
+    const userDocRef = doc(firestore, 'users', userId);
+    await updateDoc(userDocRef, tutorialData);
+  } catch (error) {
+    console.error('Error updating user tutorial status:', error);
+    throw error;
+  }
+};
+
+/**
+ * Marks a specific tutorial as completed for a user
+ * @param userId - The user's ID
+ * @param tutorialType - The type of tutorial to mark as completed
+ * @returns Promise that resolves when the update is complete
+ */
+export const markTutorialAsCompleted = async (userId: string, tutorialType: 'sales' | 'checkout' | 'registration') => {
+  try {
+    const tutorialField = `${tutorialType}TutorialCompleted`;
+    await updateUserTutorialStatus(userId, {
+      [tutorialField]: true
+    });
+  } catch (error) {
+    console.error(`Error marking ${tutorialType} tutorial as completed:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Marks all tutorials as completed for a user
+ * @param userId - The user's ID
+ * @returns Promise that resolves when the update is complete
+ */
+export const markAllTutorialsAsCompleted = async (userId: string) => {
+  try {
+    await updateUserTutorialStatus(userId, {
+      tutorialCompleted: true,
+      salesTutorialCompleted: true,
+      checkoutTutorialCompleted: true,
+      registrationTutorialCompleted: true,
+      tutorialEnabled: false // Disable tutorial when all are completed
+    });
+  } catch (error) {
+    console.error('Error marking all tutorials as completed:', error);
+    throw error;
+  }
+};
+
+/**
+ * Resets a user's tutorial progress
+ * @param userId - The user's ID
+ * @returns Promise that resolves when the reset is complete
+ */
+export const resetUserTutorial = async (userId: string) => {
+  try {
+    await updateUserTutorialStatus(userId, {
+      tutorialCompleted: false,
+      salesTutorialCompleted: false,
+      checkoutTutorialCompleted: false,
+      registrationTutorialCompleted: false,
+      tutorialEnabled: true // Re-enable tutorial
+    });
+  } catch (error) {
+    console.error('Error resetting user tutorial:', error);
+    throw error;
+  }
 };
 
 // Export the auth instance for direct access if needed

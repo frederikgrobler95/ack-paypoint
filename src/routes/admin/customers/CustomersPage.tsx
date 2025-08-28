@@ -38,8 +38,8 @@ function CustomersPage(): React.JSX.Element {
   )
 
   return (
-    <>
-      <div className="p-4">
+    <div className="h-screen flex flex-col">
+      <div className="p-4 flex-shrink-0">
         <div className="flex justify-between items-center mb-6 gap-2">
           <div className="w-64">
             <input
@@ -57,7 +57,9 @@ function CustomersPage(): React.JSX.Element {
             Create New Customer
           </button>
         </div>
-        
+      </div>
+      
+      <div className="flex-1 px-4 pb-4 overflow-hidden">
         <SharedList<Customer>
           data={customers}
           renderItem={renderCustomerItem}
@@ -72,7 +74,7 @@ function CustomersPage(): React.JSX.Element {
           loadingMessage="Loading customers..."
         />
       </div>
-    </>
+    </div>
   )
 }
 

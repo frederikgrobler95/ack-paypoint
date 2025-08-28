@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useUser } from '../../../../queries/users';
 import { useAdminUpdateUserRoleMutation } from '../../../../mutations/useAdminUpdateUserRoleMutation';
+import { useAdminResetUserTutorialMutation } from '../../../../mutations/useAdminResetUserTutorialMutation';
 import { User } from '../../../../shared/contracts/user';
 
 function RoleSelectionPage(): React.JSX.Element {
@@ -9,12 +10,15 @@ function RoleSelectionPage(): React.JSX.Element {
   const navigate = useNavigate();
   const { data: user, isLoading, error } = useUser(id || '');
   const [selectedRole, setSelectedRole] = useState<User['role']>('member');
+  const [tutorialEnabled, setTutorialEnabled] = useState<boolean>(false);
   
   const mutation = useAdminUpdateUserRoleMutation();
+  const resetTutorialMutation = useAdminResetUserTutorialMutation();
   
   React.useEffect(() => {
     if (user) {
       setSelectedRole(user.role);
+      setTutorialEnabled(user.tutorialEnabled || false);
     }
   }, [user]);
   
@@ -27,6 +31,8 @@ function RoleSelectionPage(): React.JSX.Element {
       await mutation.mutateAsync({
         userId: id,
         role: selectedRole,
+        tutorialEnabled: tutorialEnabled,
+        // We don't want to change the tutorialCompleted status when updating role/tutorialEnabled
       });
       
       // Navigate back to users page after successful update
@@ -91,6 +97,10 @@ function RoleSelectionPage(): React.JSX.Element {
           <p className="text-gray-600">Username: {user.username}</p>
           <p className="text-gray-600">Email: {user.email}</p>
           <p className="text-gray-600">Current Role: {user.role}</p>
+          <p className="text-gray-600">Tutorial Enabled: {user.tutorialEnabled ? 'Enabled' : 'Disabled'}</p>
+          {user.tutorialCompleted !== undefined && (
+            <p className="text-gray-600">Tutorial Completed: {user.tutorialCompleted ? 'Yes' : 'No'}</p>
+          )}
         </div>
         
         <form onSubmit={handleSubmit}>
@@ -130,6 +140,50 @@ function RoleSelectionPage(): React.JSX.Element {
             </div>
           </div>
           
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold text-gray-700 mb-3">Tutorial Settings</h3>
+            
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="tutorialEnabled"
+                checked={tutorialEnabled}
+                onChange={(e) => setTutorialEnabled(e.target.checked)}
+                className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+              />
+              <label htmlFor="tutorialEnabled" className="ml-3 block text-sm font-medium text-gray-700">
+                Enable Tutorial
+              </label>
+            </div>
+            <p className="mt-1 text-sm text-gray-500">
+              When enabled, the user will see tutorial guidance throughout the application.
+            </p>
+          </div>
+          
+          {user.tutorialCompleted && (
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-gray-700 mb-3">Reset Tutorial</h3>
+              
+              <button
+                type="button"
+                onClick={() => {
+                  if (id) {
+                    resetTutorialMutation.mutate({
+                      userId: id
+                    });
+                  }
+                }}
+                disabled={resetTutorialMutation.isPending}
+                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 disabled:opacity-50"
+              >
+                {resetTutorialMutation.isPending ? 'Resetting...' : 'Reset Tutorial'}
+              </button>
+              <p className="mt-1 text-sm text-gray-500">
+                Reset the tutorial to allow the user to go through it again.
+              </p>
+            </div>
+          )}
+          
           <div className="flex space-x-3">
             <button
               type="button"
@@ -144,7 +198,7 @@ function RoleSelectionPage(): React.JSX.Element {
               disabled={mutation.isPending}
               className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
             >
-              {mutation.isPending ? 'Updating...' : 'Update Role'}
+              {mutation.isPending ? 'Updating...' : 'Update User'}
             </button>
           </div>
         </form>

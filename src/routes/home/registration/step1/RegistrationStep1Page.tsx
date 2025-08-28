@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
+import { FlowContainer } from '@/shared/ui';
+import { useFlowStore } from '@/shared/stores/flowStore';
+import { withTutorial, WithTutorialProps } from '@/hocs';
 
-function RegistrationStep1Page(): React.JSX.Element {
+function RegistrationStep1Page({ isTutorial = false, mockData }: WithTutorialProps): React.JSX.Element {
   const navigate = useNavigate();
   const location = useLocation();
 
   // Initialize state from location state or with empty values
-  const [name, setName] = useState(location.state?.name || '');
-  const [phoneNumber, setPhoneNumber] = useState(location.state?.phone || '');
+  const [name, setName] = useState(location.state?.name || (isTutorial ? mockData?.customerName || '' : ''));
+  const [phoneNumber, setPhoneNumber] = useState(location.state?.phone || (isTutorial ? mockData?.phone || '' : ''));
   const [idempotencyKey, setIdempotencyKey] = useState(location.state?.idempotencyKey || '');
   const [error, setError] = useState('');
 
@@ -34,6 +37,8 @@ function RegistrationStep1Page(): React.JSX.Element {
     
     setError('');
     
+    // Set flow data and mark step 1 as complete
+    useFlowStore.getState().setRegistrationStepComplete(1);
     // Navigate to the next step with state
     navigate('/registration/step2', {
       state: { name, phone: phoneNumber, idempotencyKey }
@@ -41,7 +46,7 @@ function RegistrationStep1Page(): React.JSX.Element {
   };
 
   return (
-    <div className="p-4">
+    <FlowContainer withHeaderOffset withBottomOffset>
       {/* <div className="bg-white rounded-lg shadow-md p-6 mb-6">
         <h2 className="text-lg font-semibold text-gray-700 mb-2">Customer Information</h2>
         <p className="text-gray-600">Enter the customer's basic information to begin registration.</p>
@@ -104,8 +109,8 @@ function RegistrationStep1Page(): React.JSX.Element {
           Next
         </button>
       </form>
-    </div>
+    </FlowContainer>
   );
 }
 
-export default RegistrationStep1Page;
+export default withTutorial(RegistrationStep1Page, 'registration');

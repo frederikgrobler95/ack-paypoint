@@ -7,22 +7,42 @@ import { User } from '../shared/contracts/user';
 export interface AdminUpdateUserRoleInput {
   userId: string;
   role: 'admin' | 'member';
+  tutorialMode?: boolean;
+  tutorialEnabled?: boolean;
+  tutorialCompleted?: boolean;
 }
 
 // Function to update user role directly
 const adminUpdateUserRole = async (input: AdminUpdateUserRoleInput): Promise<{ success: boolean; message: string }> => {
   try {
-    // Update the user document with the new role
+    // Update the user document with the new role and tutorialMode
     const userDocRef = doc(db, 'users', input.userId);
-    await updateDoc(userDocRef, {
+    const updateData: any = {
       role: input.role,
       updatedAt: serverTimestamp(),
-    });
+    };
     
-    return { success: true, message: 'User role updated successfully' };
+    // Only include tutorialMode if it's provided
+    if (input.tutorialMode !== undefined) {
+      updateData.tutorialMode = input.tutorialMode;
+    }
+    
+    // Only include tutorialEnabled if it's provided
+    if (input.tutorialEnabled !== undefined) {
+      updateData.tutorialEnabled = input.tutorialEnabled;
+    }
+    
+    // Only include tutorialCompleted if it's provided
+    if (input.tutorialCompleted !== undefined) {
+      updateData.tutorialCompleted = input.tutorialCompleted;
+    }
+    
+    await updateDoc(userDocRef, updateData);
+    
+    return { success: true, message: 'User updated successfully' };
   } catch (error: any) {
-    console.error('Error updating user role:', error);
-    return { success: false, message: error.message || 'Failed to update user role' };
+    console.error('Error updating user:', error);
+    return { success: false, message: error.message || 'Failed to update user' };
   }
 };
 

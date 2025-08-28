@@ -18,6 +18,9 @@ export * from './registrations';
 // Stall queries
 export * from './stalls';
 
+// Stats queries
+export * from './stats';
+
 // Transaction queries
 export * from './transactions';
 

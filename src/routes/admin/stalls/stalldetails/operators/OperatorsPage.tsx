@@ -147,45 +147,49 @@ function OperatorsPage(): React.JSX.Element {
   const isError = !!usersError || !!assignmentsError || !!stallError;
   
   return (
-    <div className="p-4">
-      <div className="flex justify-between items-center mb-6">
-        <div></div>
-        <button
-          onClick={handleSaveOperators}
-          disabled={isAssigning}
-          className={`font-medium py-2 px-4 rounded-md transition duration-300 ease-in-out ${
-            isAssigning
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-indigo-600 hover:bg-indigo-700 text-white'
-          }`}
-        >
-          {isAssigning ? 'Saving...' : 'Save Operators'}
-        </button>
+    <div className="h-screen flex flex-col">
+      <div className="p-4 flex-shrink-0">
+        <div className="flex justify-between items-center mb-6">
+          <div></div>
+          <button
+            onClick={handleSaveOperators}
+            disabled={isAssigning}
+            className={`font-medium py-2 px-4 rounded-md transition duration-300 ease-in-out ${
+              isAssigning
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+            }`}
+          >
+            {isAssigning ? 'Saving...' : 'Save Operators'}
+          </button>
+        </div>
+        
+        <div className="mb-4 p-4 bg-blue-50 rounded-lg">
+          <p className="text-blue-800">
+            <span className="font-semibold">Stall ID:</span> {stallId}
+          </p>
+          <p className="text-blue-800 mt-1">
+            Select users below to assign them as operators for this stall.
+            Checked users are currently assigned as operators.
+          </p>
+        </div>
       </div>
       
-      <div className="mb-4 p-4 bg-blue-50 rounded-lg">
-        <p className="text-blue-800">
-          <span className="font-semibold">Stall ID:</span> {stallId}
-        </p>
-        <p className="text-blue-800 mt-1">
-          Select users below to assign them as operators for this stall.
-          Checked users are currently assigned as operators.
-        </p>
+      <div className="flex-1 px-4 pb-4 overflow-hidden">
+        <SharedList<User>
+          data={flatUsers}
+          renderItem={renderUserItem}
+          onRefresh={handleRefresh}
+          hasMore={hasNextUsers}
+          loadMore={() => fetchNextUsers()}
+          isLoading={isLoading || isFetchingNextUsers}
+          isError={isError}
+          isEmpty={flatUsers.length === 0}
+          emptyMessage="No users found"
+          errorMessage={`Failed to load data: ${usersError?.message || assignmentsError?.message || stallError?.message || 'Unknown error'}`}
+          loadingMessage="Loading users and assignments..."
+        />
       </div>
-      
-      <SharedList<User>
-        data={flatUsers}
-        renderItem={renderUserItem}
-        onRefresh={handleRefresh}
-        hasMore={hasNextUsers}
-        loadMore={() => fetchNextUsers()}
-        isLoading={isLoading || isFetchingNextUsers}
-        isError={isError}
-        isEmpty={flatUsers.length === 0}
-        emptyMessage="No users found"
-        errorMessage={`Failed to load data: ${usersError?.message || assignmentsError?.message || stallError?.message || 'Unknown error'}`}
-        loadingMessage="Loading users and assignments..."
-      />
     </div>
   )
 }

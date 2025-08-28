@@ -1,8 +1,21 @@
+/**
+ * Checkout Flow - Page Container
+ *
+ * This file implements the Sales spacing standard via FlowContainer:
+ * - Horizontal: px-4 on the outer page container
+ * - Vertical: pt-4/pb-4 by default; withHeaderOffset/withBottomOffset when needed
+ * - Section rhythm: consistent spacing (follows Sales usage)
+ * - Respects fixed Header and BottomNavigation components
+ *
+ * Source of truth: Sales pages implementation
+ */
 import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { usePayments } from '@/queries/payments';
 import { useMyAssignment } from '@/contexts/MyAssignmentContext';
+import { FlowContainer } from '@/shared/ui';
+import { useFlowStore } from '@/shared/stores/flowStore';
 
 // Define types for our dummy data
 interface Transaction {
@@ -117,7 +130,7 @@ function CheckoutPage(): React.JSX.Element {
   }
   
   return (
-    <div className="p-4">
+    <FlowContainer withHeaderOffset withBottomOffset>
       <h1 className="text-2xl font-bold text-gray-800 mb-6">{stallName} Checkout</h1>
       <TotalRevenueCard totalCents={totalRevenueCents} />
       <div className="mb-4">
@@ -137,12 +150,16 @@ function CheckoutPage(): React.JSX.Element {
       <div className="fixed bottom-20 right-6">
         <button
           className="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
-          onClick={() => navigate('/checkout/step1')}
+          onClick={() => {
+            // Reset the checkout flow when starting a new checkout
+            useFlowStore.getState().resetCheckoutFlow();
+            navigate('/checkout/step1');
+          }}
         >
           <span className="text-xl">+</span>
         </button>
       </div>
-    </div>
+    </FlowContainer>
   );
 }
 

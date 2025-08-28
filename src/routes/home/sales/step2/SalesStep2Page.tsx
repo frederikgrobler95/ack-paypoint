@@ -1,11 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import AmountKeypad from '../../../../shared/ui/AmountKeypad';
+import { FlowContainer } from '../../../../shared/ui';
+import { useFlowStore } from '../../../../shared/stores/flowStore';
+import { useSalesFlowNavigation } from '../../../../hooks';
+import { withTutorial, WithTutorialProps } from '@/hocs';
 
-function SalesStep2Page(): React.JSX.Element {
+function SalesStep2Page({ isTutorial = false }: WithTutorialProps): React.JSX.Element {
   const navigate = useNavigate();
   const location = useLocation();
   const { qrCode, idempotencyKey } = location.state || {};
+  const salesData = useFlowStore((state) => state.salesData);
+  const isSalesStep1Complete = useFlowStore((state) => state.isSalesStepComplete(1));
+  const setSalesStepComplete = useFlowStore((state) => state.setSalesStepComplete);
+  
+  // Redirect to step 1 if step 1 is not complete
+  useSalesFlowNavigation(2);
   
   const [amountString, setAmountString] = useState('0.00');
   const [amountCents, setAmountCents] = useState(0);
@@ -105,6 +115,12 @@ function SalesStep2Page(): React.JSX.Element {
       return;
     }
 
+    // Save flow data and mark step 2 as complete
+    useFlowStore.getState().setSalesData({
+      amountCents,
+    });
+    setSalesStepComplete(2);
+
     navigate('/sales/salesstep3', {
       state: { qrCode, idempotencyKey, amountCents }
     });
@@ -112,7 +128,7 @@ function SalesStep2Page(): React.JSX.Element {
 
   return (
     <>
-      <div className="px-4">
+      <FlowContainer withHeaderOffset withBottomOffset>
         <div className="bg-white rounded-lg shadow-md p-6">
           
           <div className="text-center mb-6">
@@ -130,9 +146,9 @@ function SalesStep2Page(): React.JSX.Element {
             submitDisabled={parseFloat(amountString) <= 0}
           />
         </div>
-      </div>
+      </FlowContainer>
     </>
   );
 }
 
-export default SalesStep2Page;
+export default withTutorial(SalesStep2Page, 'sales');

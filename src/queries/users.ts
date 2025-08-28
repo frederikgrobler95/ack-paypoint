@@ -54,7 +54,11 @@ export const useUsers = (pageSize: number = 20, searchTerm?: string) => {
       const result = await fetchUsers(pageSize, pageParam, searchTerm);
       return result;
     },
-    getNextPageParam: (lastPage) => lastPage.lastDoc,
+    getNextPageParam: (lastPage) => {
+      // Return the lastDoc if it exists and we got a full page of results
+      const hasMore = lastPage.data.length === pageSize && lastPage.lastDoc;
+      return hasMore ? lastPage.lastDoc : undefined;
+    },
     initialPageParam: undefined,
   });
 };

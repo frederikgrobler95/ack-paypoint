@@ -1,6 +1,9 @@
 import React from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useQRCodeCustomer } from '../../../../queries/qrCodes'
+import { FlowContainer } from '@/shared/ui';
+import { useFlowStore } from '@/shared/stores/flowStore';
+import { useCheckoutFlowNavigation } from '@/hooks';
 
 function CheckoutStep2Page(): React.JSX.Element {
   const navigate = useNavigate()
@@ -9,7 +12,12 @@ function CheckoutStep2Page(): React.JSX.Element {
   
   const { data: qrData, isLoading, isError } = useQRCodeCustomer(qrCode)
   
+  // Redirect to step 1 if step 1 is not complete
+  useCheckoutFlowNavigation(2);
+  
   const handlePaymentMethodSelect = (method: 'card' | 'cash' | 'eft') => {
+    // Mark step 2 as complete
+    useFlowStore.getState().setCheckoutStepComplete(2);
     navigate('/checkout/step3', {
       state: { qrCode, idempotencyKey, method }
     });
@@ -22,30 +30,30 @@ function CheckoutStep2Page(): React.JSX.Element {
   
   if (isLoading) {
     return (
-      <div className="p-4">
+      <FlowContainer withHeaderOffset withBottomOffset>
         <h1 className="text-2xl font-bold text-gray-800 mb-6">Checkout - Step 2</h1>
         <div className="bg-white rounded-lg shadow-md p-6">
           <p className="text-gray-600">Loading customer details...</p>
         </div>
-      </div>
+      </FlowContainer>
     )
   }
   
   if (isError || !qrData) {
     return (
-      <div className="p-4">
+      <FlowContainer withHeaderOffset withBottomOffset>
         <h1 className="text-2xl font-bold text-gray-800 mb-6">Checkout - Step 2</h1>
         <div className="bg-white rounded-lg shadow-md p-6">
           <p className="text-red-600">Error loading customer details. Please try again.</p>
         </div>
-      </div>
+      </FlowContainer>
     )
   }
   
   const { customer } = qrData
   
   return (
-    <div className="p-4">
+    <FlowContainer withHeaderOffset withBottomOffset>
       <h1 className="text-2xl font-bold text-gray-800 mb-6">Checkout - Step 2</h1>
       
       {/* Customer Details */}
@@ -113,7 +121,7 @@ function CheckoutStep2Page(): React.JSX.Element {
           </button>
         </div>
       </div>
-    </div>
+    </FlowContainer>
   )
 }
 

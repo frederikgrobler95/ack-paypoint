@@ -7,6 +7,7 @@ import { useStall } from '@/queries/stalls';
 import { Transaction as FirestoreTransaction, TransactionType } from '@/shared/contracts/transaction';
 import { SharedList, StallTransactionCard } from '@/shared/ui';
 import { Timestamp } from 'firebase/firestore';
+import { useFlowStore } from '@/shared/stores/flowStore';
 
 // Define types for our data
 interface Transaction {
@@ -130,31 +131,36 @@ function SalesPage(): React.JSX.Element {
   };
   
   return (
-    <div className="p-4">
+    <div className="h-screen flex flex-col">
+      <div className="p-4 flex-shrink-0">
+        <TotalSalesCard totalCents={totalSalesCents} />
+      </div>
       
-      <TotalSalesCard totalCents={totalSalesCents} />
-
- <SharedList<Transaction>
-        data={transactions}
-        renderItem={(transaction: Transaction) => <StallTransactionCard transaction={transaction} />}
-        onRefresh={handleRefresh}
-        hasMore={hasNextPage}
-        loadMore={() => fetchNextPage()}
-        isLoading={isLoading || isFetchingNextPage}
-        isError={!!error}
-        isEmpty={transactions.length === 0}
-        emptyMessage="No transactions yet"
-        errorMessage={`Failed to load transactions: ${(error as Error)?.message || 'Unknown error'}`}
-        loadingMessage="Loading transactions..."
-      />
-
-     
+      <div className="flex-1 px-4 pb-4 overflow-hidden">
+        <SharedList<Transaction>
+          data={transactions}
+          renderItem={(transaction: Transaction) => <StallTransactionCard transaction={transaction} />}
+          onRefresh={handleRefresh}
+          hasMore={hasNextPage}
+          loadMore={() => fetchNextPage()}
+          isLoading={isLoading || isFetchingNextPage}
+          isError={!!error}
+          isEmpty={transactions.length === 0}
+          emptyMessage="No transactions yet"
+          errorMessage={`Failed to load transactions: ${(error as Error)?.message || 'Unknown error'}`}
+          loadingMessage="Loading transactions..."
+        />
+      </div>
       
       {/* FAB Button */}
       <div className="fixed bottom-20 right-6">
         <button
           className="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
-          onClick={() => navigate('/sales/salesstep1')}
+          onClick={() => {
+            // Reset the sales flow when starting a new sale
+            useFlowStore.getState().resetSalesFlow();
+            navigate('/sales/salesstep1');
+          }}
         >
           <span className="text-xl">+</span>
         </button>

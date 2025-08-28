@@ -5,4 +5,7 @@ export type User = {
   email: string;
   role: 'admin' | 'member';
   status?: 'active' | 'suspended';
+  tutorialMode?: boolean;
+  tutorialEnabled?: boolean;
+  tutorialCompleted?: boolean;
 };

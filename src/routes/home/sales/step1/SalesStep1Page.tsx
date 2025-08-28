@@ -2,9 +2,13 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import QrScanner, { QrScannerHandle } from '../../../../shared/ui/QrScanner';
+import MockQrScanner, { MockQrScannerHandle } from '../../../../shared/ui/MockQrScanner';
 import { useQRCodeValidationForSales, useQRCodeValidationForSalesByLabel } from '../../../../queries/qrCodes';
+import { FlowContainer } from '../../../../shared/ui';
+import { useFlowStore } from '../../../../shared/stores/flowStore';
+import { withTutorial, WithTutorialProps } from '../../../../hocs';
 
-function SalesStep1Page(): React.JSX.Element {
+function SalesStep1Page({ isTutorial = false }: WithTutorialProps): React.JSX.Element {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -75,6 +79,12 @@ function SalesStep1Page(): React.JSX.Element {
       if (inputMethod === 'scan' || (inputMethod === 'manual' && isManualSubmit)) {
         setHasNavigated(true);
         setIsManualSubmit(false); // Reset the flag
+        // Set flow data and mark step 1 as complete
+        useFlowStore.getState().setSalesData({
+          qrCode: qrCodeData.id,
+          idempotencyKey,
+        });
+        useFlowStore.getState().setSalesStepComplete(1);
         navigate('/sales/salesstep2', {
           state: {
             qrCode: qrCodeData.id,
@@ -89,17 +99,25 @@ function SalesStep1Page(): React.JSX.Element {
   }, [qrCodeData, isQrCodeError, qrCodeInput, isQrCodeLoading, navigate, idempotencyKey, hasNavigated, inputMethod, isManualSubmit]);
   
   return (
-    <div className="px-4">
+    <FlowContainer withHeaderOffset withBottomOffset>
       
       {/* QR Scanner Section - Show only when inputMethod is 'scan' */}
       {inputMethod === 'scan' && (
         <div className="bg-white rounded-lg shadow-md p-4 mb-6">
         
-          <QrScanner
-            ref={qrScannerRef}
-            onCodeScanned={(code) => validateQrCode(code, false)}
-            isActive={true}
-          />
+          {isTutorial ? (
+            <MockQrScanner
+              ref={qrScannerRef as React.RefObject<MockQrScannerHandle>}
+              onCodeScanned={(code) => validateQrCode(code, false)}
+              isActive={true}
+            />
+          ) : (
+            <QrScanner
+              ref={qrScannerRef}
+              onCodeScanned={(code) => validateQrCode(code, false)}
+              isActive={true}
+            />
+          )}
           <button
             onClick={handleScanPress}
             className="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-md transition duration-200"
@@ -161,8 +179,8 @@ function SalesStep1Page(): React.JSX.Element {
           Validating QR code...
         </div>
       )}
-    </div>
+    </FlowContainer>
   );
 }
 
-export default SalesStep1Page;
+export default withTutorial(SalesStep1Page, 'sales');

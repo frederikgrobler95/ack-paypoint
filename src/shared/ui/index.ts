@@ -8,4 +8,7 @@ export { default as Header } from './Header';
 export { default as GlobalSpinner } from './GlobalSpinner';
 export { default as Toast } from './Toast';
 export { default as DropdownMenu } from './DropdownMenu';
+export { default as FlowContainer } from './FlowContainer';
+export { default as TutorialOverlay } from './TutorialOverlay';
+export { default as TutorialFAB } from './TutorialFAB';
 export type { QrScannerHandle } from './QrScanner';

@@ -14,6 +14,9 @@ function QRCodesPage(): React.JSX.Element {
     isLoading,
     isError,
     error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
     refetch
   } = useQRCodes(20)
   
@@ -47,8 +50,8 @@ function QRCodesPage(): React.JSX.Element {
   )
   
   return (
-    <>
-      <div className="p-4">
+    <div className="h-screen flex flex-col">
+      <div className="p-4 flex-shrink-0">
         <div className="flex justify-between items-center mb-6">
           <div></div>
           <button
@@ -58,12 +61,16 @@ function QRCodesPage(): React.JSX.Element {
             Batches
           </button>
         </div>
-        
+      </div>
+      
+      <div className="flex-1 px-4 pb-4 overflow-hidden">
         <SharedList
           data={qrCodes}
           renderItem={renderQrCodeItem}
           onRefresh={refetch}
-          isLoading={isLoading}
+          hasMore={hasNextPage}
+          loadMore={() => fetchNextPage()}
+          isLoading={isLoading || isFetchingNextPage}
           isError={isError}
           isEmpty={qrCodes.length === 0}
           emptyMessage="No QR codes found"
@@ -71,7 +78,7 @@ function QRCodesPage(): React.JSX.Element {
           loadingMessage="Loading QR codes..."
         />
       </div>
-    </>
+    </div>
   )
 }
 

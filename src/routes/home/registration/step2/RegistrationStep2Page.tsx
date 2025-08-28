@@ -1,14 +1,20 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import QrScanner, { QrScannerHandle } from '../../../../shared/ui/QrScanner';
+import MockQrScanner, { MockQrScannerHandle } from '../../../../shared/ui/MockQrScanner';
 import { useQRCodeValidationForRegistration, useQRCodeValidationForRegistrationByLabel } from '../../../../queries/qrCodes';
+import { FlowContainer } from '@/shared/ui';
+import { useFlowStore } from '@/shared/stores/flowStore';
+import { useRegistrationFlowNavigation } from '@/hooks';
+import { withTutorial, WithTutorialProps } from '@/hocs';
 
-function RegistrationStep2Page(): React.JSX.Element {
+function RegistrationStep2Page({ isTutorial = false }: WithTutorialProps): React.JSX.Element {
   const navigate = useNavigate();
   const location = useLocation();
 
   // Data from previous step
   const { name, phone, idempotencyKey } = location.state || {};
+  
   
   const [qrCodeInput, setQrCodeInput] = useState(location.state?.qrCodeId || '');
   const [error, setError] = useState('');
@@ -16,6 +22,8 @@ function RegistrationStep2Page(): React.JSX.Element {
   const [inputMethod, setInputMethod] = useState<'scan' | 'manual'>('scan');
   const [hasNavigated, setHasNavigated] = useState(false);
   
+  // Redirect to step 1 if step 1 is not complete
+  useRegistrationFlowNavigation(2);
   // For scanning, we validate by ID
   const { data: qrCodeDataById, isLoading: isQrCodeLoadingById, isError: isQrCodeErrorById } = useQRCodeValidationForRegistration(qrCodeInput);
   
@@ -64,6 +72,8 @@ function RegistrationStep2Page(): React.JSX.Element {
   useEffect(() => {
     if (qrCodeData && !hasNavigated && name && phone && idempotencyKey) {
       setHasNavigated(true);
+      // Mark step 2 as complete
+      useFlowStore.getState().setRegistrationStepComplete(2);
       navigate('/registration/step3', {
         state: {
           name,
@@ -79,17 +89,25 @@ function RegistrationStep2Page(): React.JSX.Element {
   }, [qrCodeData, isQrCodeError, qrCodeInput, isQrCodeLoading, navigate, name, phone, idempotencyKey, hasNavigated]);
   
   return (
-    <div className="p-4">
+    <FlowContainer withHeaderOffset withBottomOffset>
       
       {/* QR Scanner Section - Show only when inputMethod is 'scan' */}
       {inputMethod === 'scan' && (
         <div className="bg-white rounded-lg shadow-md p-4 mb-6">
           
-          <QrScanner
-            ref={qrScannerRef}
-            onCodeScanned={validateQrCode}
-            isActive={true}
-          />
+          {isTutorial ? (
+            <MockQrScanner
+              ref={qrScannerRef as React.RefObject<MockQrScannerHandle>}
+              onCodeScanned={validateQrCode}
+              isActive={true}
+            />
+          ) : (
+            <QrScanner
+              ref={qrScannerRef}
+              onCodeScanned={validateQrCode}
+              isActive={true}
+            />
+          )}
           <button
             onClick={handleScanPress}
             className="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-md transition duration-200"
@@ -151,8 +169,8 @@ function RegistrationStep2Page(): React.JSX.Element {
           Validating QR code...
         </div>
       )}
-    </div>
+    </FlowContainer>
   );
 }
 
-export default RegistrationStep2Page;
+export default withTutorial(RegistrationStep2Page, 'registration');

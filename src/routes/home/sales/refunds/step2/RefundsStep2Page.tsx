@@ -5,6 +5,10 @@ import { useMyAssignment } from '../../../../../contexts/MyAssignmentContext';
 import { useTransactionsByCustomer } from '../../../../../queries/transactions';
 import StallTransactionCard from '../../../../../shared/ui/StallTransactionCard';
 import { Transaction } from '../../../../../shared/contracts/transaction';
+import { FlowContainer } from '@/shared/ui';
+import { useFlowStore } from '@/shared/stores/flowStore';
+import { useRefundsFlowNavigation } from '@/hooks';
+import { withTutorial, WithTutorialProps } from '@/hocs';
 
 // Define a compatible transaction type for StallTransactionCard
 interface CompatibleTransaction {
@@ -16,12 +20,18 @@ interface CompatibleTransaction {
   createdAt: any; // Using any to match the component's expectation
 }
 
-function RefundsStep2Page(): React.JSX.Element {
+function RefundsStep2Page({ isTutorial = false, mockData }: WithTutorialProps): React.JSX.Element {
   const navigate = useNavigate();
   const location = useLocation();
-  const { qrCode, idempotencyKey } = location.state || {};
+  const { qrCode: locationQrCode, idempotencyKey } = location.state || {};
+  
+  // Use mock data in tutorial mode, otherwise use location state
+  const qrCode = isTutorial ? mockData?.qrCode || '' : locationQrCode;
   
   const [selectedTransactionId, setSelectedTransactionId] = useState<string | null>(null);
+  
+  // Redirect to step 1 if step 1 is not complete
+  useRefundsFlowNavigation(2);
   
   // Fetch customer details using the QR code
   const { data: qrData, isLoading: isQrLoading, isError: isQrError } = useQRCodeCustomer(qrCode);
@@ -37,19 +47,32 @@ function RefundsStep2Page(): React.JSX.Element {
   );
   
   // Filter transactions to only show sales at the current stall and convert to compatible type
-  const stallTransactions: CompatibleTransaction[] = transactionsData?.pages.flatMap(page =>
-    page.data
-      .filter((txn: Transaction) => txn.stallId === stallId && txn.type === 'sale')
-      .map((txn: Transaction) => ({
-        ...txn,
-        customerName: txn.customerName || qrData?.customer.name || 'Unknown Customer',
-        operatorName: txn.operatorName || 'Unknown Operator'
-      }))
-  ) || [];
+  const stallTransactions: CompatibleTransaction[] = isTutorial ?
+    // Mock transactions for tutorial mode
+    [{
+      id: 'tutorial-transaction-1',
+      operatorName: 'Tutorial Operator',
+      customerName: mockData?.customerName || 'John Doe',
+      amountCents: mockData?.amountCents || 10000,
+      type: 'sale',
+      createdAt: new Date()
+    }] :
+    // Real transactions for normal mode
+    transactionsData?.pages.flatMap(page =>
+      page.data
+        .filter((txn: Transaction) => txn.stallId === stallId && txn.type === 'sale')
+        .map((txn: Transaction) => ({
+          ...txn,
+          customerName: txn.customerName || qrData?.customer.name || 'Unknown Customer',
+          operatorName: txn.operatorName || 'Unknown Operator'
+        }))
+    ) || [];
   
   // Handle transaction selection
   const handleTransactionSelect = (transactionId: string) => {
     setSelectedTransactionId(transactionId);
+    // Mark step 2 as complete
+    useFlowStore.getState().setRefundsStepComplete(2);
     navigate('/sales/refunds/refundsstep3', {
       state: { qrCode, idempotencyKey, transactionId }
     });
@@ -58,21 +81,21 @@ function RefundsStep2Page(): React.JSX.Element {
   // Loading state
   if (isQrLoading || isTransactionsLoading) {
     return (
-      <div className="p-4">
+      <FlowContainer withHeaderOffset withBottomOffset>
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex justify-center">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
           </div>
           <p className="text-center mt-4 text-gray-600">Loading customer transactions...</p>
         </div>
-      </div>
+      </FlowContainer>
     );
   }
   
   // Error state
   if (isQrError || isTransactionsError || !qrData || !stallId) {
     return (
-      <div className="p-4">
+      <FlowContainer withHeaderOffset withBottomOffset>
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="text-center">
             <div className="text-red-500 text-5xl mb-4">⚠️</div>
@@ -93,57 +116,55 @@ function RefundsStep2Page(): React.JSX.Element {
             </button>
           </div>
         </div>
-      </div>
+      </FlowContainer>
     );
   }
   
   return (
-    <>
-      <div className="p-4">
-        <p className="text-gray-600 mb-6">Select a transaction to refund for {qrData.customer.name}</p>
-        
-        {/* Customer Info */}
-        <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <h2 className="text-lg font-semibold text-gray-800">{qrData.customer.name}</h2>
-              <p className="text-gray-600 text-sm">Customer</p>
-            </div>
-            <div className="bg-gray-100 rounded-full px-3 py-1">
-              <span className="text-gray-800 font-medium">QR: {qrCode.substring(0, 8)}...</span>
-            </div>
+    <FlowContainer withHeaderOffset withBottomOffset>
+      <p className="text-gray-600 mb-6">Select a transaction to refund for {isTutorial ? mockData?.customerName || 'John Doe' : qrData?.customer.name}</p>
+      
+      {/* Customer Info */}
+      <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h2 className="text-lg font-semibold text-gray-800">{isTutorial ? mockData?.customerName || 'John Doe' : qrData?.customer.name}</h2>
+            <p className="text-gray-600 text-sm">Customer</p>
+          </div>
+          <div className="bg-gray-100 rounded-full px-3 py-1">
+            <span className="text-gray-800 font-medium">QR: {isTutorial ? (mockData?.qrCode?.substring(0, 8) + '...') || 'TUTORIA...' : qrCode?.substring(0, 8) + '...'}</span>
           </div>
         </div>
-        
-        {/* Transactions List */}
-        <div className="bg-white rounded-lg shadow-md p-4">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Recent Transactions</h2>
-          
-          {stallTransactions.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-gray-500">No transactions found for this customer at your stall.</p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {stallTransactions.map((transaction) => (
-                <div
-                  key={transaction.id}
-                  onClick={() => handleTransactionSelect(transaction.id)}
-                  className={`cursor-pointer transition-all duration-150 ${
-                    selectedTransactionId === transaction.id
-                      ? 'ring-2 ring-indigo-500 rounded-md'
-                      : 'hover:bg-gray-50'
-                  }`}
-                >
-                  <StallTransactionCard transaction={transaction} />
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
       </div>
-    </>
+      
+      {/* Transactions List */}
+      <div className="bg-white rounded-lg shadow-md p-4">
+        <h2 className="text-lg font-semibold text-gray-800 mb-4">Recent Transactions</h2>
+        
+        {stallTransactions.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-gray-500">No transactions found for this customer at your stall.</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {stallTransactions.map((transaction) => (
+              <div
+                key={transaction.id}
+                onClick={() => handleTransactionSelect(transaction.id)}
+                className={`cursor-pointer transition-all duration-150 ${
+                  selectedTransactionId === transaction.id
+                    ? 'ring-2 ring-indigo-500 rounded-md'
+                    : 'hover:bg-gray-50'
+                }`}
+              >
+                <StallTransactionCard transaction={transaction} />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </FlowContainer>
   );
 }
 
-export default RefundsStep2Page;
+export default withTutorial(RefundsStep2Page, 'checkout');

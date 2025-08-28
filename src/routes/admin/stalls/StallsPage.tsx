@@ -14,6 +14,9 @@ function StallsPage(): React.JSX.Element {
     isLoading,
     isError,
     error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
     refetch
   } = useStalls(20, searchTerm)
   
@@ -48,8 +51,8 @@ function StallsPage(): React.JSX.Element {
   )
   
   return (
-    <>
-      <div className="p-4">
+    <div className="h-screen flex flex-col">
+      <div className="p-4 flex-shrink-0">
         <div className="flex gap-1 justify-between items-center mb-6">
           <div className="w-64">
             <input
@@ -67,12 +70,16 @@ function StallsPage(): React.JSX.Element {
             Add New Stall
           </button>
         </div>
-        
+      </div>
+      
+      <div className="flex-1 px-4 pb-4 overflow-hidden">
         <SharedList
           data={stalls}
           renderItem={renderStallItem}
           onRefresh={refetch}
-          isLoading={isLoading}
+          hasMore={hasNextPage}
+          loadMore={() => fetchNextPage()}
+          isLoading={isLoading || isFetchingNextPage}
           isError={isError}
           isEmpty={stalls.length === 0}
           emptyMessage="No stalls found"
@@ -80,7 +87,7 @@ function StallsPage(): React.JSX.Element {
           loadingMessage="Loading stalls..."
         />
       </div>
-    </>
+    </div>
   )
 }
 

@@ -17,6 +17,9 @@ function BatchDetailsPage(): React.JSX.Element {
     isLoading,
     isError,
     error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
     refetch
   } = useQRCodesByBatch(id || null, 20)
   
@@ -75,8 +78,8 @@ function BatchDetailsPage(): React.JSX.Element {
   )
 
   return (
-    <>
-      <div className="p-4">
+    <div className="h-screen flex flex-col">
+      <div className="p-4 flex-shrink-0">
         <div className="flex justify-between items-center mb-6">
           <div></div>
           <button
@@ -91,12 +94,16 @@ function BatchDetailsPage(): React.JSX.Element {
             {mutation.isPending ? 'Generating PDF...' : 'Print Batch PDF'}
           </button>
         </div>
-        
+      </div>
+      
+      <div className="flex-1 px-4 pb-4 overflow-hidden">
         <SharedList
           data={qrCodes}
           renderItem={renderQrCodeItem}
           onRefresh={refetch}
-          isLoading={isLoading}
+          hasMore={hasNextPage}
+          loadMore={() => fetchNextPage()}
+          isLoading={isLoading || isFetchingNextPage}
           isError={isError}
           isEmpty={qrCodes.length === 0}
           emptyMessage="No QR codes found in this batch"
@@ -104,7 +111,7 @@ function BatchDetailsPage(): React.JSX.Element {
           loadingMessage="Loading QR codes..."
         />
       </div>
-    </>
+    </div>
   )
 }
 

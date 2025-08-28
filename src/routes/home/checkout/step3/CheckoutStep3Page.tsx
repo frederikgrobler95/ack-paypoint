@@ -5,6 +5,9 @@ import { useCreatePaymentMutation } from '@/mutations/useCreatePaymentMutation';
 import { useAuth } from '@/contexts/AuthContext';
 import { PaymentMethod } from '@/shared/contracts/payment';
 import { useMyAssignment } from '@/contexts/MyAssignmentContext';
+import { FlowContainer } from '@/shared/ui';
+import { useFlowStore } from '@/shared/stores/flowStore';
+import { useCheckoutFlowNavigation } from '@/hooks';
 
 function CheckoutStep3Page(): React.JSX.Element {
   const navigate = useNavigate();
@@ -15,6 +18,9 @@ function CheckoutStep3Page(): React.JSX.Element {
   const { currentUser } = useAuth();
   const { assignment, stall } = useMyAssignment();
   const { mutate: checkoutCustomer, isPending: isCheckoutLoading, isError: isCheckoutError, error: checkoutError } = useCreatePaymentMutation();
+  
+  // Redirect to previous steps if they are not complete
+  useCheckoutFlowNavigation(3);
   
   // Format amount in Rands
   const formatAmount = (cents: number) => {
@@ -46,6 +52,8 @@ function CheckoutStep3Page(): React.JSX.Element {
       stallId: assignment?.stallId || ''
     }, {
       onSuccess: () => {
+        // Reset the checkout flow after successful checkout
+        useFlowStore.getState().resetCheckoutFlow();
         navigate('/');
       },
       onError: (error: any) => {
@@ -57,31 +65,31 @@ function CheckoutStep3Page(): React.JSX.Element {
   // Loading state for QR code
   if (isQrLoading) {
     return (
-      <div className="p-4">
+      <FlowContainer withHeaderOffset withBottomOffset>
         <h1 className="text-2xl font-bold text-gray-800 mb-6">Checkout - Step 3</h1>
         <div className="bg-white rounded-lg shadow-md p-6">
           <p className="text-gray-600">Loading customer details...</p>
         </div>
-      </div>
+      </FlowContainer>
     );
   }
   
   // Error state for QR code
   if (isQrError || !qrData) {
     return (
-      <div className="p-4">
+      <FlowContainer withHeaderOffset withBottomOffset>
         <h1 className="text-2xl font-bold text-gray-800 mb-6">Checkout - Step 3</h1>
         <div className="bg-white rounded-lg shadow-md p-6">
           <p className="text-red-600">Error loading customer details. Please try again.</p>
         </div>
-      </div>
+      </FlowContainer>
     );
   }
   
   const { customer } = qrData;
   
   return (
-    <div className="p-4">
+    <FlowContainer withHeaderOffset withBottomOffset>
       <h1 className="text-2xl font-bold text-gray-800 mb-6">Checkout - Step 3</h1>
       
       {/* Customer Details */}
@@ -124,8 +132,8 @@ function CheckoutStep3Page(): React.JSX.Element {
           onClick={handleConfirmCheckout}
           disabled={isCheckoutLoading}
           className={`w-full py-4 px-6 rounded-lg shadow-lg transition duration-300 ease-in-out transform hover:scale-105 ${
-            isCheckoutLoading 
-              ? 'bg-gray-400 cursor-not-allowed' 
+            isCheckoutLoading
+              ? 'bg-gray-400 cursor-not-allowed'
               : 'bg-green-600 hover:bg-green-700 text-white font-bold'
           }`}
         >
@@ -142,7 +150,7 @@ function CheckoutStep3Page(): React.JSX.Element {
           )}
         </button>
       </div>
-    </div>
+    </FlowContainer>
   );
 }
 

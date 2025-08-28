@@ -3,12 +3,18 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { QRCodeCanvas } from 'qrcode.react'
 import { useCreateCustomerMutation } from '../../../../mutations/useCreateCustomerMutation'
 import { useWorkStore } from '../../../../shared/stores/workStore'
+import { FlowContainer } from '@/shared/ui';
+import { useFlowStore } from '@/shared/stores/flowStore';
+import { useRegistrationFlowNavigation } from '@/hooks';
 
 function RegistrationStep3Page(): React.JSX.Element {
   const navigate = useNavigate()
   const location = useLocation()
   const { name, phone, qrCodeId, qrCodeLabel, idempotencyKey } = location.state || {};
   const currentStallId = useWorkStore((state) => state.currentStallId)
+  
+  // Redirect to previous steps if they are not complete
+  useRegistrationFlowNavigation(3);
 
   const { mutate: createCustomer, isPending, isError, error } = useCreateCustomerMutation()
 
@@ -26,6 +32,8 @@ function RegistrationStep3Page(): React.JSX.Element {
       idempotencyKey
     }, {
       onSuccess: () => {
+        // Reset the registration flow after successful registration
+        useFlowStore.getState().resetRegistrationFlow();
         navigate('/')
       }
     })
@@ -34,7 +42,7 @@ function RegistrationStep3Page(): React.JSX.Element {
   // Error state for missing data
   if (!name || !phone || !qrCodeId || !idempotencyKey) {
     return (
-      <div className="p-4">
+      <FlowContainer withHeaderOffset withBottomOffset>
         <h1 className="text-2xl font-bold text-gray-800 mb-6">Registration - Step 3</h1>
         <div className="bg-white rounded-lg shadow-sm p-4 mb-3">
           <div className="text-center">
@@ -50,12 +58,12 @@ function RegistrationStep3Page(): React.JSX.Element {
             </button>
           </div>
         </div>
-      </div>
+      </FlowContainer>
     );
   }
 
   return (
-    <div className="p-4">
+    <FlowContainer withHeaderOffset withBottomOffset>
       <h1 className="text-2xl font-bold text-gray-800 mb-6">Registration - Step 3</h1>
       <div className="bg-white rounded-lg shadow-sm p-4 mb-3">
         <p className="text-sm text-gray-500">Customer Name</p>
@@ -100,7 +108,7 @@ function RegistrationStep3Page(): React.JSX.Element {
           <span className="text-xl">Confirm Registration</span>
         </button>
       </div>
-    </div>
+    </FlowContainer>
   )
 }
 

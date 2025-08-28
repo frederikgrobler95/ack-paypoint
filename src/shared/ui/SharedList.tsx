@@ -39,8 +39,8 @@ const SharedList = <T,>({
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
     
-    // Check if we've scrolled to the bottom (with a small threshold)
-    if (scrollHeight - scrollTop <= clientHeight + 10) {
+    // Check if we've scrolled to the bottom (with a larger threshold for better detection)
+    if (scrollHeight - scrollTop <= clientHeight + 100) {
       if (hasMore && loadMore && !isLoading) {
         loadMore();
       }
@@ -83,17 +83,17 @@ const SharedList = <T,>({
 
   // Render list with pull to refresh and infinite scroll
   return (
-    <div className="flex-1 w-full flex flex-col relative">
+    <div className="h-full w-full flex flex-col relative">
       <PullToRefresh onRefresh={handleRefresh} pullingContent="" refreshingContent={
         <div className="flex justify-center py-4 relative z-50 bg-white">
           <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-[#007BFF]"></div>
         </div>
       }>
         <div
-          className="overflow-y-auto flex-1 w-full flex flex-col relative z-10"
+          className="overflow-y-auto h-full w-full flex flex-col relative z-10"
           onScroll={handleScroll}
         >
-          <ul className="divide-y divide-[#E2E8F0] border border-[#E2E8F0] rounded-lg overflow-hidden relative z-10">
+          <ul className="divide-y divide-[#E2E8F0] border border-[#E2E8F0] rounded-lg overflow-hidden relative z-10 flex-shrink-0">
             {data.map((item, index) => (
               <li key={index} className="bg-[#FFFFFF] hover:bg-[#F7FAFC] transition-colors duration-200 relative z-10">
                 {renderItem(item, index)}
@@ -103,8 +103,15 @@ const SharedList = <T,>({
           
           {/* Loading more indicator */}
           {hasMore && isLoading && (
-            <div className="flex justify-center py-4">
+            <div className="flex justify-center py-4 flex-shrink-0">
               <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-[#007BFF]"></div>
+            </div>
+          )}
+          
+          {/* End of list indicator */}
+          {!hasMore && data.length > 0 && (
+            <div className="flex justify-center py-4 flex-shrink-0">
+              <p className="text-[#A0AEC0] text-sm">No more items to load</p>
             </div>
           )}
         </div>

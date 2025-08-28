@@ -3,6 +3,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import QrScanner, { QrScannerHandle } from '../../../../shared/ui/QrScanner';
 import { useQRCodeValidationForCheckout, useQRCodeValidationForCheckoutByLabel } from '../../../../queries/qrCodes';
+import { FlowContainer } from '@/shared/ui';
+import { useFlowStore } from '@/shared/stores/flowStore';
 
 function CheckoutStep1Page(): React.JSX.Element {
   const navigate = useNavigate();
@@ -67,6 +69,8 @@ function CheckoutStep1Page(): React.JSX.Element {
   useEffect(() => {
     if (qrCodeData && !hasNavigated && idempotencyKey) {
       setHasNavigated(true);
+      // Set flow data and mark step 1 as complete
+      useFlowStore.getState().setCheckoutStepComplete(1);
       navigate('/checkout/step2', {
         state: {
           qrCode: qrCodeData.id,
@@ -79,7 +83,7 @@ function CheckoutStep1Page(): React.JSX.Element {
   }, [qrCodeData, isQrCodeError, qrCodeInput, isQrCodeLoading, navigate, idempotencyKey, hasNavigated]);
   
   return (
-    <div className="p-4">
+    <FlowContainer withHeaderOffset withBottomOffset>
       
       
       {/* QR Scanner Section - Show only when inputMethod is 'scan' */}
@@ -152,7 +156,7 @@ function CheckoutStep1Page(): React.JSX.Element {
           Validating QR code...
         </div>
       )}
-    </div>
+    </FlowContainer>
   );
 }
 

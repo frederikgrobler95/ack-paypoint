@@ -1,8 +1,21 @@
+/**
+ * Registration Flow - Page Container
+ *
+ * This file implements the Sales spacing standard via FlowContainer:
+ * - Horizontal: px-4 on the outer page container
+ * - Vertical: pt-4/pb-4 by default; withHeaderOffset/withBottomOffset when needed
+ * - Section rhythm: consistent spacing (follows Sales usage)
+ * - Respects fixed Header and BottomNavigation components
+ *
+ * Source of truth: Sales pages implementation
+ */
 import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRegistrations } from '@/queries/registrations';
 import { useMyAssignment } from '@/contexts/MyAssignmentContext';
+import { FlowContainer } from '@/shared/ui';
+import { useFlowStore } from '@/shared/stores/flowStore';
 
 // Define types for our dummy data
 
@@ -107,7 +120,7 @@ function RegistrationPage(): React.JSX.Element {
   }
   
   return (
-    <div className="p-4">
+    <FlowContainer withHeaderOffset withBottomOffset>
       <TotalRegistrationsCard total={totalRegistrations} />
       <div className="mb-4">
         <h2 className="text-xl font-semibold text-gray-700 mb-3">Recent Customers</h2>
@@ -126,12 +139,16 @@ function RegistrationPage(): React.JSX.Element {
       <div className="fixed bottom-20 right-6">
         <button
           className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
-          onClick={() => navigate('/registration/step1')}
+          onClick={() => {
+            // Reset the registration flow when starting a new registration
+            useFlowStore.getState().resetRegistrationFlow();
+            navigate('/registration/step1');
+          }}
         >
           <span className="text-xl">+</span>
         </button>
       </div>
-    </div>
+    </FlowContainer>
   );
 }
 
