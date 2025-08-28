@@ -80,7 +80,7 @@ import RefundsTutorialComplete from './routes/tutorial/refunds/RefundsTutorialCo
 
 function App(): React.JSX.Element {
   const { t } = useTranslation()
-  const { currentUser, loading, tutorialEnabled } = useAuth();
+  const { currentUser, loading, tutorialEnabled, role } = useAuth();
   const { stall, isLoading: assignmentLoading } = useMyAssignment();
   const location = useLocation();
   const navigate = useNavigate();
@@ -171,11 +171,6 @@ function App(): React.JSX.Element {
       <ToastContainer />
       {location.pathname.startsWith('/tutorial') ? <MockHeader autoOpenDropdown={location.pathname === '/tutorial/refunds'} /> : <Header />}
       <PWANotification />
-
-      <h1>{t('hello_world')}</h1>
-      <button onClick={() => i18n.changeLanguage('en')}>English</button>
-      <button onClick={() => i18n.changeLanguage('fr')}>French</button>
-      <button onClick={() => i18n.changeLanguage('af')}>Afrikaans</button>
       
       <div className={`pt-16 ${location.pathname.startsWith('/tutorial') ? 'pb-4' : 'pb-16'}`}> {/* Adjust padding based on tutorial mode */}
         <Routes>
@@ -252,7 +247,7 @@ function App(): React.JSX.Element {
         </Routes>
       </div>
       {/* Hide bottom navigation during tutorial mode */}
-      {!location.pathname.startsWith('/tutorial') && <BottomNavigation />}
+      {!location.pathname.startsWith('/tutorial') && role !== 'member' && <BottomNavigation />}
     </>
   )
 }

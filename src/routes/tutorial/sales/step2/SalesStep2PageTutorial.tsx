@@ -4,27 +4,29 @@ import AmountKeypad from '../../../../shared/ui/AmountKeypad';
 import { FlowContainer } from '../../../../shared/ui';
 import { TutorialTour } from '../../../../components/tutorial';
 import { useTutorialStore } from '../../../../shared/stores/tutorialStore';
-
-// Define the steps for the sales step 2 tutorial
-const salesStep2TutorialSteps = [
-  {
-    target: '.amount-display',
-    content: 'This shows the current amount being entered for the sale.',
-    disableBeacon: true,
-  },
-  {
-    target: '.keypad',
-    content: 'Use this keypad to enter the amount for the sale.',
-  },
-  {
-    target: '.submit-button',
-    content: 'Click this button to proceed to the next step after entering an amount.',
-  },
-  
-];
+import { useTranslation } from 'react-i18next';
 
 function SalesStep2PageTutorial() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+
+  // Define the steps for the sales step 2 tutorial
+  const salesStep2TutorialSteps = [
+    {
+      target: '.amount-display',
+      content: t('tutorial.sales.step2.amountDisplayContent'),
+      disableBeacon: true,
+    },
+    {
+      target: '.keypad',
+      content: t('tutorial.sales.step2.keypadContent'),
+    },
+    {
+      target: '.submit-button',
+      content: t('tutorial.sales.step2.submitButtonContent'),
+    },
+    
+  ];
   const { mockSalesData, setSalesStepComplete } = useTutorialStore();
   const [amountString, setAmountString] = useState('0.00');
   const [amountCents, setAmountCents] = useState(0);
@@ -120,7 +122,7 @@ function SalesStep2PageTutorial() {
   const handleSubmitPress = () => {
     if (amountCents <= 0) {
       // In tutorial mode, we'll just show an alert
-      alert('Please enter a valid amount');
+      alert(t('tutorial.sales.step2.error.invalidAmount'));
       return;
     }
     
@@ -130,7 +132,7 @@ function SalesStep2PageTutorial() {
   };
   
   return (
-    <FlowContainer withNoHeaderOffset withBottomOffset>
+    <FlowContainer withHeaderOffset>
       <TutorialTour steps={salesStep2TutorialSteps} />
       
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">

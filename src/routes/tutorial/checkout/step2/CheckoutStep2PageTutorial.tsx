@@ -3,23 +3,24 @@ import { useNavigate } from 'react-router-dom';
 import { FlowContainer } from '../../../../shared/ui';
 import { TutorialTour } from '../../../../components/tutorial';
 import { useTutorialStore } from '../../../../shared/stores/tutorialStore';
-
-// Define the steps for the checkout step 2 tutorial
-const checkoutStep2TutorialSteps = [
-  {
-    target: '.customer-details-section',
-    content: 'This section shows the customer details for the checkout.',
-    disableBeacon: true,
-  },
-  {
-    target: '.payment-method-section',
-    content: 'Select a payment method for this transaction.',
-  },
-  
-];
+import { useTranslation } from 'react-i18next';
 
 function CheckoutStep2PageTutorial() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+
+  // Define the steps for the checkout step 2 tutorial
+  const checkoutStep2TutorialSteps = [
+    {
+      target: '.customer-details-section',
+      content: t('tutorial.checkout.step2.customerDetailsContent'),
+      disableBeacon: true,
+    },
+    {
+      target: '.payment-method-section',
+      content: t('tutorial.checkout.step2.paymentMethodContent'),
+    },
+  ];
   const { mockCheckoutData } = useTutorialStore();
   const { setCheckoutStepComplete } = useTutorialStore();
   const [selectedMethod, setSelectedMethod] = useState<'card' | 'cash' | 'eft' | null>(null);
@@ -34,7 +35,7 @@ function CheckoutStep2PageTutorial() {
     e.preventDefault();
     
     if (!selectedMethod) {
-      setError('Please select a payment method');
+      setError(t('tutorial.checkout.step2.error.paymentMethodRequired'));
       return;
     }
     
@@ -59,21 +60,21 @@ function CheckoutStep2PageTutorial() {
         
         {/* Customer Details */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6 customer-details-section">
-          <h2 className="text-lg font-semibold text-gray-700 mb-2">Customer Details</h2>
+          <h2 className="text-lg font-semibold text-gray-700 mb-2">{t('tutorial.checkout.step2.customerDetailsTitle')}</h2>
           <div className="mb-4">
-            <p className="text-gray-600">Name</p>
+            <p className="text-gray-600">{t('tutorial.checkout.step2.nameLabel')}</p>
             <p className="text-lg font-semibold text-gray-900">{mockCheckoutData.customerName}</p>
           </div>
           <div>
-            <p className="text-gray-600">Outstanding Amount</p>
+            <p className="text-gray-600">{t('tutorial.checkout.step2.outstandingAmountLabel')}</p>
             <p className="text-xl font-bold text-red-600">{formatAmount(mockCheckoutData.amountCents)}</p>
           </div>
         </div>
         
         {/* Payment Method */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6 payment-method-section">
-          <h2 className="text-lg font-semibold text-gray-700 mb-2">Payment Method</h2>
-          <p className="text-gray-600 mb-4">Select a payment method for this transaction.</p>
+          <h2 className="text-lg font-semibold text-gray-700 mb-2">{t('tutorial.checkout.step2.paymentMethodTitle')}</h2>
+          <p className="text-gray-600 mb-4">{t('tutorial.checkout.step2.selectPaymentMethodMessage')}</p>
           
           <div className="space-y-3">
             <button
@@ -86,11 +87,11 @@ function CheckoutStep2PageTutorial() {
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-lg font-bold text-gray-900">Card</p>
-                  <p className="text-sm text-gray-500">Pay with credit or debit card</p>
+                  <p className="text-lg font-bold text-gray-900">{t('tutorial.checkout.step2.cardLabel')}</p>
+                  <p className="text-sm text-gray-500">{t('tutorial.checkout.step2.cardDescription')}</p>
                 </div>
                 <div className="text-lg font-semibold text-blue-600">
-                  {selectedMethod === 'card' ? 'Selected' : 'Select'}
+                  {selectedMethod === 'card' ? t('tutorial.checkout.step2.selectedLabel') : t('tutorial.checkout.step2.selectButton')}
                 </div>
               </div>
             </button>
@@ -105,11 +106,11 @@ function CheckoutStep2PageTutorial() {
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-lg font-bold text-gray-900">Cash</p>
-                  <p className="text-sm text-gray-500">Pay with cash tender</p>
+                  <p className="text-lg font-bold text-gray-900">{t('tutorial.checkout.step2.cashLabel')}</p>
+                  <p className="text-sm text-gray-500">{t('tutorial.checkout.step2.cashDescription')}</p>
                 </div>
                 <div className="text-lg font-semibold text-blue-600">
-                  {selectedMethod === 'cash' ? 'Selected' : 'Select'}
+                  {selectedMethod === 'cash' ? t('tutorial.checkout.step2.selectedLabel') : t('tutorial.checkout.step2.selectButton')}
                 </div>
               </div>
             </button>
@@ -124,11 +125,11 @@ function CheckoutStep2PageTutorial() {
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-lg font-bold text-gray-900">EFT</p>
-                  <p className="text-sm text-gray-500">Electronic funds transfer</p>
+                  <p className="text-lg font-bold text-gray-900">{t('tutorial.checkout.step2.eftLabel')}</p>
+                  <p className="text-sm text-gray-500">{t('tutorial.checkout.step2.eftDescription')}</p>
                 </div>
                 <div className="text-lg font-semibold text-blue-600">
-                  {selectedMethod === 'eft' ? 'Selected' : 'Select'}
+                  {selectedMethod === 'eft' ? t('tutorial.checkout.step2.selectedLabel') : t('tutorial.checkout.step2.selectButton')}
                 </div>
               </div>
             </button>
@@ -146,7 +147,7 @@ function CheckoutStep2PageTutorial() {
           onClick={handleNext}
           className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-md transition duration-200"
         >
-          Next
+          {t('tutorial.checkout.step2.nextButton')}
         </button>
       </div>
       

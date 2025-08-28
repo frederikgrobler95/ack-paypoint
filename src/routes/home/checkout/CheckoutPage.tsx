@@ -15,7 +15,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { usePayments } from '@/queries/payments';
 import { useMyAssignment } from '@/contexts/MyAssignmentContext';
-import { FlowContainer } from '@/shared/ui';
+import { FlowContainer, SharedList } from '@/shared/ui';
 import { useFlowStore } from '@/shared/stores/flowStore';
 import { timestampToDate } from '@/shared/utils';
 
@@ -46,21 +46,32 @@ const TotalRevenueCard: React.FC<{ totalCents: number }> = ({ totalCents }) => {
 const TransactionCard: React.FC<{ transaction: Transaction }> = ({ transaction }) => {
   const { t } = useTranslation();
   const formattedAmount = (transaction.amountCents / 100).toFixed(2);
+  const formattedTime = transaction.createdAt ? timestampToDate(transaction.createdAt).toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit'
+  }) : 'Unknown Time';
   
   return (
-    <div className="bg-white rounded-lg shadow-sm p-4 mb-3 flex justify-between items-center">
-      <div className="flex items-center">
-        <div className="bg-gray-200 border-2 border-dashed rounded-xl w-16 h-16" />
-        <div className="ml-3">
-          <p className="text-lg font-bold text-gray-900">
-            {transaction.customerName || t('customer', { id: transaction.id })}
-          </p>
-          <p className="text-sm text-gray-500">{t('items', { count: transaction.items })}</p>
+    <div className="bg-white rounded-md shadow-sm p-3 mb-2 grid grid-cols-12 gap-2 items-center">
+      <div className="col-span-3 flex justify-start">
+        <div className="px-1.5 py-0.5 rounded text-xs font-semibold bg-green-100 text-green-800">
+          Sale
         </div>
       </div>
-      <div className="text-right">
-        <div className="text-lg font-semibold text-green-600">R{formattedAmount}</div>
-        <div className="text-sm text-gray-500">{transaction.createdAt ? timestampToDate(transaction.createdAt).toLocaleDateString() : 'Unknown Date'}</div>
+      <div className="col-span-6 overflow-hidden">
+        <p className="text-sm font-bold text-gray-900 truncate">
+          {transaction.customerName || t('customer', { id: transaction.id })}
+        </p>
+        <div className="flex items-center text-xs text-gray-500 truncate">
+          <span className="truncate">{t('items', { count: transaction.items })}</span>
+          <span className="mx-1 flex-shrink-0">•</span>
+          <span className="flex-shrink-0">{formattedTime}</span>
+        </div>
+      </div>
+      <div className="col-span-3 flex justify-end">
+        <div className="text-sm font-semibold text-green-600">
+          R{formattedAmount}
+        </div>
       </div>
     </div>
   );
@@ -78,6 +89,9 @@ function CheckoutPage(): React.JSX.Element {
     data: paymentsData,
     isLoading,
     error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
     refetch
   } = usePayments(20);
   
@@ -134,25 +148,34 @@ function CheckoutPage(): React.JSX.Element {
     );
   }
   
+  const handleRefresh = async () => {
+    await refetch();
+  };
+
   return (
-    <FlowContainer withNoHeaderOffset withBottomOffset>
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">{t('checkoutHeader', { stallName })}</h1>
-      <TotalRevenueCard totalCents={totalRevenueCents} />
-      <div className="mb-4">
-        <h2 className="text-xl font-semibold text-gray-700 mb-3">{t('recentPayments')}</h2>
-        {transactions.length > 0 ? (
-          transactions.map((transaction) => (
-            <TransactionCard key={transaction.id} transaction={transaction} />
-          ))
-        ) : (
-          <div className="bg-white rounded-lg shadow-sm p-4 text-center text-gray-500">
-            {t('noPaymentsYet')}
-          </div>
-        )}
+    <div className="flex flex-col">
+      <div className="p-4 flex-shrink-0">
+        <TotalRevenueCard totalCents={totalRevenueCents} />
       </div>
-      
+
+      <div className="flex-1 px-4 pb-4 overflow-hidden">
+        <SharedList<Transaction>
+          data={transactions}
+          renderItem={(transaction: Transaction) => <TransactionCard transaction={transaction} />}
+          onRefresh={handleRefresh}
+          hasMore={hasNextPage}
+          loadMore={() => fetchNextPage()}
+          isLoading={isLoading || isFetchingNextPage}
+          isError={!!error}
+          isEmpty={transactions.length === 0}
+          emptyMessage={t('noPaymentsYet')}
+          errorMessage={t('failedToLoadPayments')}
+          loadingMessage={t('loadingPayments')}
+        />
+      </div>
+
       {/* FAB Button */}
-      <div className="fixed bottom-20 right-6">
+      <div className="fixed bottom-20 right-6 z-50">
         <button
           className="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
           onClick={() => {
@@ -164,7 +187,7 @@ function CheckoutPage(): React.JSX.Element {
           <span className="text-xl">+</span>
         </button>
       </div>
-    </FlowContainer>
+    </div>
   );
 }
 

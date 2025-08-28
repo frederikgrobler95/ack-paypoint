@@ -16,6 +16,12 @@ const QrScanner = React.forwardRef<QrScannerHandle, QrScannerProps>((props, ref)
   const [isInitialized, setIsInitialized] = useState(false);
   const [error, setError] = useState<string>('');
 
+  const getQrBoxDimensions = () => {
+    const width = scannerRef.current ? scannerRef.current.clientWidth : 250;
+    const boxSize = Math.floor(width * 0.8);
+    return { width: boxSize, height: boxSize };
+  };
+
   useEffect(() => {
     let isMounted = true;
 
@@ -55,7 +61,7 @@ const QrScanner = React.forwardRef<QrScannerHandle, QrScannerProps>((props, ref)
           { facingMode: "environment" },
           {
             fps: 10,
-            qrbox: { width: 250, height: 250 },
+            qrbox: getQrBoxDimensions,
             aspectRatio: 1.0
           },
           () => {
@@ -116,7 +122,7 @@ const QrScanner = React.forwardRef<QrScannerHandle, QrScannerProps>((props, ref)
               { facingMode: "environment" },
               {
                 fps: 10,
-                qrbox: { width: 250, height: 250 },
+                qrbox: getQrBoxDimensions,
                 aspectRatio: 1.0
               },
               () => {}, // Empty callback for preview mode
@@ -148,7 +154,7 @@ const QrScanner = React.forwardRef<QrScannerHandle, QrScannerProps>((props, ref)
           { facingMode: "environment" },
           {
             fps: 10,
-            qrbox: { width: 250, height: 250 },
+            qrbox: getQrBoxDimensions,
             aspectRatio: 1.0
           },
           async (decodedText: string) => {
@@ -188,15 +194,27 @@ const QrScanner = React.forwardRef<QrScannerHandle, QrScannerProps>((props, ref)
     captureQRCode
   }));
 
+  const retryInitialization = () => {
+    setError('');
+    setIsInitialized(false);
+    // This will trigger the useEffect to re-run by changing the state
+  };
+
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center h-96 bg-gray-100 rounded-lg border-2 border-gray-300">
+      <div className="flex flex-col items-center justify-center h-full max-h-96 bg-gray-100 rounded-lg border-2 border-gray-300">
         <div className="text-red-600 text-center p-4">
           <p className="font-semibold">Camera Error</p>
           <p className="text-sm mt-2">{error}</p>
           <p className="text-xs mt-2 text-gray-500">
             Please ensure camera permissions are granted
           </p>
+          <button
+            onClick={retryInitialization}
+            className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            Retry
+          </button>
         </div>
       </div>
     );
@@ -204,10 +222,10 @@ const QrScanner = React.forwardRef<QrScannerHandle, QrScannerProps>((props, ref)
 
   return (
     <div className="flex flex-col items-center">
-      <div 
-        id="qr-scanner-container" 
+      <div
+        id="qr-scanner-container"
         ref={scannerRef}
-        className="w-full max-w-md h-96 rounded-lg overflow-hidden border-2 border-gray-300 bg-black"
+        className="w-full max-w-md h-full max-h-96 rounded-lg overflow-hidden border-2 border-gray-300 bg-black"
       />
       {!isInitialized && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded-lg">

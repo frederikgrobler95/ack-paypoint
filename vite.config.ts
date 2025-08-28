@@ -14,7 +14,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       devOptions: {
-        enabled: true
+        enabled: false
       },
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg', 'logo-192x192.png', 'logo-512x512.png'],
       workbox: {
@@ -41,6 +41,9 @@ export default defineConfig({
       }
     })
   ],
+  build: {
+    outDir: 'dist'
+  },
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src')

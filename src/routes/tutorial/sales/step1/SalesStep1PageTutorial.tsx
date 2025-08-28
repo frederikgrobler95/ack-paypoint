@@ -4,27 +4,29 @@ import { FlowContainer } from '../../../../shared/ui';
 import { TutorialTour } from '../../../../components/tutorial';
 import { useTutorialStore } from '../../../../shared/stores/tutorialStore';
 import MockQrScanner from '../../../../shared/ui/MockQrScanner';
-
-// Define the steps for the sales step 1 tutorial
-const salesStep1TutorialSteps = [
-  {
-    target: '.qr-scanner-section',
-    content: 'This is the QR scanner section. In tutorial mode, it shows a mock scanner.',
-    disableBeacon: true,
-  },
-  {
-    target: '.scan-button',
-    content: 'Click this button to simulate scanning a QR code.',
-  },
-  {
-    target: '.manual-entry-button',
-    content: 'You can also enter QR codes manually by clicking here.',
-  },
-  
-];
+import { useTranslation } from 'react-i18next';
 
 function SalesStep1PageTutorial() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+
+  // Define the steps for the sales step 1 tutorial
+  const salesStep1TutorialSteps = [
+    {
+      target: '.qr-scanner-section',
+      content: t('tutorial.sales.step1.qrScannerContent'),
+      disableBeacon: true,
+    },
+    {
+      target: '.scan-button',
+      content: t('tutorial.sales.step1.scanButtonContent'),
+    },
+    {
+      target: '.manual-entry-button',
+      content: t('tutorial.sales.step1.manualEntryButtonContent'),
+    },
+    
+  ];
   const { mockSalesData, setSalesStepComplete } = useTutorialStore();
   const [inputMethod, setInputMethod] = useState<'scan' | 'manual'>('scan');
   const [qrCodeInput, setQrCodeInput] = useState('');
@@ -43,10 +45,10 @@ function SalesStep1PageTutorial() {
         setSalesStepComplete(1);
         navigate('/tutorial/sales/step2');
       } else {
-        setError('Invalid QR code. Please try again.');
+        setError(t('tutorial.sales.step1.error.invalidQrCode'));
       }
     } catch (err) {
-      setError('Failed to scan QR code. Please try again.');
+      setError(t('tutorial.sales.step1.error.scanFailed'));
     }
   };
   
@@ -57,7 +59,7 @@ function SalesStep1PageTutorial() {
       setSalesStepComplete(1);
       navigate('/tutorial/sales/step2');
     } else {
-      setError('Please enter a QR code');
+      setError(t('tutorial.sales.step1.error.qrCodeRequired'));
     }
   };
   
@@ -66,7 +68,7 @@ function SalesStep1PageTutorial() {
   };
   
   return (
-    <FlowContainer withNoHeaderOffset withBottomOffset>
+    <FlowContainer withHeaderOffset>
       <TutorialTour steps={salesStep1TutorialSteps} />
       
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
@@ -88,13 +90,13 @@ function SalesStep1PageTutorial() {
               onClick={handleScanPress}
               className="scan-button mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-md transition duration-200"
             >
-              Scan QR Code
+              {t('tutorial.sales.step1.scanQrCodeButton')}
             </button>
             <button
               onClick={() => setInputMethod('manual')}
               className="manual-entry-button mt-2 w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-4 rounded-md transition duration-200"
             >
-              Enter Manually
+              {t('tutorial.sales.step1.enterManuallyButton')}
             </button>
           </div>
         )}
@@ -102,7 +104,7 @@ function SalesStep1PageTutorial() {
         {/* Manual Entry - Show only when inputMethod is 'manual' */}
         {inputMethod === 'manual' && (
           <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-            <h3 className="text-md font-semibold text-gray-800 mb-3">Enter QR Code Manually</h3>
+            <h3 className="text-md font-semibold text-gray-800 mb-3">{t('tutorial.sales.step1.manualEntryTitle')}</h3>
             <form onSubmit={handleManualSubmit}>
               <input
                 type="text"
@@ -112,20 +114,20 @@ function SalesStep1PageTutorial() {
                   setError('');
                 }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-3"
-                placeholder="Enter QR code"
+                placeholder={t('tutorial.sales.step1.qrCodeInputPlaceholder')}
               />
               <button
                 type="submit"
                 className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-md transition duration-200"
               >
-                Submit QR Code
+                {t('tutorial.sales.step1.submitQrCodeButton')}
               </button>
               <button
                 type="button"
                 onClick={() => setInputMethod('scan')}
                 className="mt-2 w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-4 rounded-md transition duration-200"
               >
-                Back to Scan
+                {t('tutorial.sales.step1.backToScanButton')}
               </button>
             </form>
           </div>

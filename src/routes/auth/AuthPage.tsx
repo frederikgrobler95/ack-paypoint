@@ -53,13 +53,14 @@ const AuthPage: React.FC = () => {
         <div className="flex justify-center">
           <img
             src="/paypoint-192.png"
-            alt="PayPoint Logo"
+            alt={t('auth.logoAlt')}
             className="w-32 h-32 rounded-xl"
           />
         </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          {isSignIn ? t('signInToYourAccount') : t('createNewAccount')}
+          {isSignIn ? t('auth.signInTitle') : t('auth.signUpTitle')}
         </h2>
+       
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
@@ -82,7 +83,7 @@ const AuthPage: React.FC = () => {
           <form className="space-y-6" onSubmit={handleSubmit}>
             {!isSignIn && (
               <FormGroup
-                label={t('fullName')}
+                label={t('auth.fullNameLabel')}
                 id="name"
                 name="name"
                 type="text"
@@ -93,7 +94,7 @@ const AuthPage: React.FC = () => {
             )}
             
             <FormGroup
-              label={t('username')}
+              label={t('auth.usernameLabel')}
               id="username"
               name="username"
               type="text"
@@ -104,7 +105,7 @@ const AuthPage: React.FC = () => {
 
             {!isSignIn && (
               <FormGroup
-                label={t('emailAddress')}
+                label={t('auth.emailLabel')}
                 id="email"
                 name="email"
                 type="email"
@@ -115,7 +116,7 @@ const AuthPage: React.FC = () => {
             )}
 
             <FormGroup
-              label={t('password')}
+              label={t('auth.passwordLabel')}
               id="password"
               name="password"
               type="password"
@@ -126,14 +127,14 @@ const AuthPage: React.FC = () => {
 
             {!isSignIn && (
               <FormGroup
-                label={t('confirmPassword')}
+                label={t('auth.confirmPasswordLabel')}
                 id="confirmPassword"
                 name="confirmPassword"
                 type="password"
                 required={!isSignIn}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                error={password !== confirmPassword && confirmPassword ? t('passwordsDoNotMatch') : undefined}
+                error={password !== confirmPassword && confirmPassword ? t('auth.passwordsDoNotMatchError') : undefined}
               />
             )}
 
@@ -150,9 +151,9 @@ const AuthPage: React.FC = () => {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    {t('processing')}
+                    {t('auth.processingButton')}
                   </div>
-                ) : (isSignIn ? t('signIn') : t('signUp'))}
+                ) : (isSignIn ? t('auth.signInButton') : t('auth.signUpButton'))}
               </Button>
             </div>
           </form>

@@ -4,27 +4,29 @@ import { QRCodeCanvas } from 'qrcode.react';
 import { FlowContainer } from '../../../../shared/ui';
 import { TutorialTour } from '../../../../components/tutorial';
 import { useTutorialStore } from '../../../../shared/stores/tutorialStore';
-
-// Define the steps for the registration step 3 tutorial
-const registrationStep3TutorialSteps = [
-  {
-    target: '.customer-details',
-    content: 'This section shows the customer details you entered.',
-    disableBeacon: true,
-  },
-  {
-    target: '.qr-code-display',
-    content: 'This is the QR code that has been assigned to the customer.',
-  },
-  {
-    target: '.confirm-button',
-    content: 'Click this button to confirm and complete the registration.',
-  },
-  
-];
+import { useTranslation } from 'react-i18next';
 
 function RegistrationStep3PageTutorial() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+
+  // Define the steps for the registration step 3 tutorial
+  const registrationStep3TutorialSteps = [
+    {
+      target: '.customer-details',
+      content: t('tutorial.registration.step3.customerDetailsContent'),
+      disableBeacon: true,
+    },
+    {
+      target: '.qr-code-display',
+      content: t('tutorial.registration.step3.qrCodeDisplayContent'),
+    },
+    {
+      target: '.confirm-button',
+      content: t('tutorial.registration.step3.confirmButtonContent'),
+    },
+    
+  ];
   const { mockRegistrationData } = useTutorialStore();
   const { setRegistrationStepComplete, markTutorialAsCompleted } = useTutorialStore();
   
@@ -71,7 +73,7 @@ function RegistrationStep3PageTutorial() {
         </div> */}
         
         <div className="mb-6 qr-code-display">
-          <h3 className="text-md font-semibold text-gray-800 mb-3">Customer QR Code</h3>
+          <h3 className="text-md font-semibold text-gray-800 mb-3">{t('tutorial.registration.step3.customerQrCodeTitle')}</h3>
           <div className="bg-white rounded-lg shadow-sm p-4 flex items-center">
             <div className="mr-4">
               <QRCodeCanvas value={mockRegistrationData.qrCode} size={128} />
@@ -81,16 +83,16 @@ function RegistrationStep3PageTutorial() {
         </div>
         
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-lg font-semibold text-gray-700 mb-4">Confirm Registration</h2>
+          <h2 className="text-lg font-semibold text-gray-700 mb-4">{t('tutorial.registration.step3.confirmRegistrationTitle')}</h2>
           
           <div className="mb-6">
             <div className="flex justify-between items-center mb-2">
-              <span className="text-gray-600">Customer:</span>
+              <span className="text-gray-600">{t('tutorial.registration.step3.customerLabel')}:</span>
               <span className="font-medium">{mockRegistrationData.customerName}</span>
             </div>
             
             <div className="flex justify-between items-center mb-2">
-              <span className="text-gray-600">Phone:</span>
+              <span className="text-gray-600">{t('tutorial.registration.step3.phoneLabel')}:</span>
               <span className="font-medium">{mockRegistrationData.customerPhone}</span>
             </div>
           </div>
@@ -99,7 +101,7 @@ function RegistrationStep3PageTutorial() {
             onClick={handleConfirmRegistration}
             className="confirm-button w-full py-3 px-4 rounded-md font-semibold text-white transition duration-200 bg-green-600 hover:bg-green-700"
           >
-            Confirm Registration
+            {t('tutorial.registration.step3.confirmRegistrationButton')}
           </button>
         </div>
       </div>

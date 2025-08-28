@@ -3,31 +3,31 @@ import { useNavigate } from 'react-router-dom';
 import { FlowContainer } from '../../../../shared/ui';
 import { TutorialTour } from '../../../../components/tutorial';
 import { useTutorialStore } from '../../../../shared/stores/tutorialStore';
-import { useToast } from '../../../../contexts/ToastContext';
 import { timestampToDate } from '@/shared/utils';
-
-// Define the steps for the refunds step 2 tutorial
-const refundsStep2TutorialSteps = [
-  {
-    target: '.customer-info',
-    content: 'Here you can see the customer information retrieved from the QR code scan.',
-    disableBeacon: true,
-  },
-  {
-    target: '.transaction-list',
-    content: 'This shows all transactions for this customer at the current stall. Select the transaction you want to refund.',
-  },
-  {
-    target: '.select-transaction-button',
-    content: 'Click on a transaction to select it for refund processing.',
-  },
-];
+import { useTranslation } from 'react-i18next';
 
 function RefundsStep2PageTutorial() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+
+  // Define the steps for the refunds step 2 tutorial
+  const refundsStep2TutorialSteps = [
+    {
+      target: '.customer-info',
+      content: t('tutorial.refunds.step2.customerInfoContent'),
+      disableBeacon: true,
+    },
+    {
+      target: '.transaction-list',
+      content: t('tutorial.refunds.step2.transactionListContent'),
+    },
+    {
+      target: '.select-transaction-button',
+      content: t('tutorial.refunds.step2.selectTransactionButtonContent'),
+    },
+  ];
   const { mockRefundsData } = useTutorialStore();
   const { setRefundsStepComplete } = useTutorialStore();
-  const { showToast } = useToast();
   const [selectedTransactionId, setSelectedTransactionId] = useState<string | null>(null);
   
   // Filter to show only sale transactions (that can be refunded)
@@ -36,7 +36,6 @@ function RefundsStep2PageTutorial() {
   const handleTransactionSelect = (transactionId: string) => {
     setSelectedTransactionId(transactionId);
     // In tutorial mode, just show a success message and navigate to next step
-    showToast('Transaction selected for refund', 'success');
     
     // Navigate to next step
     setRefundsStepComplete(2);
@@ -52,37 +51,37 @@ function RefundsStep2PageTutorial() {
     <FlowContainer withNoHeaderOffset withBottomOffset>
       <TutorialTour steps={refundsStep2TutorialSteps} />
       
-      <p className="text-gray-600 mb-6">Select a transaction to refund for {mockRefundsData.customerName}</p>
+      <p className="text-gray-600 mb-6">{t('tutorial.refunds.step2.selectTransactionMessage', { customerName: mockRefundsData.customerName })}</p>
       
       {/* Customer Info */}
       <div className="customer-info bg-white rounded-lg shadow-md p-4 mb-6">
         <div className="flex justify-between items-center">
           <div>
             <h2 className="text-lg font-semibold text-gray-800">{mockRefundsData.customerName}</h2>
-            <p className="text-gray-600 text-sm">Customer</p>
+            <p className="text-gray-600 text-sm">{t('tutorial.refunds.step2.customerLabel')}</p>
           </div>
           <div className="bg-gray-100 rounded-full px-3 py-1">
-            <span className="text-gray-800 font-medium">QR: {mockRefundsData.qrCode?.substring(0, 8) + '...'}</span>
+            <span className="text-gray-800 font-medium">{mockRefundsData.qrCode?.substring(0, 8)}</span>
           </div>
         </div>
       </div>
       
       {/* Transactions List */}
       <div className="transaction-list bg-white rounded-lg shadow-md p-4">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">Recent Transactions</h2>
+        <h2 className="text-lg font-semibold text-gray-800 mb-4">{t('tutorial.refunds.step2.recentTransactionsTitle')}</h2>
         
         {saleTransactions.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-gray-500">No transactions found for this customer at your stall.</p>
+            <p className="text-gray-500">{t('tutorial.refunds.step2.noTransactionsMessage')}</p>
           </div>
         ) : (
           <div className="space-y-2">
             {saleTransactions.map((transaction: any) => (
               <div
                 key={transaction.id}
-                onClick={() => handleTransactionSelect(transaction.id)}
+                onClick={() => handleTransactionSelect(String(transaction.id))}
                 className={`select-transaction-button cursor-pointer transition-all duration-150 ${
-                  selectedTransactionId === transaction.id
+                  selectedTransactionId === String(transaction.id)
                     ? 'ring-2 ring-indigo-500 rounded-md'
                     : 'hover:bg-gray-50'
                 }`}
@@ -90,21 +89,17 @@ function RefundsStep2PageTutorial() {
                 <div className="p-3">
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="font-medium text-gray-800">Transaction #{transaction.id.substring(0, 8)}</p>
-                      <p className="text-gray-600 text-sm">Operator: {transaction.operatorName}</p>
+                      <p className="font-medium text-gray-800"> Transaction #{String(transaction.id).substring(0, 8)}</p>
+                      <p className="text-gray-600 text-sm">{t('tutorial.refunds.step2.operatorLabel')}: {transaction.operatorName || "John"}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-gray-800">R{formatAmount(transaction.amountCents)}</p>
+                      <p className="font-bold text-gray-800">R{formatAmount(transaction.amount || 0)}</p>
                       <p className="text-gray-500 text-sm">
-                        {transaction.createdAt ? timestampToDate(transaction.createdAt).toLocaleDateString() : 'Today'}
+                        {transaction.createdAt ? timestampToDate(transaction.createdAt).toLocaleDateString() : t('tutorial.refunds.step2.today')}
                       </p>
                     </div>
                   </div>
-                  <div className="mt-2">
-                    <span className="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-                      Sale
-                    </span>
-                  </div>
+                 
                 </div>
               </div>
             ))}
@@ -112,16 +107,7 @@ function RefundsStep2PageTutorial() {
         )}
       </div>
       
-      {/* Info Section */}
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-6">
-        <h3 className="text-sm font-medium text-yellow-800 mb-2">
-          Important Note
-        </h3>
-        <p className="text-sm text-yellow-700">
-          Only sale transactions at the current stall can be refunded. Refund transactions and other transaction types
-          are not eligible for refunds.
-        </p>
-      </div>
+    
     </FlowContainer>
   );
 }

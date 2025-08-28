@@ -3,31 +3,31 @@ import { useNavigate } from 'react-router-dom';
 import { FlowContainer } from '../../../../shared/ui';
 import { TutorialTour } from '../../../../components/tutorial';
 import { useTutorialStore } from '../../../../shared/stores/tutorialStore';
-import { useToast } from '../../../../contexts/ToastContext';
 import AmountKeypad from '../../../../shared/ui/AmountKeypad';
-
-// Define the steps for the refunds step 3 tutorial
-const refundsStep3TutorialSteps = [
-  {
-    target: '.refund-amount-display',
-    content: 'This shows the original transaction amount and the refund amount you\'re entering.',
-    disableBeacon: true,
-  },
-  {
-    target: '.amount-keypad',
-    content: 'Use this keypad to enter the refund amount. You can enter up to the original transaction amount.',
-  },
-  {
-    target: '.proceed-button',
-    content: 'Once you have set the refund amount, click here to proceed to confirmation.',
-  },
-];
+import { useTranslation } from 'react-i18next';
 
 function RefundsStep3PageTutorial() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+
+  // Define the steps for the refunds step 3 tutorial
+  const refundsStep3TutorialSteps = [
+    {
+      target: '.refund-amount-display',
+      content: t('tutorial.refunds.step3.refundAmountDisplayContent'),
+      disableBeacon: true,
+    },
+    {
+      target: '.amount-keypad',
+      content: t('tutorial.refunds.step3.amountKeypadContent'),
+    },
+    {
+      target: '.proceed-button',
+      content: t('tutorial.refunds.step3.proceedButtonContent'),
+    },
+  ];
   const { mockRefundsData } = useTutorialStore();
   const { setRefundsStepComplete } = useTutorialStore();
-  const { showToast } = useToast();
   
   const [amountString, setAmountString] = useState('0.00');
   const [amountCents, setAmountCents] = useState(0);
@@ -129,17 +129,14 @@ function RefundsStep3PageTutorial() {
   
   const handleSubmitPress = () => {
     if (amountCents <= 0) {
-      showToast('Refund amount must be greater than 0', 'error');
       return;
     }
     
     if (amountCents > mockRefundsData.originalAmountCents) {
-      showToast('Refund amount cannot exceed original transaction amount', 'error');
       return;
     }
     
     // In tutorial mode, just show a success message and navigate to next step
-    showToast('Refund details confirmed', 'success');
     
     // Navigate to next step
     setRefundsStepComplete(3);
@@ -155,18 +152,18 @@ function RefundsStep3PageTutorial() {
         
         <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6 mb-6 refund-amount-display">
           <div className="text-center mb-4">
-            <p className="text-gray-600">Original Transaction Amount</p>
+            <p className="text-gray-600">{t('tutorial.refunds.step3.originalTransactionAmountLabel')}</p>
             <p className="text-3xl font-bold text-indigo-600">R{formatAmount(mockRefundsData.originalAmountCents)}</p>
           </div>
           
           <div className="border-t border-gray-200 pt-4 mt-4">
-            <p className="text-gray-600 text-center mb-2">Refund Amount</p>
+            <p className="text-gray-600 text-center mb-2">{t('tutorial.refunds.step3.refundAmountLabel')}</p>
             <p className="text-4xl font-bold text-center text-gray-800">R{formatAmount(amountCents)}</p>
           </div>
           
           {amountCents > mockRefundsData.originalAmountCents && (
             <div className="mt-4 text-center text-red-500 font-semibold">
-              Amount exceeds original transaction
+              {t('tutorial.refunds.step3.amountExceedsOriginalMessage')}
             </div>
           )}
         </div>

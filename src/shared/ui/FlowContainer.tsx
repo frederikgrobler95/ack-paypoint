@@ -7,6 +7,7 @@ interface FlowContainerProps {
   withHeaderOffset?: boolean;
   withBottomOffset?: boolean;
   withNoHeaderOffset?: boolean;
+  withNoBottomOffset?: boolean;
 }
 
 /**
@@ -25,16 +26,19 @@ function FlowContainer({
   noPadding = false,
   withHeaderOffset = false,
   withBottomOffset = false,
-  withNoHeaderOffset = false,
+  withNoHeaderOffset = true,
+  withNoBottomOffset = true,
 }: FlowContainerProps): React.JSX.Element {
   // Base classes for horizontal padding
   const baseClasses = noPadding ? '' : 'px-4';
   
   // Vertical padding classes with optional offsets for fixed elements
   const verticalClasses = [
-    withHeaderOffset ? 'pt-16' : 'pt-4',
-    withBottomOffset ? 'pb-16' : 'pb-4',
-    withNoHeaderOffset ? '' : 'md:pb-24'
+    withHeaderOffset ? 'pt-8' : '',
+    withBottomOffset ? '' : 'pb-8',
+    withNoHeaderOffset ? '' : '',
+    withNoBottomOffset ? '' : ''
+
   ].filter(Boolean).join(' ');
   
   // Combine all classes

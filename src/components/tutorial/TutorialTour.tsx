@@ -1,5 +1,6 @@
 import React from 'react';
 import Joyride, { CallBackProps, STATUS, Step } from 'react-joyride';
+import { useTranslation } from 'react-i18next';
 import { useTutorialStore } from '../../shared/stores/tutorialStore';
 
 interface TutorialTourProps {
@@ -8,6 +9,7 @@ interface TutorialTourProps {
 }
 
 const TutorialTour: React.FC<TutorialTourProps> = ({ steps, run = true }) => {
+  const { t } = useTranslation();
   const {
     onCompleteTutorial
   } = useTutorialStore();
@@ -39,7 +41,11 @@ const TutorialTour: React.FC<TutorialTourProps> = ({ steps, run = true }) => {
       disableScrolling={false}
       spotlightPadding={10}
       locale={{
-        last: 'Next'
+        back: t('tutorial.back'),
+        close: t('tutorial.close'),
+        last: t('tutorial.last'),
+        next: t('tutorial.next'),
+        skip: t('tutorial.skip'),
       }}
       styles={{
         options: {

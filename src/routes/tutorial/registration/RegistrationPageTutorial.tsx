@@ -1,39 +1,46 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTutorialStore } from '../../../shared/stores/tutorialStore';
 import { FlowContainer } from '../../../shared/ui';
-import { TutorialTour } from '../../../components/tutorial';
-
-// Define the steps for the registration tutorial
-const registrationTutorialSteps = [
-  {
-    target: '.registrations-overview',
-    content: 'This section shows an overview of registrations data in tutorial mode.',
-    disableBeacon: true,
-  },
-  {
-    target: '.recent-registrations',
-    content: 'This list shows recent registrations. In tutorial mode, these are mock registrations.',
-  },
-  {
-    target: '.start-registration-button',
-    content: 'Click this button to start a new registration. This will begin the registration tutorial flow.',
-  },
-  {
-    target: '.tutorial-controls',
-    content: 'These controls allow you to navigate through the tutorial or exit at any time.',
-  },
-];
+import { TutorialTour, TutorialInfo } from '../../../components/tutorial';
+import { useTranslation } from 'react-i18next';
 
 function RegistrationPageTutorial() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+
+  // Define the steps for the registration tutorial
+  const registrationTutorialSteps = [
+    {
+      target: '.registrations-overview',
+      content: t('tutorial.registration.overviewContent'),
+      disableBeacon: true,
+    },
+    {
+      target: '.recent-registrations',
+      content: t('tutorial.registration.recentRegistrationsContent'),
+    },
+    {
+      target: '.start-registration-button',
+      content: t('tutorial.registration.startRegistrationButtonContent'),
+    },
+    {
+      target: '.tutorial-controls',
+      content: t('tutorial.registration.tutorialControlsContent'),
+    },
+  ];
   const { mockRegistrationData, setCurrentTutorial } = useTutorialStore();
   const { setRegistrationStepComplete } = useTutorialStore();
+  const [showInfo, setShowInfo] = useState(true);
   
   // Set current tutorial when component mounts
   React.useEffect(() => {
     setCurrentTutorial('registration');
   }, [setCurrentTutorial]);
+  
+  const handleStartTutorial = () => {
+    setShowInfo(false);
+  };
   
   const handleStartRegistration = () => {
     // Navigate to the first step of the registration tutorial
@@ -41,6 +48,22 @@ function RegistrationPageTutorial() {
     navigate('/tutorial/registration/step1');
   };
   
+  // If showInfo is true, render the TutorialInfo component
+  if (showInfo) {
+    return (
+      <FlowContainer withNoHeaderOffset withBottomOffset>
+        <TutorialInfo
+          title={t('tutorial.registration.welcomeTitle')}
+          description={t('tutorial.registration.welcomeDescription')}
+          assignedStall="Registration"
+          assignedStallName={t('tutorial.registration.assignedStall')}
+          onStart={handleStartTutorial}
+        />
+      </FlowContainer>
+    );
+  }
+  
+  // Otherwise, render the main page content
   return (
     <FlowContainer withNoHeaderOffset withBottomOffset>
       <TutorialTour steps={registrationTutorialSteps} />
@@ -48,14 +71,14 @@ function RegistrationPageTutorial() {
       <div className="p-4">
         {/* Registrations Overview Card */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6 registrations-overview">
-          <h2 className="text-lg font-semibold text-gray-700 mb-2">Total Registrations (Tutorial)</h2>
+          <h2 className="text-lg font-semibold text-gray-700 mb-2">{t('tutorial.registration.totalRegistrationsTitle')}</h2>
           <p className="text-3xl font-bold text-blue-600">{mockRegistrationData.totalRegistrations}</p>
-          <p className="text-gray-500 text-sm mt-2">This is mock data for tutorial purposes</p>
+          <p className="text-gray-500 text-sm mt-2">{t('tutorial.registration.mockDataMessage')}</p>
         </div>
         
         {/* Recent Registrations */}
         <div className="mb-6 recent-registrations">
-          <h2 className="text-xl font-semibold text-gray-700 mb-3">Recent Registrations</h2>
+          <h2 className="text-xl font-semibold text-gray-700 mb-3">{t('tutorial.registration.recentRegistrationsTitle')}</h2>
           {mockRegistrationData.registrations.length > 0 ? (
             mockRegistrationData.registrations.map((registration: any) => (
               <div key={registration.id} className="bg-white rounded-lg shadow-sm p-4 mb-3">
@@ -66,9 +89,9 @@ function RegistrationPageTutorial() {
                   </div>
                   <div className="text-right">
                     <p className="text-gray-500 text-sm">
-                      {registration.registrationDate instanceof Date 
-                        ? registration.registrationDate.toLocaleDateString() 
-                        : 'Just now'}
+                      {registration.registrationDate instanceof Date
+                        ? registration.registrationDate.toLocaleDateString()
+                        : t('tutorial.registration.justNow')}
                     </p>
                   </div>
                 </div>
@@ -76,7 +99,7 @@ function RegistrationPageTutorial() {
             ))
           ) : (
             <div className="bg-white rounded-lg shadow-sm p-4 text-center text-gray-500">
-              No registrations yet
+              {t('tutorial.registration.noRegistrationsMessage')}
             </div>
           )}
         </div>

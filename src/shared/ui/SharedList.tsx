@@ -85,7 +85,7 @@ const SharedList = <T,>({
   return (
     <div className="h-full w-full flex flex-col relative">
       <PullToRefresh onRefresh={handleRefresh} pullingContent="" refreshingContent={
-        <div className="flex justify-center py-4 relative z-50 bg-white">
+        <div className="flex justify-center py-4 relative z-50 bg-transparent">
           <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-[#007BFF]"></div>
         </div>
       }>
@@ -93,7 +93,7 @@ const SharedList = <T,>({
           className="overflow-y-auto h-full w-full flex flex-col relative z-10"
           onScroll={handleScroll}
         >
-          <ul className="divide-y divide-[#E2E8F0] border border-[#E2E8F0] rounded-lg overflow-hidden relative z-10 flex-shrink-0">
+          <ul className=" rounded-lg min-h-screen relative z-10 flex-shrink-0">
             {data.map((item, index) => (
               <li key={index} className="bg-[#FFFFFF] hover:bg-[#F7FAFC] transition-colors duration-200 relative z-10">
                 {renderItem(item, index)}

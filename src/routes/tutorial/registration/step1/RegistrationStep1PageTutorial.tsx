@@ -3,27 +3,29 @@ import { useNavigate } from 'react-router-dom';
 import { FlowContainer } from '../../../../shared/ui';
 import { TutorialTour } from '../../../../components/tutorial';
 import { useTutorialStore } from '../../../../shared/stores/tutorialStore';
-
-// Define the steps for the registration step 1 tutorial
-const registrationStep1TutorialSteps = [
-  {
-    target: '.customer-details-section',
-    content: 'This section allows you to enter customer details for registration.',
-    disableBeacon: true,
-  },
-  {
-    target: '.name-input',
-    content: 'Enter the customer\'s full name in this field.',
-  },
-  {
-    target: '.phone-input',
-    content: 'Enter the customer\'s phone number. This is required for registration.',
-  },
-  
-];
+import { useTranslation } from 'react-i18next';
 
 function RegistrationStep1PageTutorial() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+
+  // Define the steps for the registration step 1 tutorial
+  const registrationStep1TutorialSteps = [
+    {
+      target: '.customer-details-section',
+      content: t('tutorial.registration.step1.customerDetailsContent'),
+      disableBeacon: true,
+    },
+    {
+      target: '.name-input',
+      content: t('tutorial.registration.step1.nameInputContent'),
+    },
+    {
+      target: '.phone-input',
+      content: t('tutorial.registration.step1.phoneInputContent'),
+    },
+    
+  ];
   const { mockRegistrationData } = useTutorialStore();
   const { setRegistrationStepComplete } = useTutorialStore();
   const [name, setName] = useState(mockRegistrationData.customerName);
@@ -34,12 +36,12 @@ function RegistrationStep1PageTutorial() {
     e.preventDefault();
     
     if (!name.trim()) {
-      setError('Name is required');
+      setError(t('tutorial.registration.step1.error.nameRequired'));
       return;
     }
     
     if (!phone.trim()) {
-      setError('Phone number is required');
+      setError(t('tutorial.registration.step1.error.phoneRequired'));
       return;
     }
     
@@ -85,11 +87,11 @@ function RegistrationStep1PageTutorial() {
           <div className="bg-white rounded-lg shadow-sm p-4 mb-3">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-lg font-bold text-gray-900">Name</p>
-                <p className="text-sm text-gray-500">Customer's full name</p>
+                <p className="text-lg font-bold text-gray-900">{t('tutorial.registration.step1.nameLabel')}</p>
+                <p className="text-sm text-gray-500">{t('tutorial.registration.step1.nameDescription')}</p>
               </div>
               <div className="text-lg font-semibold text-gray-600">
-                Required
+                {t('tutorial.registration.step1.requiredLabel')}
               </div>
             </div>
             <div className="mt-3">
@@ -98,7 +100,7 @@ function RegistrationStep1PageTutorial() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="name-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                placeholder="Enter customer's name"
+                placeholder={t('tutorial.registration.step1.namePlaceholder')}
               />
             </div>
           </div>
@@ -106,11 +108,11 @@ function RegistrationStep1PageTutorial() {
           <div className="bg-white rounded-lg shadow-sm p-4 mb-3">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-lg font-bold text-gray-900">Phone Number</p>
-                <p className="text-sm text-gray-500">Customer's contact number</p>
+                <p className="text-lg font-bold text-gray-900">{t('tutorial.registration.step1.phoneLabel')}</p>
+                <p className="text-sm text-gray-500">{t('tutorial.registration.step1.phoneDescription')}</p>
               </div>
               <div className="text-lg font-semibold text-gray-600">
-                Required
+                {t('tutorial.registration.step1.requiredLabel')}
               </div>
             </div>
             <div className="mt-3">
@@ -119,7 +121,7 @@ function RegistrationStep1PageTutorial() {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 className="phone-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                placeholder="Enter phone number"
+                placeholder={t('tutorial.registration.step1.phonePlaceholder')}
               />
             </div>
           </div>
@@ -135,7 +137,7 @@ function RegistrationStep1PageTutorial() {
             type="submit"
             className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-md transition duration-200"
           >
-            Next
+            {t('tutorial.registration.step1.nextButton')}
           </button>
         </form>
       </div>

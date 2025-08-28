@@ -1,10 +1,22 @@
 export const mockSalesData = {
   totalSales: 125000,
   transactions: [
-    { id: 1, type: 'sale', amount: 50000, customer: 'John Doe' },
-    { id: 2, type: 'sale', amount: 75000, customer: 'Jane Smith' },
+    {
+      id: 1,
+      customerName: 'John Doe',
+      operatorName: 'Alice',
+      amountCents: 50000,
+      createdAt: { seconds: 1672531200, nanoseconds: 0 }, // Example: Jan 1, 2023
+    },
+    {
+      id: 2,
+      customerName: 'Jane Smith',
+      operatorName: 'Bob',
+      amountCents: 75000,
+      createdAt: { seconds: 1672617600, nanoseconds: 0 }, // Example: Jan 2, 2023
+    },
   ],
-  qrCode: 'mock-qr-code-sales',
+  qrCode: 'QR-Kode',
   customerName: 'John Doe',
   amountCents: 50000,
 };
@@ -26,7 +38,7 @@ export const mockRefundsData = {
     { id: 2, type: 'refund', amount: 20000, customer: 'Jane Smith' },
     { id: 3, type: 'sale', amount: 75000, customer: 'Jane Smith' },
   ],
-  qrCode: 'mock-qr-code-refunds',
+  qrCode: 'QR-Kode',
   customerName: 'Jane Smith',
   originalAmountCents: 75000,
   refundAmountCents: 0,
@@ -41,5 +53,5 @@ export const mockRegistrationData = {
   customerName: 'New Customer',
   customerPhone: '555-0103',
   customerEmail: 'new.customer@example.com',
-  qrCode: 'mock-qr-code-registration',
+  qrCode: 'QR-Kode',
 };

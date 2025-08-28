@@ -2,9 +2,11 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FlowContainer } from '../../../shared/ui';
 import { useTutorialStore } from '../../../shared/stores/tutorialStore';
+import { useTranslation } from 'react-i18next';
 
 function RegistrationTutorialComplete() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const {
     resetRegistrationTutorial,
     setCurrentTutorial,
@@ -41,13 +43,13 @@ function RegistrationTutorialComplete() {
             
             {/* Title */}
             <h1 className="text-2xl font-bold text-gray-900 mb-4">
-              Registration Tutorial Complete!
+              {t('tutorial.registration.complete.title')}
             </h1>
             
             {/* Description */}
             <p className="text-gray-600 mb-8">
-              Congratulations! You've successfully completed the registration tutorial. 
-              You now know how to register new customers and assign QR codes.
+              {t('tutorial.registration.complete.congratulationsMessage')}
+              {t('tutorial.registration.complete.knowledgeConfirmation')}
             </p>
             
             {/* Action Buttons */}
@@ -59,7 +61,7 @@ function RegistrationTutorialComplete() {
                 <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
-                Restart Tutorial
+                {t('tutorial.registration.complete.restartTutorialButton')}
               </button>
               
               {/* <button
@@ -76,7 +78,7 @@ function RegistrationTutorialComplete() {
             {/* Additional Info */}
             <div className="mt-8 pt-6 border-t border-gray-200">
               <p className="text-sm text-gray-500">
-                You can always restart this tutorial later from the settings menu.
+                {t('tutorial.registration.complete.restartPrompt')}
               </p>
             </div>
           </div>
