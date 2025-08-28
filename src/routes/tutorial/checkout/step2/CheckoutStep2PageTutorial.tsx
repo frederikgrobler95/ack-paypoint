@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { FlowContainer } from '../../../../shared/ui';
 import { TutorialTour } from '../../../../components/tutorial';
 import { useTutorialStore } from '../../../../shared/stores/tutorialStore';
@@ -42,7 +42,7 @@ function CheckoutStep2PageTutorial() {
     setError('');
     
     // Navigate to next step
-    navigateToNextTutorialStep(location.pathname);
+    navigateToNextTutorialStep('/tutorial/checkout/step2');
   };
   
   // Format amount in Rands
@@ -51,7 +51,7 @@ function CheckoutStep2PageTutorial() {
   };
   
   return (
-    <FlowContainer withHeaderOffset withBottomOffset>
+    <FlowContainer withNoHeaderOffset withBottomOffset>
       <TutorialTour steps={checkoutStep2TutorialSteps} />
       
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">

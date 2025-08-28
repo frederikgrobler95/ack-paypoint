@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { FlowContainer } from '../../../../shared/ui';
 import { TutorialTour } from '../../../../components/tutorial';
 import { useTutorialStore } from '../../../../shared/stores/tutorialStore';
@@ -26,7 +26,6 @@ const salesStep1TutorialSteps = [
 
 function SalesStep1PageTutorial() {
   const navigate = useNavigate();
-  const location = useLocation();
   const { mockSalesData } = useTutorialStore();
   const { navigateToNextTutorialStep, exitTutorial } = useTutorialNavigation();
   const [inputMethod, setInputMethod] = useState<'scan' | 'manual'>('scan');
@@ -43,7 +42,7 @@ function SalesStep1PageTutorial() {
       // Validate QR code (in tutorial, we just accept the mock QR code)
       if (mockSalesData.qrCode) {
         // Navigate to next step
-        navigateToNextTutorialStep(location.pathname);
+        navigateToNextTutorialStep('/tutorial/sales/step1');
       } else {
         setError('Invalid QR code. Please try again.');
       }
@@ -56,7 +55,7 @@ function SalesStep1PageTutorial() {
     e.preventDefault();
     if (qrCodeInput.trim()) {
       // In tutorial mode, we'll accept any input
-      navigateToNextTutorialStep(location.pathname);
+      navigateToNextTutorialStep('/tutorial/sales/step1');
     } else {
       setError('Please enter a QR code');
     }
@@ -67,7 +66,7 @@ function SalesStep1PageTutorial() {
   };
   
   return (
-    <FlowContainer withHeaderOffset withBottomOffset>
+    <FlowContainer withNoHeaderOffset withBottomOffset>
       <TutorialTour steps={salesStep1TutorialSteps} />
       
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
@@ -80,7 +79,7 @@ function SalesStep1PageTutorial() {
               ref={mockQrScannerRef}
               onCodeScanned={(code) => {
                 // In tutorial mode, we just navigate to the next step
-                navigateToNextTutorialStep(location.pathname);
+                navigateToNextTutorialStep('/tutorial/sales/step1');
               }}
               isActive={true}
             />
