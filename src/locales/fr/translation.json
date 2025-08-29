@@ -53,5 +53,10 @@
   "checkout.step3.selectedPaymentMethodLabel": "Méthode de paiement sélectionnée",
   "checkout.step3.confirmedLabel": "Confirmé",
   "checkout.step3.processingMessage": "Traitement en cours...",
-  "checkout.step3.confirmCheckoutButton": "Confirmer le paiement"
+  "checkout.step3.confirmCheckoutButton": "Confirmer le paiement",
+  "customerDetails.transactionHistory": "Historique des transactions",
+  "customerDetails.showingTransactions": "Affichage de {{count}} {{transaction}}",
+  "customerDetails.noTransactions": "Aucune transaction trouvée pour ce client.",
+  "customerDetails.showingFilteredTransactions": "Affichage de {{count}} {{transaction}} filtré(s)",
+  "customerDetails.filteredFromTotal": "filtré(s) sur {{total}} transactions au total"
 }

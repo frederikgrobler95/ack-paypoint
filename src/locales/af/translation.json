@@ -370,5 +370,8 @@
   "checkout.step3.selectedPaymentMethodLabel": "Gekose betaalmetode",
   "checkout.step3.confirmedLabel": "Bevestig",
   "checkout.step3.processingMessage": "Verwerk tans...",
-  "checkout.step3.confirmCheckoutButton": "Bevestig Betaalpunt"
+  "checkout.step3.confirmCheckoutButton": "Bevestig Betaalpunt",
+  "customerDetails.transactionHistory": "Transaksiegeskiedenis",
+  "customerDetails.showingTransactions": "Wys {{count}} {{transaction}}",
+  "customerDetails.noTransactions": "Geen transaksies vir hierdie kliënt gevind nie."
 }

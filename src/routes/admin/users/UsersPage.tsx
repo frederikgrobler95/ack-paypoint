@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useUsers } from '@/queries/users'
 import { useAdminUpdateUserRoleMutation } from '@/mutations/useAdminUpdateUserRoleMutation'
@@ -8,6 +8,7 @@ import { SharedList } from '@/shared/ui'
 import { User } from '@/shared/contracts/user'
 import { useToast } from '@/contexts/ToastContext'
 import ConfirmDialog from '@/shared/ui/ConfirmDialog'
+import Button from '@/shared/ui/Button'
 import { useTranslation } from 'react-i18next'
 
 function UsersPage(): React.JSX.Element {
@@ -45,47 +46,120 @@ function UsersPage(): React.JSX.Element {
       setShowConfirmDialog(false)
     } catch (error: any) {
       console.error('Error signing out all users:', error)
-      showToast(t.error || t('admin.users.signOutAllUsers.errorMessage'), 'error')
+      showToast(error.message || t('admin.users.signOutAllUsers.errorMessage'), 'error')
       setShowConfirmDialog(false)
     }
   }
   
-  // Render user item
-  const renderUserItem = (user: User, index: number) => (
-    <div className="p-4 hover:bg-gray-50 transition-colors duration-150">
-      <div
-        className="cursor-pointer"
-        onClick={() => navigate(`/admin/users/role/${user.id}`)}
-      >
+  // User Item Component
+  const UserItem = ({ user }: { user: User }) => {
+    const navigate = useNavigate();
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const menuRef = useRef<HTMLDivElement>(null);
+    
+    // Close menu when clicking outside
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+          setIsMenuOpen(false);
+        }
+      };
+      
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }, []);
+    
+    // Handle reset tutorial
+    const handleResetTutorial = () => {
+      if (window.confirm(`Are you sure you want to reset the tutorial for ${user.name}?`)) {
+        resetUserTutorialMutation.mutate({ userId: user.id });
+      }
+      setIsMenuOpen(false);
+    };
+    
+    // Handle update role
+    const handleUpdateRole = () => {
+      navigate(`/admin/users/role/${user.id}`);
+      setIsMenuOpen(false);
+    };
+    
+    return (
+      <div className="p-2 hover:bg-gray-50 transition-colors duration-150">
         <div className="flex justify-between items-center">
-          <div className="flex items-center">
-            <div className="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
-              <span className="text-indigo-800 font-medium">
-                {user.name.charAt(0).toUpperCase()}
-              </span>
-            </div>
-            <div className="ml-4 min-w-0">
-              <h3 className="font-semibold text-gray-900 text-base truncate">{user.name}</h3>
-              <p className="text-gray-500 text-sm truncate">@{user.username}</p>
+          <div className="flex-1" onClick={() => navigate(`/admin/users/role/${user.id}`)}>
+            <div className="flex items-center">
+              <div className="flex-shrink-0 h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center">
+                <span className="text-indigo-800 font-medium text-sm">
+                  {user.name.charAt(0).toUpperCase()}
+                </span>
+              </div>
+              <div className="ml-3 min-w-0">
+                <p className="font-semibold text-gray-900 text-sm truncate">{user.name}</p>
+                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium mt-1 ${
+                  user.role === 'admin'
+                    ? 'bg-purple-100 text-purple-800'
+                    : 'bg-blue-100 text-blue-800'
+                }`}>
+                  {user.role}
+                </span>
+              </div>
             </div>
           </div>
-          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-            user.role === 'admin'
-              ? 'bg-purple-100 text-purple-800'
-              : 'bg-blue-100 text-blue-800'
-          }`}>
-            <svg className="-ml-0.5 mr-1.5 h-2 w-2 text-current" fill="currentColor" viewBox="0 0 8 8">
-              <circle cx={4} cy={4} r={3} />
-            </svg>
-            {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-          </span>
-        </div>
-        <div className="ml-14 mt-1">
-          <p className="text-gray-500 text-sm truncate">{user.email}</p>
+          <div className="flex items-center space-x-2">
+            {/* Three-dot menu */}
+            <div className="relative" ref={menuRef}>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsMenuOpen(!isMenuOpen);
+                }}
+                className="p-1 rounded-full hover:bg-gray-200 focus:outline-none"
+                aria-label="User options"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                </svg>
+              </button>
+              
+              {isMenuOpen && (
+                <div className="absolute right-0 mt-1 w-40 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
+                  <Button
+                    variant="secondary"
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleUpdateRole();
+                    }}
+                    className="w-full justify-start px-3 py-1.5 text-left text-sm"
+                  >
+                    Update Role
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleResetTutorial();
+                    }}
+                    className="w-full justify-start px-3 py-1.5 text-left text-sm"
+                  >
+                    Reset Tutorial
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  )
+    );
+  };
+  
+  // Render user item
+  const renderUserItem = (user: User, index: number) => {
+    return <UserItem key={user.id} user={user} />;
+  };
   
   return (
     <div className="h-screen flex flex-col">

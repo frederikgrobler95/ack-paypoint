@@ -103,5 +103,10 @@
   "checkout.step3.selectedPaymentMethodLabel": "Selected payment method",
   "checkout.step3.confirmedLabel": "Confirmed",
   "checkout.step3.processingMessage": "Processing...",
-  "checkout.step3.confirmCheckoutButton": "Confirm Checkout"
+  "checkout.step3.confirmCheckoutButton": "Confirm Checkout",
+  "customerDetails.transactionHistory": "Transaction History",
+  "customerDetails.showingTransactions": "Showing {{count}} {{transaction}}",
+  "customerDetails.noTransactions": "No transactions found for this customer.",
+  "customerDetails.showingFilteredTransactions": "Showing {{count}} filtered {{transaction}}",
+  "customerDetails.filteredFromTotal": "filtered from {{total}} total transactions"
 }

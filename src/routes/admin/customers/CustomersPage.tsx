@@ -76,7 +76,7 @@ function CustomersPage(): React.JSX.Element {
     return (
       <div className="p-2 hover:bg-gray-50 transition-colors duration-150">
         <div className="flex justify-between items-center">
-          <div className="flex-1" onClick={() => navigate(`/admin/customers/${customer.id}`)}>
+          <div className="flex-1" onClick={() => navigate(`/admin/customers/customerdetails/${customer.id}`)}>
             <div className="flex items-center">
               <div className="flex-shrink-0 h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center">
                 <span className="text-indigo-800 font-medium text-sm">

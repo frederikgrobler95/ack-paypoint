@@ -17,6 +17,13 @@ function CheckoutStep2Page(): React.JSX.Element {
   
   // Redirect to step 1 if step 1 is not complete
   
+  // Check if customer has no outstanding amount and show dialog if needed
+  useEffect(() => {
+    if (qrData?.customer && qrData.customer.Account && qrData.customer.Account.balanceCents === 0) {
+      setShowDialog(true);
+    }
+  }, [qrData]);
+  
   const handlePaymentMethodSelect = (method: 'card' | 'cash' | 'eft') => {
     // Mark step 2 as complete
     useFlowStore.getState().setFlowData({ step: 2, method });
@@ -53,13 +60,6 @@ function CheckoutStep2Page(): React.JSX.Element {
   }
   
   const { customer } = qrData
-  
-  // Check if customer has no outstanding amount and show dialog if needed
-  useEffect(() => {
-    if (customer && customer.Account && customer.Account.balanceCents === 0) {
-      setShowDialog(true);
-    }
-  }, [customer]);
   
   return (
     <>

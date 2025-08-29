@@ -1,6 +1,6 @@
 import { useQuery, useSuspenseQuery, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import { fetchDocument, fetchDocuments, fetchDocumentsPaginated } from '../services/queryService';
-import { where } from 'firebase/firestore';
+import { where, orderBy } from 'firebase/firestore';
 import { Transaction } from '../shared/contracts/transaction';
 
 // Query keys for transaction-related queries

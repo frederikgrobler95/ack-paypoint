@@ -2,6 +2,7 @@ import { useQuery, useSuspenseQuery, useQueryClient, useInfiniteQuery } from '@t
 import { fetchDocument, fetchDocuments, fetchDocumentsPaginated } from '../services/queryService';
 import { where } from 'firebase/firestore';
 import { Customer } from '../shared/contracts/customer';
+import { QRCode } from '../shared/contracts/qrCode';
 
 // Query keys for customer-related queries
 export const customerKeys = {
@@ -28,14 +29,44 @@ export const fetchCustomersByQRCode = async (qrCodeId: string | null, pageSize: 
 
 // Fetch all customers without pagination
 export const fetchCustomers = async (searchTerm?: string) => {
-  // Add search filter if searchTerm is provided
-  const constraints = searchTerm
-    ? [where('name', '>=', searchTerm.toLowerCase()), where('name', '<=', searchTerm.toLowerCase() + '\uf8ff')]
-    : [];
+  // If no search term, fetch all customers
+  if (!searchTerm) {
+    const result = await fetchDocuments<Customer>('customers');
+    return { data: result, lastDoc: null };
+  }
+  
+  // For search, fetch all customers and filter client-side for case-insensitive matching
+  // This approach allows searching across multiple fields (name, phone, QR code ID, QR code label)
+  const allCustomers = await fetchDocuments<Customer>('customers');
+  
+  // Fetch all QR codes to enable searching by label
+  const allQrCodes = await fetchDocuments<QRCode>('qrCodes');
+  const qrCodeMap = new Map<string, QRCode>();
+  allQrCodes.forEach(qrCode => qrCodeMap.set(qrCode.id, qrCode));
+  
+  const term = searchTerm.toLowerCase();
+  const filteredCustomers = allCustomers.filter(customer => {
+    // Check name, phone, and QR code ID directly with null/undefined checks
+    if (
+      (customer.name && customer.name.toLowerCase().includes(term)) ||
+      (customer.phoneE164 && customer.phoneE164.toLowerCase().includes(term)) ||
+      (customer.qrCodeId && customer.qrCodeId.toLowerCase().includes(term))
+    ) {
+      return true;
+    }
     
-  // Fetch all customers without pagination
-  const result = await fetchDocuments<Customer>('customers', constraints);
-  return { data: result, lastDoc: null };
+    // Check QR code label if customer has a QR code
+    if (customer.qrCodeId) {
+      const qrCode = qrCodeMap.get(customer.qrCodeId);
+      if (qrCode && qrCode.label && qrCode.label.toLowerCase().includes(term)) {
+        return true;
+      }
+    }
+    
+    return false;
+  });
+  
+  return { data: filteredCustomers, lastDoc: null };
 };
 
 // React Query hooks for customers

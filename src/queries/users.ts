@@ -19,14 +19,24 @@ export const fetchUser = async (id: string): Promise<User | null> => {
 
 // Fetch all users without pagination
 export const fetchUsers = async (searchTerm?: string) => {
-  // Add search filter if searchTerm is provided
-  const constraints = searchTerm
-    ? [where('name', '>=', searchTerm.toLowerCase()), where('name', '<=', searchTerm.toLowerCase() + '\uf8ff')]
-    : [];
-    
-  // Fetch all users without pagination
-  const result = await fetchDocuments<User>('users', constraints);
-  return { data: result, lastDoc: null };
+  // If no search term, fetch all users
+  if (!searchTerm) {
+    const result = await fetchDocuments<User>('users');
+    return { data: result, lastDoc: null };
+  }
+  
+  // For search, fetch all users and filter client-side for case-insensitive matching
+  // This approach allows searching across multiple fields (name, username, email)
+  const allUsers = await fetchDocuments<User>('users');
+  
+  const term = searchTerm.toLowerCase();
+  const filteredUsers = allUsers.filter(user =>
+    user.name.toLowerCase().includes(term) ||
+    user.username.toLowerCase().includes(term) ||
+    user.email.toLowerCase().includes(term)
+  );
+  
+  return { data: filteredUsers, lastDoc: null };
 };
 
 // React Query hooks for users
