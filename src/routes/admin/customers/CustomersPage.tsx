@@ -123,7 +123,7 @@ function CustomersPage(): React.JSX.Element {
               </div>
               <div className="ml-3 min-w-0">
                 <p className="font-semibold text-gray-900 text-sm truncate">{customer.name}</p>
-                <p className="text-gray-500 text-xs truncate">{customer.phoneE164}</p>
+                <p className="text-gray-500 text-xs truncate">{customer.phone}</p>
               </div>
             </div>
           </div>

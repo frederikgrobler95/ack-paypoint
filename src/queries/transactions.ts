@@ -34,7 +34,7 @@ export const fetchTransactionsByOperator = async (operatorId: string, pageSize: 
 
 // Fetch transactions by customer ID with pagination
 export const fetchTransactionsByCustomer = async (customerId: string, pageSize: number = 20, lastDocument?: any): Promise<{ data: Transaction[]; lastDoc: any }> => {
-  return fetchDocumentsPaginated<Transaction>('transactions', pageSize, lastDocument, [where('customerId', '==', customerId)]);
+  return fetchDocumentsPaginated<Transaction>('transactions', pageSize, lastDocument, [where('customerId', '==', customerId)], 'createdAt');
 };
 
 // Fetch refund transactions

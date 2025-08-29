@@ -14,8 +14,7 @@ interface Account {
 interface Customer {
   id: string;
   name: string;
-  phoneE164: string;
-  phoneRaw: string;
+  phone: string;
   qrCodeId: string;
   Account: Account;
   idempotencyKey?: string;
@@ -115,8 +114,7 @@ export const createTransaction = onCall({
       const customer: Customer = {
         id: customerData.id,
         name: customerData.name,
-        phoneE164: customerData.phoneE164,
-        phoneRaw: customerData.phoneRaw,
+        phone: customerData.phone,
         qrCodeId: customerData.qrCodeId,
         Account: {
           balanceCents: customerData.Account?.balanceCents || 0,

@@ -49,7 +49,10 @@ function CustomerDetailsPage(): React.JSX.Element {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { data: customer, isLoading: isCustomerLoading, error: customerError } = useCustomer(id || '');
+  const { data: customer, isLoading: isCustomerLoading, error: customerError } = useCustomer(id || '', {
+    staleTime: 0,
+    refetchOnMount: true,
+  });
   const { data: qrCode, isLoading: isQrCodeLoading, error: qrCodeError } = useQRCode(customer?.qrCodeId || '');
   const [searchTerm, setSearchTerm] = useState('');
   const {
@@ -59,7 +62,7 @@ function CustomerDetailsPage(): React.JSX.Element {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage
-  } = useTransactionsByCustomer(id || '', 20);
+  } = useTransactionsByCustomer(id || '', 1000); // Fetch up to 1000 transactions to ensure we get all
 
   // Flatten transactions data from infinite query
   const allTransactions = React.useMemo(() => {
@@ -125,7 +128,7 @@ function CustomerDetailsPage(): React.JSX.Element {
                 <div>
                   <h2 className="text-lg font-medium text-gray-800 mb-2">Customer Information</h2>
                   <p className="text-gray-600"><span className="font-medium">Name:</span> {customer.name}</p>
-                  <p className="text-gray-600"><span className="font-medium">Phone:</span> {customer.phoneE164}</p>
+                  <p className="text-gray-600"><span className="font-medium">Phone:</span> {customer.phone}</p>
                 </div>
                 
                 <div>

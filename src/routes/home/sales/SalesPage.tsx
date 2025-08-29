@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
+import { usePageVisibility } from '@/hooks';
 import { useTransactionsByStall } from '@/queries/transactions';
 import { useMyAssignment } from '@/contexts/MyAssignmentContext';
 import { useStall } from '@/queries/stalls';
@@ -26,9 +27,9 @@ const TotalSalesCard: React.FC<{ totalCents: number }> = ({ totalCents }) => {
   const formattedAmount = (totalCents / 100).toFixed(2);
   
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-      <h2 className="text-lg font-semibold text-gray-700 mb-2">{t('salesPage.totalSales')}</h2>
-      <p className="text-3xl font-bold text-green-600">R{formattedAmount}</p>
+    <div className="bg-white rounded-lg shadow-md p-4 mb-4">
+      <h2 className="text-base font-semibold text-gray-700 mb-1">{t('salesPage.totalSales')}</h2>
+      <p className="text-2xl font-bold text-green-600">R{formattedAmount}</p>
     </div>
   );
 };
@@ -37,6 +38,7 @@ function SalesPage(): React.JSX.Element {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const isPageVisible = usePageVisibility();
   const { stall: currentStall, isLoading: isAssignmentLoading, error: assignmentError } = useMyAssignment();
   const currentStallId = currentStall?.id || null;
   
@@ -75,13 +77,13 @@ function SalesPage(): React.JSX.Element {
   const totalSalesCents = stallData?.totalAmount || 0;
   
   
-  // Invalidate queries when component mounts to refetch data
+  // Invalidate queries when component mounts or page becomes visible again
   useEffect(() => {
-    if (currentStallId) {
+    if (currentStallId && isPageVisible) {
       queryClient.invalidateQueries({ queryKey: ['transactions', 'list', 'stall', currentStallId] });
       queryClient.invalidateQueries({ queryKey: ['stalls', 'detail', currentStallId] });
     }
-  }, [queryClient, currentStallId]);
+  }, [queryClient, currentStallId, isPageVisible]);
   
   // All hooks must be called before any conditional returns to maintain hook order
   // Show loading state

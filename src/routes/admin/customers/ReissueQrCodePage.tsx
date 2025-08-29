@@ -77,7 +77,7 @@ function ReissueQrCodePage(): React.JSX.Element {
             <div className="bg-gray-50 p-4 rounded-md mb-6">
               <h2 className="text-lg font-medium text-gray-800 mb-2">Customer Details</h2>
               <p className="text-gray-600"><span className="font-medium">Name:</span> {customer.name}</p>
-              <p className="text-gray-600"><span className="font-medium">Phone:</span> {customer.phoneE164}</p>
+              <p className="text-gray-600"><span className="font-medium">Phone:</span> {customer.phone}</p>
               <p className="text-gray-600"><span className="font-medium">Current QR Code:</span> {customer.qrCodeId || 'None'}</p>
             </div>
             

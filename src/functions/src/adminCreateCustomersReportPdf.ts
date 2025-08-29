@@ -16,8 +16,7 @@ interface Account {
 interface Customer {
   id: string;
   name: string;
-  phoneE164: string;
-  phoneRaw: string;
+  phone: string;
   qrCodeId: string;
   Account: Account;
   idempotencyKey?: string;
@@ -44,8 +43,7 @@ const fetchAllCustomers = async (): Promise<Customer[]> => {
       return {
         id: doc.id,
         name: data.name,
-        phoneE164: data.phoneE164,
-        phoneRaw: data.phoneRaw,
+        phone: data.phone,
         qrCodeId: data.qrCodeId,
         Account: {
           balanceCents: data.Account?.balanceCents || 0,
@@ -78,8 +76,7 @@ const fetchCustomersByIds = async (customerIds: string[]): Promise<Customer[]> =
       return {
         id: doc.id,
         name: data.name,
-        phoneE164: data.phoneE164,
-        phoneRaw: data.phoneRaw,
+        phone: data.phone,
         qrCodeId: data.qrCodeId,
         Account: {
           balanceCents: data.Account?.balanceCents || 0,

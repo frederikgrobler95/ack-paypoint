@@ -174,12 +174,12 @@ function RefundsStep3Page(): React.JSX.Element {
         <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6 mb-4 flex-shrink-0">
           <div className="text-center mb-4">
             <p className="text-gray-600">{t('refundsStep3.originalTransactionAmount')}</p>
-            <p className="text-3xl font-bold text-indigo-600">R {formatAmount(transaction?.amountCents || 0)}</p>
+            <p className="text-3xl font-bold text-indigo-600">{formatAmount(transaction?.amountCents || 0)}</p>
           </div>
           
           <div className="border-t border-gray-200 pt-4 mt-4">
             <p className="text-gray-600 text-center mb-2">{t('refundsStep3.refundAmount')}</p>
-            <p className="text-4xl font-bold text-center text-gray-800">R {formatAmount(amountCents)}</p>
+            <p className="text-4xl font-bold text-center text-gray-800">{formatAmount(amountCents)}</p>
           </div>
           
           {transaction && amountCents > transaction.amountCents && (

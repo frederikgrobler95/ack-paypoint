@@ -65,6 +65,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                   // Automatically sign out the user
                   handleAutoSignOut();
                 }
+                
+                // Check if tutorialEnabled property changed
+                if (userData.tutorialEnabled !== undefined && userData.tutorialEnabled !== tutorialEnabled) {
+                  // Refresh the page to apply the new tutorial state
+                  window.location.reload();
+                }
               }
             });
             setUserDocUnsubscribe(() => unsubscribe);

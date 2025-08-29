@@ -118,17 +118,13 @@ function RefundsStep4Page(): React.JSX.Element {
         </div>
         <div className="flex justify-between items-center mt-2">
           <span className="text-gray-600">{t('refundsStep4.qrCode')}</span>
-          <span className="font-medium">{qrCode?.substring(0, 8) + '...'}</span>
+          <span className="font-medium">{qrData?.qrCode.label}</span>
         </div>
       </div>
       
       {/* Original Transaction */}
       <div className="bg-white rounded-lg shadow-md p-4 mb-4">
         <h2 className="text-lg font-semibold text-gray-800 mb-2">{t('refundsStep4.originalTransaction')}</h2>
-        <div className="flex justify-between items-center">
-          <span className="text-gray-600">{t('refundsStep4.transactionId')}</span>
-          <span className="font-medium">{transaction?.id?.substring(0, 8) + '...'}</span>
-        </div>
         <div className="flex justify-between items-center mt-2">
           <span className="text-gray-600">{t('refundsStep4.amount')}</span>
           <span className="font-medium">R {formatAmount(transaction?.amountCents || 0)}</span>

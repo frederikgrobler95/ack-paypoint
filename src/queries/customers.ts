@@ -72,11 +72,12 @@ export const fetchCustomers = async (searchTerm?: string) => {
 // React Query hooks for customers
 
 // Get a single customer by ID
-export const useCustomer = (id: string) => {
+export const useCustomer = (id: string, options?: any) => {
   return useQuery({
     queryKey: customerKeys.detail(id),
     queryFn: () => fetchCustomer(id),
     enabled: !!id,
+    ...options,
   });
 };
 

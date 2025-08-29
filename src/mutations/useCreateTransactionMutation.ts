@@ -1,7 +1,8 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../services/firebase';
 import { Transaction } from '../shared/contracts/transaction';
+import { customerKeys } from '../queries/customers';
 
 // Input type for the create transaction mutation
 export interface CreateTransactionInput {
@@ -35,7 +36,15 @@ const createTransaction = async (input: CreateTransactionInput): Promise<CreateT
 
 // React Query mutation hook
 export const useCreateTransactionMutation = () => {
+  const queryClient = useQueryClient();
+  
   return useMutation({
     mutationFn: createTransaction,
+    onSuccess: (data, variables) => {
+      // Invalidate the customer query to ensure fresh data is fetched
+      queryClient.invalidateQueries({
+        queryKey: customerKeys.detail(variables.customerId)
+      });
+    }
   });
 };

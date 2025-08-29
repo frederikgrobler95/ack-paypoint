@@ -6,8 +6,7 @@ import { Customer } from '../shared/contracts/customer';
 // Input type for the admin create customers mutation
 export interface AdminCreateCustomerInput {
   name: string;
-  phoneE164: string;
-  phoneRaw: string;
+  phone: string;
   qrCodeId: string;
   idempotencyKey: string;
 }
@@ -25,8 +24,7 @@ const adminCreateCustomers = async (customers: AdminCreateCustomerInput[]): Prom
     const customerData: Customer = {
       id: customerId,
       name: customerInput.name,
-      phoneE164: customerInput.phoneE164,
-      phoneRaw: customerInput.phoneRaw,
+      phone: customerInput.phone,
       qrCodeId: customerInput.qrCodeId,
       Account: {
         balanceCents: 0,

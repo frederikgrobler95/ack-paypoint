@@ -14,8 +14,7 @@ interface Account {
 interface Customer {
   id: string;
   name: string;
-  phoneE164: string;
-  phoneRaw: string;
+  phone: string;
   qrCodeId: string;
   Account: Account;
   idempotencyKey?: string;

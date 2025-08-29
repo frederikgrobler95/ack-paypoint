@@ -1,0 +1,89 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow anyone to sign in (this is handled by Firebase Auth, not Firestore rules)
+    // Firestore rules can't control authentication, only data access
+    
+    // Function to check if user has valid role
+    // Note: This function performs a document read each time it's called
+    // For better performance, structure rules to minimize calls to this function
+    function hasValidRole() {
+      return request.auth != null && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['member', 'admin'];
+    }
+    
+    // Assignments collection - only accessible by users with valid roles
+    match /assignments/{assignmentId} {
+      allow read, write: if request.auth != null && hasValidRole();
+    }
+    
+    // Customers collection - only accessible by users with valid roles
+    match /customers/{customerId} {
+      allow read, write: if request.auth != null && hasValidRole();
+    }
+    
+    // Payments collection - only accessible by users with valid roles
+    match /payments/{paymentId} {
+      allow read, write: if request.auth != null && hasValidRole();
+    }
+    
+    // QR Batches collection - only accessible by users with valid roles
+    match /qrBatches/{qrBatchId} {
+      allow read, write: if request.auth != null && hasValidRole();
+    }
+    
+    // QR Codes collection - only accessible by users with valid roles
+    match /qrCodes/{qrCodeId} {
+      allow read, write: if request.auth != null && hasValidRole();
+    }
+    
+    // Registrations collection - only accessible by users with valid roles
+    match /registrations/{registrationId} {
+      allow read, write: if request.auth != null && hasValidRole();
+    }
+    
+    // Stalls collection - only accessible by users with valid roles
+    match /stalls/{stallId} {
+      allow read, write: if request.auth != null && hasValidRole();
+    }
+    
+    // Stats collection - only accessible by users with valid roles
+    match /stats/{statId} {
+      allow read, write: if request.auth != null && hasValidRole();
+    }
+    
+    // Transactions collection - only accessible by users with valid roles
+    match /transactions/{transactionId} {
+      allow read, write: if request.auth != null && hasValidRole();
+    }
+    
+    // Users collection - special rules for authentication and role-based access
+    match /users/{userId} {
+      // Allow anyone to read the users collection to look up usernames during authentication
+      // This is needed for the signInWithUsernameAndPassword function
+      allow read: if true;
+      
+      // Allow anyone to create user documents during sign-up
+      // This is needed for the signUpWithEmailAndPassword function
+      // Validate that only allowed fields are set and role is always 'member'
+      allow create: if request.resource.data.keys().hasAll(['name', 'username', 'email', 'role', 'tutorialEnabled', 'signedIn']) &&
+                    request.resource.data.keys().hasOnly(['name', 'username', 'email', 'role', 'tutorialEnabled', 'signedIn']) &&
+                    request.resource.data.role == 'member' &&
+                    request.resource.data.tutorialEnabled is bool &&
+                    request.resource.data.signedIn is bool;
+      
+      // Users can update their own signedIn status during sign-in/sign-out
+      // Users can also update their own tutorialEnabled status
+      allow update: if request.auth != null && request.auth.uid == userId &&
+                    request.resource.data.diff().affectedKeys().hasOnly(['signedIn', 'tutorialEnabled']) &&
+                    (request.resource.data.signedIn is bool || !request.resource.data.diff().changedKeys().hasAny(['signedIn'])) &&
+                    (request.resource.data.tutorialEnabled is bool || !request.resource.data.diff().changedKeys().hasAny(['tutorialEnabled']));
+      
+      // Users with valid roles can read all user documents (for admin/member functionality)
+      allow read: if request.auth != null && hasValidRole();
+      
+      // Users with valid roles can write to any user document
+      allow write: if request.auth != null && hasValidRole();
+    }
+  }
+}

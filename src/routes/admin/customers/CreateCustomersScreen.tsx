@@ -49,8 +49,7 @@ function CreateCustomersScreen(): React.JSX.Element {
       createCustomers([
         {
           name: singleCustomer.name,
-          phoneE164: singleCustomer.phone,
-          phoneRaw: singleCustomer.phone,
+          phone: singleCustomer.phone,
           qrCodeId: '', // Will be assigned later
           idempotencyKey: uuidv4(),
         }
@@ -131,8 +130,7 @@ function CreateCustomersScreen(): React.JSX.Element {
           
           customersToCreate.push({
             name: customerData.name,
-            phoneE164: customerData.phone,
-            phoneRaw: customerData.phone,
+            phone: customerData.phone,
             qrCodeId: '', // Will be assigned later
             idempotencyKey: uuidv4(),
           });
