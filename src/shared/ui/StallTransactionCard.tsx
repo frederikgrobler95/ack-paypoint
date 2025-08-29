@@ -40,16 +40,16 @@ const StallTransactionCard: React.FC<{ transaction: Transaction }> = ({ transact
   };
   
   return (
-    <Card className="p-3 mb-2 grid grid-cols-12 gap-2 items-center elevation-1 animate-fade-in" role="listitem">
+    <Card className="p-3 mb-2 grid gap-2 items-center elevation-1 animate-fade-in" role="listitem">
       <div className="col-span-3 flex justify-start">
         <div className={`px-1.5 py-0.5 rounded text-xs font-semibold ${getTypeColor()}`} aria-label={getTypeText()}>
           {getTypeText()}
         </div>
       </div>
-      <div className="col-span-6 overflow-hidden">
-        <p className="body-small font-bold text-gray-900 truncate">{transaction.customerName}</p>
-        <div className="flex items-center caption text-gray-500 truncate">
-          <span className="truncate">{transaction.operatorName}</span>
+      <div className="col-span-6">
+        <p className="body-small font-bold text-gray-900 whitespace-normal break-words">{transaction.customerName}</p>
+        <div className="flex items-center caption text-gray-500 flex-wrap">
+          <span className="whitespace-normal break-words">{transaction.operatorName}</span>
           <span className="mx-1 flex-shrink-0">•</span>
           <span className="flex-shrink-0">{formattedTime}</span>
         </div>

@@ -94,7 +94,7 @@ function RefundsStep1Page(): React.JSX.Element {
   }, [qrCodeData, isQrCodeError, qrCodeInput, isQrCodeLoading, navigate, idempotencyKey, hasNavigated, inputMethod, isManualSubmit]);
   
   return (
-    <FlowContainer withNoHeaderOffset withBottomOffset showCancelButton>
+    <FlowContainer withNoHeaderOffset withBottomOffset showCancelButton smallCancelButton>
     
       
       {/* QR Scanner Section - Show only when inputMethod is 'scan' */}

@@ -63,7 +63,7 @@ function CheckoutStep2Page(): React.JSX.Element {
   
   return (
     <>
-    <FlowContainer withNoHeaderOffset withBottomOffset showCancelButton>
+    <FlowContainer withNoHeaderOffset withBottomOffset showCancelButton smallCancelButton>
      
       
       {/* Customer Details */}

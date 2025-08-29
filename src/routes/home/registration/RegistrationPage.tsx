@@ -173,6 +173,7 @@ function RegistrationPage(): React.JSX.Element {
         <SharedList
           data={sortedCustomers}
           renderItem={(customer: Customer) => <CustomerCard customer={customer} />}
+          onRefresh={refetch}
           isEmpty={sortedCustomers.length === 0}
           emptyMessage={t('noRegistrationsYet')}
         />

@@ -84,15 +84,17 @@ function RegistrationStep3Page(): React.JSX.Element {
         </div>
       </div>
       
-      <div className="fixed bottom-20 right-6">
-        <button
-          onClick={handleConfirmRegistration}
-          disabled={isPending}
-          className={`bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 ${isPending ? 'opacity-50 cursor-not-allowed' : ''}`}
-        >
-          <span className="text-xl">{t('registration.step3.button.confirmRegistration')}</span>
-        </button>
-      </div>
+      <button
+       onClick={handleConfirmRegistration}
+       disabled={isPending}
+       className={`w-full py-3 px-4 rounded-md font-semibold text-white transition duration-200 ${
+         isPending
+           ? 'bg-gray-400 cursor-not-allowed'
+           : 'bg-green-600 hover:bg-green-700'
+       }`}
+     >
+       {isPending ? 'Processing...' : t('registration.step3.button.confirmRegistration')}
+     </button>
     </FlowContainer>
   )
 }

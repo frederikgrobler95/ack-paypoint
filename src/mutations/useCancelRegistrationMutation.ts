@@ -1,6 +1,7 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../services/firebase';
+import { registrationKeys } from '../queries/registrations';
 
 // Input type for the cancel registration mutation
 export interface CancelRegistrationInput {
@@ -26,7 +27,13 @@ const cancelRegistration = async (input: CancelRegistrationInput): Promise<Cance
 
 // React Query mutation hook
 export const useCancelRegistrationMutation = () => {
+  const queryClient = useQueryClient();
+  
   return useMutation({
     mutationFn: cancelRegistration,
+    onSuccess: () => {
+      // Invalidate registrations query to refetch data
+      queryClient.invalidateQueries({ queryKey: registrationKeys.list('all') });
+    },
   });
 };

@@ -25,6 +25,7 @@ interface Customer {
 
 interface AdminCreateCustomersReportPdfRequest {
   customerIds?: string[];
+  filter?: 'all' | 'paid' | 'unpaid';
 }
 
 interface AdminCreateCustomersReportPdfResponse {
@@ -187,7 +188,7 @@ export const adminCreateCustomersReportPdf = onCall({
 }, async (request): Promise<AdminCreateCustomersReportPdfResponse> => {
     try {
       // Get the request data
-      const { customerIds } = request.data as AdminCreateCustomersReportPdfRequest;
+      const { customerIds, filter } = request.data as AdminCreateCustomersReportPdfRequest;
       
       // Fetch customers based on input
       let customers: Customer[] = [];
@@ -198,6 +199,11 @@ export const adminCreateCustomersReportPdf = onCall({
       } else {
         // Fetch all customers
         customers = await fetchAllCustomers();
+      }
+      
+      // Apply filter if provided
+      if (filter && filter !== 'all') {
+        customers = customers.filter(customer => customer.Account.status === filter);
       }
       
       // Generate PDF

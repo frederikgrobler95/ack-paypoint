@@ -7,6 +7,9 @@ import { usePaymentsByStall } from '@/queries/payments'
 import { useAdminCreateStallsReportMutation } from '@/mutations/useAdminCreateStallsReportMutation'
 import { downloadBlob } from '@/services/downloadService'
 import { timestampToDate } from '@/shared/utils'
+import StallTransactionCard from '@/shared/ui/StallTransactionCard'
+import RegistrationActivityCard from '@/shared/ui/RegistrationActivityCard'
+import PaymentActivityCard from '@/shared/ui/PaymentActivityCard'
 
 function StallStatsPage(): React.JSX.Element {
   const { id } = useParams<{ id: string }>()
@@ -163,111 +166,30 @@ function StallStatsPage(): React.JSX.Element {
           flatTransactions.length === 0 ? (
             <p className="text-gray-500">No transactions found for this stall.</p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Date
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Type
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Amount
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {flatTransactions.slice(0, 10).map((transaction: any) => (
-                    <tr key={transaction.id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {transaction.createdAt ? timestampToDate(transaction.createdAt).toLocaleDateString() : 'N/A'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          transaction.type === 'sale'
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-red-100 text-red-800'
-                        }`}>
-                          {transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        R{(transaction.amountCents / 100).toFixed(2)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="space-y-2">
+              {flatTransactions.slice(0, 10).map((transaction: any) => (
+                <StallTransactionCard key={transaction.id} transaction={transaction} />
+              ))}
             </div>
           )
         ) : stall?.type === 'registration' ? (
           flatRegistrations.length === 0 ? (
             <p className="text-gray-500">No registrations found for this stall.</p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Date
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Customer Name
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {flatRegistrations.slice(0, 10).map((registration: any) => (
-                    <tr key={registration.id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {registration.createdAt ? new Date(registration.createdAt.toDate()).toLocaleDateString() : 'N/A'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {registration.customerName}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="space-y-2">
+              {flatRegistrations.slice(0, 10).map((registration: any) => (
+                <RegistrationActivityCard key={registration.id} registration={registration} />
+              ))}
             </div>
           )
         ) : stall?.type === 'checkout' ? (
           flatPayments.length === 0 ? (
             <p className="text-gray-500">No payments found for this stall.</p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Date
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Customer Name
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Amount
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {flatPayments.slice(0, 10).map((payment: any) => (
-                    <tr key={payment.id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {payment.createdAt ? new Date(payment.createdAt.toDate()).toLocaleDateString() : 'N/A'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {payment.customerName}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        R{(payment.amountCents / 100).toFixed(2)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="space-y-2">
+              {flatPayments.slice(0, 10).map((payment: any) => (
+                <PaymentActivityCard key={payment.id} payment={payment} />
+              ))}
             </div>
           )
         ) : (

@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { doc, setDoc, collection, Timestamp } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { Registration } from '../shared/contracts/registration';
+import { registrationKeys } from '../queries/registrations';
 
 // Input type for the create registration mutation
 export interface CreateRegistrationInput {
@@ -45,7 +46,7 @@ export const useCreateRegistrationMutation = () => {
     mutationFn: createRegistration,
     onSuccess: () => {
       // Invalidate registrations query to refetch data
-      queryClient.invalidateQueries({ queryKey: ['registrations'] });
+      queryClient.invalidateQueries({ queryKey: registrationKeys.list('all') });
     },
   });
 };

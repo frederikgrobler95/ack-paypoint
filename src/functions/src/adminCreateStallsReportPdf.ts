@@ -31,6 +31,32 @@ interface Transaction {
   createdAt: Timestamp;
 }
 
+interface Registration {
+  id: string;
+  operatorName: string;
+  stallId: string;
+  customerId: string;
+  customerName: string;
+  qrCodeId: string;
+  createdAt: Timestamp;
+  idempotencyKey: string;
+}
+
+type PaymentMethod = 'card' | 'cash' | 'eft';
+
+interface Payment {
+  id: string;
+  method: PaymentMethod;
+  amountCents: number;
+  operatorId: string;
+  operatorName?: string;
+  customerId: string;
+  customerName?: string;
+  stallId: string;
+  idempotencyKey: string;
+  createdAt: Timestamp;
+}
+
 interface AdminCreateStallsReportPdfRequest {
   stallIds?: string[];
 }
@@ -84,8 +110,8 @@ const fetchStallsByIds = async (stallIds: string[]): Promise<Stall[]> => {
   }
 };
 
-// Function to calculate registration count for a registration stall
-const calculateRegistrationCount = async (stallId: string): Promise<number> => {
+// Function to fetch registrations for a registration stall
+const fetchRegistrationsForStall = async (stallId: string): Promise<Registration[]> => {
   try {
     // Get all registrations for this stall
     const registrationsQuery = await db
@@ -93,50 +119,94 @@ const calculateRegistrationCount = async (stallId: string): Promise<number> => {
       .where("stallId", "==", stallId)
       .get();
     
-    // Return the count of registrations
-    return registrationsQuery.size;
+    return registrationsQuery.docs.map(doc => {
+      return {
+        id: doc.id,
+        ...doc.data()
+      } as Registration;
+    });
   } catch (error) {
-    console.error(`Error calculating registration count for stall ${stallId}:`, error);
-    throw new Error("Failed to calculate registration count");
+    console.error(`Error fetching registrations for stall ${stallId}:`, error);
+    throw new Error("Failed to fetch registrations");
   }
 };
 
-// Function to calculate revenue for a checkout stall
-const calculateCheckoutRevenue = async (stallId: string): Promise<number> => {
+// Function to fetch transactions for a commerce stall
+const fetchTransactionsForStall = async (stallId: string): Promise<Transaction[]> => {
   try {
-    // Get all sales transactions for this stall
+    // Get all transactions for this stall
     const transactionsQuery = await db
+      .collection("transactions")
+      .where("stallId", "==", stallId)
+      .get();
+    
+    return transactionsQuery.docs.map(doc => {
+      return {
+        id: doc.id,
+        ...doc.data()
+      } as Transaction;
+    });
+  } catch (error) {
+    console.error(`Error fetching transactions for stall ${stallId}:`, error);
+    throw new Error("Failed to fetch transactions");
+  }
+};
+
+// Function to fetch payments for a checkout stall
+const fetchPaymentsForStall = async (stallId: string): Promise<Payment[]> => {
+  try {
+    // Get all payments for this stall
+    const paymentsQuery = await db
       .collection("payments")
       .where("stallId", "==", stallId)
       .get();
     
-    // Sum up the sales amounts (convert from cents to rands)
-    const totalSalesCents = transactionsQuery.docs.reduce((total, doc) => {
-      const transaction = doc.data() as Transaction;
-      return total + transaction.amountCents;
-    }, 0);
-    
-    // Convert cents to rands
-    return totalSalesCents / 100;
+    return paymentsQuery.docs.map(doc => {
+      return {
+        id: doc.id,
+        ...doc.data()
+      } as Payment;
+    });
   } catch (error) {
-    console.error(`Error calculating checkout revenue for stall ${stallId}:`, error);
-    throw new Error("Failed to calculate checkout revenue");
+    console.error(`Error fetching payments for stall ${stallId}:`, error);
+    throw new Error("Failed to fetch payments");
   }
 };
-
-// Function to enhance stalls with calculated totals
-const enhanceStallsWithTotals = async (stalls: Stall[]): Promise<(Stall & { calculatedTotal: number })[]> => {
+// Function to enhance stalls with calculated totals and detailed data
+const enhanceStallsWithDetails = async (stalls: Stall[]): Promise<(Stall & {
+  calculatedTotal: number;
+  registrations?: Registration[];
+  transactions?: Transaction[];
+  payments?: Payment[];
+})[]> => {
   const enhancedStalls = [];
   
   for (const stall of stalls) {
     let calculatedTotal = 0;
+    let registrations: Registration[] | undefined;
+    let transactions: Transaction[] | undefined;
+    let payments: Payment[] | undefined;
     
     if (stall.type === 'registration') {
-      // For registration stalls, calculate the count of registrations
-      calculatedTotal = await calculateRegistrationCount(stall.id);
+      // For registration stalls, fetch registrations
+      registrations = await fetchRegistrationsForStall(stall.id);
+      calculatedTotal = registrations.length;
     } else if (stall.type === 'checkout') {
-      // For checkout/commerce stalls, calculate the revenue
-      calculatedTotal = await calculateCheckoutRevenue(stall.id);
+      // For checkout stalls, fetch payments
+      payments = await fetchPaymentsForStall(stall.id);
+      // Sum up the payment amounts (convert from cents to rands)
+      const totalPaymentsCents = payments.reduce((total, payment) => {
+        return total + payment.amountCents;
+      }, 0);
+      calculatedTotal = totalPaymentsCents / 100;
+    } else if (stall.type === 'commerce') {
+      // For commerce stalls, fetch transactions
+      transactions = await fetchTransactionsForStall(stall.id);
+      // Sum up the transaction amounts (convert from cents to rands)
+      const totalTransactionsCents = transactions.reduce((total, transaction) => {
+        return total + transaction.amountCents;
+      }, 0);
+      calculatedTotal = totalTransactionsCents / 100;
     } else {
       // For other stall types, use the existing totalAmount
       calculatedTotal = stall.totalAmount || 0;
@@ -144,15 +214,24 @@ const enhanceStallsWithTotals = async (stalls: Stall[]): Promise<(Stall & { calc
     
     enhancedStalls.push({
       ...stall,
-      calculatedTotal
+      calculatedTotal,
+      registrations,
+      transactions,
+      payments
     });
   }
   
   return enhancedStalls;
 };
 
-// Function to create PDF with stall data
-const createStallsReportPdf = async (stalls: (Stall & { calculatedTotal: number })[]): Promise<Buffer> => {
+
+// Function to create PDF with stall data using card layout
+const createStallsReportPdf = async (stalls: (Stall & {
+  calculatedTotal: number;
+  registrations?: Registration[];
+  transactions?: Transaction[];
+  payments?: Payment[];
+})[]): Promise<Buffer> => {
   return new Promise((resolve, reject) => {
     try {
       // Create a new PDF document
@@ -172,61 +251,265 @@ const createStallsReportPdf = async (stalls: (Stall & { calculatedTotal: number 
       doc.pipe(stream);
       
       // Add title
-      doc.fontSize(18).text('Stalls Report', { align: 'center' });
+      doc.fontSize(20).text('Stalls Report', { align: 'center' });
       doc.moveDown();
+      doc.fontSize(10).text(`Generated on: ${new Date().toLocaleDateString()}`, { align: 'center' });
+      doc.moveDown(2);
       
-      // Add table headers
-      const tableTop = 100;
-      const rowHeight = 20;
-      const nameX = 50;
-      const idX = 150;
-      const typeX = 250;
-      const totalX = 350;
-      
-      doc.fontSize(12).font('Helvetica-Bold');
-      doc.text('Name', nameX, tableTop);
-      doc.text('ID', idX, tableTop);
-      doc.text('Type', typeX, tableTop);
-      doc.text('Total', totalX, tableTop);
-      
-      // Add horizontal line under headers
-      doc.moveTo(50, tableTop + 15)
-         .lineTo(550, tableTop + 15)
-         .stroke();
-      
-      // Add stall data
-      doc.fontSize(10).font('Helvetica');
-      let yPosition = tableTop + rowHeight;
-      
+      // Process each stall
       stalls.forEach((stall, index) => {
-        // Alternate row colors
-        if (index % 2 === 0) {
-          doc.fillColor('#f0f0f0')
-             .rect(45, yPosition - 5, 510, rowHeight)
-             .fill()
-             .fillColor('black');
+        // Add page break if not the first stall and we're near the bottom
+        if (index > 0 && doc.y > 700) {
+          doc.addPage();
         }
         
-        // Format total based on stall type
+        // Create card for stall info
+        const cardX = 50;
+        let cardY = doc.y;
+        const cardWidth = 500;
+        const cardHeight = 120;
+        
+        // Draw card border
+        doc.lineWidth(1);
+        doc.strokeColor('#cccccc');
+        doc.rect(cardX, cardY, cardWidth, cardHeight).stroke();
+        
+        // Add card header
+        doc.fontSize(14).font('Helvetica-Bold');
+        doc.fillColor('black');
+        doc.text(stall.name, cardX + 10, cardY + 10, { width: cardWidth - 20 });
+        
+        // Add stall type badge
+        doc.fontSize(10);
+        let typeColor = '#6366f1'; // indigo for commerce
+        if (stall.type === 'registration') typeColor = '#3b82f6'; // blue
+        if (stall.type === 'checkout') typeColor = '#10b981'; // green
+        
+        const typeText = stall.type.charAt(0).toUpperCase() + stall.type.slice(1);
+        const typeWidth = doc.widthOfString(typeText) + 10;
+        doc.fillColor(typeColor);
+        doc.rect(cardX + 10, cardY + 30, typeWidth, 20).fill();
+        doc.fillColor('white');
+        doc.text(typeText, cardX + 15, cardY + 35, { width: typeWidth });
+        
+        // Add stall ID
+        doc.fillColor('black');
+        doc.fontSize(10).font('Helvetica');
+        doc.text(`ID: ${stall.id}`, cardX + 10, cardY + 60);
+        
+        // Add total with appropriate label
         let totalText = '';
         if (stall.type === 'registration') {
           totalText = `${stall.calculatedTotal} registrations`;
         } else {
           totalText = `R${stall.calculatedTotal.toFixed(2)}`;
         }
+        doc.text(`Total: ${totalText}`, cardX + 10, cardY + 80);
         
-        doc.text(stall.name, nameX, yPosition);
-        doc.text(stall.id, idX, yPosition);
-        doc.text(stall.type, typeX, yPosition);
-        doc.text(totalText, totalX, yPosition);
+        // Update Y position for next content
+        doc.y = cardY + cardHeight + 20;
         
-        yPosition += rowHeight;
-        
-        // Add a new page if needed
-        if (yPosition > 750) {
-          doc.addPage();
-          yPosition = 50;
+        // Add appropriate data table based on stall type
+        if (stall.type === 'registration' && stall.registrations) {
+          // Add registrations table title
+          doc.fontSize(12).font('Helvetica-Bold');
+          doc.text('Registrations', 50, doc.y);
+          doc.moveDown();
+          
+          // Add registrations table
+          if (stall.registrations.length > 0) {
+            // Table headers
+            const tableTop = doc.y;
+            const rowHeight = 15;
+            const col1X = 50;  // ID
+            const col2X = 150; // Customer
+            const col3X = 300; // Operator
+            const col4X = 400; // Date
+            
+            doc.fontSize(10).font('Helvetica-Bold');
+            doc.text('ID', col1X, tableTop);
+            doc.text('Customer', col2X, tableTop);
+            doc.text('Operator', col3X, tableTop);
+            doc.text('Date', col4X, tableTop);
+            
+            // Add horizontal line under headers
+            doc.moveTo(50, tableTop + 12)
+               .lineTo(550, tableTop + 12)
+               .stroke();
+            
+            // Add registration data
+            doc.fontSize(9).font('Helvetica');
+            let yPosition = tableTop + rowHeight;
+            
+            stall.registrations.forEach((registration, regIndex) => {
+              // Alternate row colors
+              if (regIndex % 2 === 0) {
+                doc.fillColor('#f8f9fa')
+                   .rect(45, yPosition - 5, 510, rowHeight)
+                   .fill()
+                   .fillColor('black');
+              }
+              
+              // Format date
+              const date = registration.createdAt.toDate();
+              const dateString = date.toLocaleDateString();
+              
+              doc.text(registration.id.substring(0, 8), col1X, yPosition);
+              doc.text(registration.customerName || 'N/A', col2X, yPosition);
+              doc.text(registration.operatorName, col3X, yPosition);
+              doc.text(dateString, col4X, yPosition);
+              
+              yPosition += rowHeight;
+              
+              // Add a new page if needed
+              if (yPosition > 750) {
+                doc.addPage();
+                yPosition = 50;
+              }
+            });
+            
+            doc.y = yPosition + 10;
+          } else {
+            doc.fontSize(10).font('Helvetica');
+            doc.text('No registrations found', 50, doc.y);
+            doc.moveDown();
+          }
+        } else if (stall.type === 'commerce' && stall.transactions) {
+          // Add transactions table title
+          doc.fontSize(12).font('Helvetica-Bold');
+          doc.text('Transactions', 50, doc.y);
+          doc.moveDown();
+          
+          // Add transactions table
+          if (stall.transactions.length > 0) {
+            // Table headers
+            const tableTop = doc.y;
+            const rowHeight = 15;
+            const col1X = 50;  // ID
+            const col2X = 150; // Customer
+            const col3X = 300; // Operator
+            const col4X = 400; // Amount
+            const col5X = 470; // Type
+            
+            doc.fontSize(10).font('Helvetica-Bold');
+            doc.text('ID', col1X, tableTop);
+            doc.text('Customer', col2X, tableTop);
+            doc.text('Operator', col3X, tableTop);
+            doc.text('Amount', col4X, tableTop);
+            doc.text('Type', col5X, tableTop);
+            
+            // Add horizontal line under headers
+            doc.moveTo(50, tableTop + 12)
+               .lineTo(550, tableTop + 12)
+               .stroke();
+            
+            // Add transaction data
+            doc.fontSize(9).font('Helvetica');
+            let yPosition = tableTop + rowHeight;
+            
+            stall.transactions.forEach((transaction, txnIndex) => {
+              // Alternate row colors
+              if (txnIndex % 2 === 0) {
+                doc.fillColor('#f8f9fa')
+                   .rect(45, yPosition - 5, 510, rowHeight)
+                   .fill()
+                   .fillColor('black');
+              }
+              
+              // Format amount
+              const amount = (transaction.amountCents / 100).toFixed(2);
+              
+              doc.text(transaction.id.substring(0, 8), col1X, yPosition);
+              doc.text(transaction.customerName || 'N/A', col2X, yPosition);
+              doc.text(transaction.operatorName, col3X, yPosition);
+              doc.text(`R${amount}`, col4X, yPosition);
+              doc.text(transaction.type, col5X, yPosition);
+              
+              yPosition += rowHeight;
+              
+              // Add a new page if needed
+              if (yPosition > 750) {
+                doc.addPage();
+                yPosition = 50;
+              }
+            });
+            
+            doc.y = yPosition + 10;
+          } else {
+            doc.fontSize(10).font('Helvetica');
+            doc.text('No transactions found', 50, doc.y);
+            doc.moveDown();
+          }
+        } else if (stall.type === 'checkout' && stall.payments) {
+          // Add payments table title
+          doc.fontSize(12).font('Helvetica-Bold');
+          doc.text('Payments', 50, doc.y);
+          doc.moveDown();
+          
+          // Add payments table
+          if (stall.payments.length > 0) {
+            // Table headers
+            const tableTop = doc.y;
+            const rowHeight = 15;
+            const col1X = 50;  // ID
+            const col2X = 150; // Customer
+            const col3X = 300; // Operator
+            const col4X = 400; // Amount
+            const col5X = 470; // Method
+            
+            doc.fontSize(10).font('Helvetica-Bold');
+            doc.text('ID', col1X, tableTop);
+            doc.text('Customer', col2X, tableTop);
+            doc.text('Operator', col3X, tableTop);
+            doc.text('Amount', col4X, tableTop);
+            doc.text('Method', col5X, tableTop);
+            
+            // Add horizontal line under headers
+            doc.moveTo(50, tableTop + 12)
+               .lineTo(550, tableTop + 12)
+               .stroke();
+            
+            // Add payment data
+            doc.fontSize(9).font('Helvetica');
+            let yPosition = tableTop + rowHeight;
+            
+            stall.payments.forEach((payment, payIndex) => {
+              // Alternate row colors
+              if (payIndex % 2 === 0) {
+                doc.fillColor('#f8f9fa')
+                   .rect(45, yPosition - 5, 510, rowHeight)
+                   .fill()
+                   .fillColor('black');
+              }
+              
+              // Format amount
+              const amount = (payment.amountCents / 100).toFixed(2);
+              
+              doc.text(payment.id.substring(0, 8), col1X, yPosition);
+              doc.text(payment.customerName || 'N/A', col2X, yPosition);
+              doc.text(payment.operatorName || 'N/A', col3X, yPosition);
+              doc.text(`R${amount}`, col4X, yPosition);
+              doc.text(payment.method, col5X, yPosition);
+              
+              yPosition += rowHeight;
+              
+              // Add a new page if needed
+              if (yPosition > 750) {
+                doc.addPage();
+                yPosition = 50;
+              }
+            });
+            
+            doc.y = yPosition + 10;
+          } else {
+            doc.fontSize(10).font('Helvetica');
+            doc.text('No payments found', 50, doc.y);
+            doc.moveDown();
+          }
         }
+        
+        // Add some space before next stall
+        doc.moveDown(2);
       });
       
       // Finalize the PDF
@@ -258,8 +541,8 @@ export const adminCreateStallsReportPdf = onCall({
         stalls = await fetchAllStalls();
       }
       
-      // Enhance stalls with calculated totals
-      const enhancedStalls = await enhanceStallsWithTotals(stalls);
+      // Enhance stalls with calculated totals and detailed data
+      const enhancedStalls = await enhanceStallsWithDetails(stalls);
       
       // Generate PDF
       const pdfBuffer = await createStallsReportPdf(enhancedStalls);

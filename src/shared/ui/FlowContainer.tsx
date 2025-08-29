@@ -11,6 +11,7 @@ interface FlowContainerProps {
   withNoHeaderOffset?: boolean;
   withNoBottomOffset?: boolean;
   showCancelButton?: boolean;
+  smallCancelButton?: boolean;
 }
 
 /**
@@ -34,6 +35,7 @@ function FlowContainer({
   withNoHeaderOffset = false,
   withNoBottomOffset = false,
   showCancelButton = false,
+  smallCancelButton = false,
 }: FlowContainerProps): React.JSX.Element {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -69,18 +71,18 @@ function FlowContainer({
 
   return (
     <div className={`${combinedClasses} h-full`}>
+      {children}
       {showCancelButton && (
-        <div className="flex justify-end mb-4">
+        <div className="flex justify-end mt-4">
           <button
             onClick={handleCancel}
-            className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium rounded-md transition-colors duration-200"
+            className={`${smallCancelButton ? 'px-3 py-1 text-sm' : 'px-4 py-2'} text-red-600 hover:text-red-800 font-medium rounded-md transition-colors duration-200`}
             aria-label={t('cancelFlow') || t('cancel') || 'Cancel'}
           >
             {t('cancelFlow') || t('cancel') || 'Cancel'}
           </button>
         </div>
       )}
-      {children}
     </div>
   );
 }

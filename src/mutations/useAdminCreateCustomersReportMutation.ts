@@ -5,6 +5,7 @@ import { functions } from '../services/firebase';
 // Input type for the admin create customers report mutation
 export interface AdminCreateCustomersReportInput {
   customerIds?: string[];
+  filter?: 'all' | 'paid' | 'unpaid';
 }
 
 // Output type for the admin create customers report mutation

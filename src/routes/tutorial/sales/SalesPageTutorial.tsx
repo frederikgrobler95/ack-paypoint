@@ -89,12 +89,12 @@ function SalesPageTutorial() {
           {mockSalesData.transactions.length > 0 ? (
             mockSalesData.transactions.map((transaction: any) => (
               <div key={transaction.id} className="bg-white rounded-lg shadow-sm p-4 mb-3">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <p className="font-medium text-gray-800">{transaction.customerName}</p>
-                    <p className="text-gray-500 text-sm">{transaction.operatorName}</p>
+                <div className="flex flex-wrap justify-between items-center gap-2">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-gray-800 whitespace-normal break-words">{transaction.customerName}</p>
+                    <p className="text-gray-500 text-sm whitespace-normal break-words">{transaction.operatorName}</p>
                   </div>
-                  <div className="text-right">
+                  <div className="text-right flex-shrink-0">
                     <p className="font-medium text-gray-800">R{formatAmount(transaction.amountCents)}</p>
                     <p className="text-gray-500 text-sm">
                       {transaction.createdAt ? timestampToDate(transaction.createdAt).toLocaleDateString() : t('tutorial.sales.justNow')}

@@ -1,8 +1,9 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../services/firebase';
 import { Customer } from '../shared/contracts/customer';
 import { useSessionStore } from '../shared/stores/sessionStore';
+import { registrationKeys } from '../queries/registrations';
 
 // Input type for the create customer mutation
 export interface CreateCustomerInput {
@@ -43,11 +44,16 @@ const createCustomer = async (input: CreateCustomerInput & { operatorName: strin
 // React Query mutation hook
 export const useCreateCustomerMutation = () => {
   const displayName = useSessionStore((state) => state.displayName);
-
+  const queryClient = useQueryClient();
+  
   return useMutation({
     mutationFn: (input: CreateCustomerInput) => createCustomer({
       ...input,
       operatorName: displayName || 'Unknown Operator'
     }),
+    onSuccess: () => {
+      // Invalidate registrations query to refetch data
+      queryClient.invalidateQueries({ queryKey: registrationKeys.list('all') });
+    },
   });
 };

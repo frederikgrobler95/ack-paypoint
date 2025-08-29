@@ -4,13 +4,15 @@ import { useCustomers } from '../../../queries/customers'
 import { Customer } from '../../../shared/contracts/customer'
 import { SharedList } from '../../../shared/ui'
 import { useAdminVoidCustomerQrMutation } from '../../../mutations/useAdminVoidCustomerQrMutation'
+import { useAdminCreateCustomersReportMutation } from '../../../mutations/useAdminCreateCustomersReportMutation'
 import Button from '../../../shared/ui/Button'
-import { QRCodeSVG } from 'qrcode.react'
+import ExportCustomersModal from './ExportCustomersModal'
 
 function CustomersPage(): React.JSX.Element {
   const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState('')
   const [filter, setFilter] = useState<'all' | 'clean' | 'paid' | 'unpaid'>('all')
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false)
   const {
     data: customersData,
     isLoading,
@@ -18,11 +20,47 @@ function CustomersPage(): React.JSX.Element {
     refetch
   } = useCustomers(searchTerm)
   const { mutate: voidCustomerQr } = useAdminVoidCustomerQrMutation()
+  const { mutate: generateReport, isPending: isGeneratingReport } = useAdminCreateCustomersReportMutation()
   const customers = React.useMemo(() => {
     const allCustomers = customersData?.data || []
     if (filter === 'all') return allCustomers
     return allCustomers.filter(customer => customer.Account.status === filter)
   }, [customersData, filter])
+
+  // Handle export report
+  const handleExportReport = (filter: 'all' | 'paid' | 'unpaid') => {
+    setIsExportModalOpen(false);
+    
+    generateReport(
+      { filter },
+      {
+        onSuccess: (data) => {
+          // Create a downloadable PDF file
+          const byteCharacters = atob(data.data);
+          const byteNumbers = new Array(byteCharacters.length);
+          for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+          }
+          const byteArray = new Uint8Array(byteNumbers);
+          const blob = new Blob([byteArray], { type: 'application/pdf' });
+          
+          // Create download link
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `customers-report-${filter}-${new Date().toISOString().slice(0, 10)}.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        },
+        onError: (error) => {
+          console.error('Error generating report:', error);
+          alert('Failed to generate report. Please try again.');
+        }
+      }
+    );
+  };
 
   // Handle pull to refresh
   const handleRefresh = async () => {
@@ -174,15 +212,26 @@ function CustomersPage(): React.JSX.Element {
               />
             </div>
           </div>
-          <button
-            onClick={() => navigate('/admin/customers/create')}
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300 ease-in-out"
-          >
-            <svg className="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-            </svg>
-            Create Customer
-          </button>
+          <div className="flex space-x-2">
+            <button
+              onClick={() => setIsExportModalOpen(true)}
+              className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-300 ease-in-out"
+            >
+              <svg className="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Export Report
+            </button>
+            <button
+              onClick={() => navigate('/admin/customers/create')}
+              className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300 ease-in-out"
+            >
+              <svg className="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+              </svg>
+              Create Customer
+            </button>
+          </div>
         </div>
         <div className="flex flex-wrap gap-2 mb-4">
           <button
@@ -241,6 +290,13 @@ function CustomersPage(): React.JSX.Element {
           loadingMessage="Loading customers..."
         />
       </div>
+      
+      <ExportCustomersModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        onFilterSelect={handleExportReport}
+        isGeneratingReport={isGeneratingReport}
+      />
     </div>
   )
 }

@@ -116,7 +116,7 @@ function SalesStep2Page(): React.JSX.Element {
 
   return (
     <>
-      <FlowContainer withNoHeaderOffset withBottomOffset showCancelButton>
+      <FlowContainer withNoHeaderOffset withBottomOffset showCancelButton smallCancelButton>
         <div className="bg-white rounded-lg shadow-md p-6 flex flex-col h-full">
           
           <div className="text-center mb-6">

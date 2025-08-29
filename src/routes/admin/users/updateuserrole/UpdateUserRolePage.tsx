@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useUser } from '../../../../queries/users';
 import { useAdminUpdateUserRoleMutation } from '../../../../mutations/useAdminUpdateUserRoleMutation';
-import { useAdminResetUserTutorialMutation } from '../../../../mutations/useAdminResetUserTutorialMutation';
 import { User } from '../../../../shared/contracts/user';
 
 function RoleSelectionPage(): React.JSX.Element {
@@ -13,7 +12,6 @@ function RoleSelectionPage(): React.JSX.Element {
   const [tutorialEnabled, setTutorialEnabled] = useState<boolean>(false);
   
   const mutation = useAdminUpdateUserRoleMutation();
-  const resetTutorialMutation = useAdminResetUserTutorialMutation();
   
   React.useEffect(() => {
     if (user) {
@@ -95,7 +93,9 @@ function RoleSelectionPage(): React.JSX.Element {
           <p className="text-gray-600">Name: {user.name}</p>
           <p className="text-gray-600">Username: {user.username}</p>
           <p className="text-gray-600">Email: {user.email}</p>
-          <p className="text-gray-600">Current Role: {user.role}</p>
+          <p className="text-gray-600">Current Role: <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
+            {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+          </span></p>
           <p className="text-gray-600">Tutorial Enabled: {user.tutorialEnabled ? 'Enabled' : 'Disabled'}</p>
         </div>
         
@@ -153,28 +153,6 @@ function RoleSelectionPage(): React.JSX.Element {
             </div>
             <p className="mt-1 text-sm text-gray-500">
               When enabled, the user will see tutorial guidance throughout the application.
-            </p>
-          </div>
-          
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-700 mb-3">Reset Tutorial</h3>
-            
-            <button
-              type="button"
-              onClick={() => {
-                if (id) {
-                  resetTutorialMutation.mutate({
-                    userId: id
-                  });
-                }
-              }}
-              disabled={resetTutorialMutation.isPending}
-              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 disabled:opacity-50"
-            >
-              {resetTutorialMutation.isPending ? 'Resetting...' : 'Reset Tutorial'}
-            </button>
-            <p className="mt-1 text-sm text-gray-500">
-              Reset the tutorial to allow the user to go through it again.
             </p>
           </div>
           

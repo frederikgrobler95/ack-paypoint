@@ -134,12 +134,12 @@ function SalesPage(): React.JSX.Element {
   };
   
   return (
-    <div className="h-screen flex flex-col">
+    <div className="flex flex-col h-full">
       <div className="p-4 flex-shrink-0">
         <TotalSalesCard totalCents={totalSalesCents} />
       </div>
       
-      <div className="flex-1 px-4 pb-4 overflow-hidden">
+      <div className="flex-1 px-4 pb-4 overflow-y-auto">
         <SharedList<Transaction>
           data={transactions}
           renderItem={(transaction: Transaction) => <StallTransactionCard transaction={transaction} />}
@@ -164,8 +164,9 @@ function SalesPage(): React.JSX.Element {
             useFlowStore.getState().startFlow();
             navigate('/sales/salesstep1');
           }}
+          aria-label={t('salesPage.newSale')}
         >
-          <span className="text-xl">{t('salesPage.newSale')}</span>
+          <span className="text-xl">+</span>
         </button>
       </div>
     </div>
