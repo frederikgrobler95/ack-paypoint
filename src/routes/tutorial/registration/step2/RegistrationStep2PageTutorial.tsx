@@ -112,7 +112,7 @@ function RegistrationStep2PageTutorial() {
             />
             <button
               onClick={handleScanPress}
-              className="scan-button mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-md transition duration-200"
+              className="scan-button mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-neutral-50 font-semibold py-3 px-4 rounded-md transition duration-200"
             >
               {t('tutorial.registration.step2.scanQrCodeButton')}
             </button>
@@ -142,7 +142,7 @@ function RegistrationStep2PageTutorial() {
               />
               <button
                 type="submit"
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-md transition duration-200"
+                className="w-full bg-indigo-600 hover:bg-indigo-700 text-neutral-50 font-semibold py-3 px-4 rounded-md transition duration-200"
               >
                 {t('tutorial.registration.step2.submitQrCodeButton')}
               </button>

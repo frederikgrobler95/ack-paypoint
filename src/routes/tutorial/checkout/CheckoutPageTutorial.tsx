@@ -112,7 +112,7 @@ function CheckoutPageTutorial() {
         {/* Start Checkout Button */}
         <div className="fixed bottom-20 right-6">
           <button
-            className="start-checkout-button bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
+            className="start-checkout-button bg-green-600 hover:bg-green-700 text-neutral-50 font-bold py-4 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
             onClick={handleStartCheckout}
           >
             <span className="text-xl">+</span>

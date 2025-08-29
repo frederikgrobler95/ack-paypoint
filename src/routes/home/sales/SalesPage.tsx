@@ -107,7 +107,7 @@ function SalesPage(): React.JSX.Element {
           <p className="text-red-500 mb-4">{assignmentError?.toString() || stallError?.toString() || t('salesPage.unknownError')}</p>
           <button
             onClick={() => window.location.reload()}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md transition duration-200"
+            className="bg-indigo-600 hover:bg-indigo-700 text-neutral-50 font-semibold py-2 px-4 rounded-md transition duration-200"
           >
             {t('salesPage.retry')}
           </button>
@@ -160,7 +160,7 @@ function SalesPage(): React.JSX.Element {
       {/* FAB Button */}
       <div className="fixed bottom-20 right-6 z-50">
         <button
-          className="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
+          className="bg-green-600 hover:bg-green-700 text-neutral-50 font-bold py-4 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
           onClick={() => {
             // Reset the sales flow when starting a new sale
             useFlowStore.getState().startFlow();

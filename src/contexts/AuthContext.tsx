@@ -68,8 +68,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 
                 // Check if tutorialEnabled property changed
                 if (userData.tutorialEnabled !== undefined && userData.tutorialEnabled !== tutorialEnabled) {
-                  // Refresh the page to apply the new tutorial state
-                  window.location.reload();
+                  // Update local state instead of refreshing the page
+                  setTutorialEnabled(userData.tutorialEnabled);
                 }
               }
             });
@@ -117,7 +117,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signin = async (username: string, password: string) => {
     try {
-      await signInWithUsernameAndPassword(username, password);
+      await signInWithUsernameAndPassword(username.toLowerCase(), password);
     } catch (error) {
       console.error('Sign in error:', error);
       throw error;

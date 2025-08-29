@@ -102,7 +102,7 @@ function RegistrationStep1Page(): React.JSX.Element {
         
         <button
           type="submit"
-          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-md transition duration-200"
+          className="w-full bg-indigo-600 hover:bg-indigo-700 text-neutral-50 font-semibold py-3 px-4 rounded-md transition duration-200"
         >
           {t('registration.step1.button.next')}
         </button>

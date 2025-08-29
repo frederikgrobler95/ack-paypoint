@@ -49,7 +49,7 @@ export const fetchCustomers = async (searchTerm?: string) => {
     // Check name, phone, and QR code ID directly with null/undefined checks
     if (
       (customer.name && customer.name.toLowerCase().includes(term)) ||
-      (customer.phoneE164 && customer.phoneE164.toLowerCase().includes(term)) ||
+      (customer.phone && customer.phone.toLowerCase().includes(term)) ||
       (customer.qrCodeId && customer.qrCodeId.toLowerCase().includes(term))
     ) {
       return true;
@@ -73,7 +73,7 @@ export const fetchCustomers = async (searchTerm?: string) => {
 
 // Get a single customer by ID
 export const useCustomer = (id: string, options?: any) => {
-  return useQuery({
+  return useQuery<Customer | null>({
     queryKey: customerKeys.detail(id),
     queryFn: () => fetchCustomer(id),
     enabled: !!id,

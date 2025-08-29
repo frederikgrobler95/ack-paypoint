@@ -19,7 +19,7 @@ export const getUserEmailByUsername = async (username: string): Promise<string |
   try {
     const firestore = getFirestore(app);
     const usersCollection = collection(firestore, 'users');
-    const q = query(usersCollection, where('username', '==', username));
+    const q = query(usersCollection, where('username', '==', username.toLowerCase()));
     const querySnapshot = await getDocs(q);
     
     if (querySnapshot.empty) {
@@ -47,8 +47,8 @@ export const getUserEmailByUsername = async (username: string): Promise<string |
  */
 export const signInWithUsernameAndPassword = async (username: string, password: string) => {
   try {
-    // Look up the user's email by username
-    const email = await getUserEmailByUsername(username);
+    // Look up the user's email by username (converted to lowercase)
+    const email = await getUserEmailByUsername(username.toLowerCase());
     
     if (!email) {
       throw new Error('User not found');
@@ -129,11 +129,11 @@ export const signUpWithEmailAndPassword = async (name: string, username: string,
     // Initialize Firestore
     const firestore = getFirestore(app);
 
-    // Create user document in Firestore with name, username, email, and 'member' role
+    // Create user document in Firestore with name, username (in lowercase), email, and 'member' role
     const user = userCredential.user;
     await setDoc(doc(firestore, 'users', user.uid), {
       name,
-      username,
+      username: username.toLowerCase(),
       email,
       role: 'member',
       // Initialize tutorial flags for new users

@@ -37,7 +37,7 @@ function DropdownMenu({ onLogout, additionalItems = [] }: DropdownMenuProps) {
     <div className="relative z-5" ref={dropdownRef}>
       <button
         onClick={toggleDropdown}
-        className="text-white hover:text-gray-300 focus:outline-none"
+        className="text-neutral-50 hover:text-gray-300 focus:outline-none"
         aria-label="User menu"
       >
         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

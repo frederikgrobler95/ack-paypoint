@@ -97,7 +97,7 @@ function RefundsStep4Page(): React.JSX.Element {
           </p>
           <button
             onClick={() => navigate(-1)}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md transition duration-200"
+            className="bg-indigo-600 hover:bg-indigo-700 text-neutral-50 font-semibold py-2 px-4 rounded-md transition duration-200"
           >
             {t('refundsStep4.goBack')}
           </button>
@@ -154,7 +154,7 @@ function RefundsStep4Page(): React.JSX.Element {
         <button
           onClick={handleConfirmRefund}
           disabled={isRefundPending}
-          className={`w-full py-3 px-4 rounded-md text-white font-semibold transition duration-200 ${
+          className={`w-full py-3 px-4 rounded-md text-neutral-50 font-semibold transition duration-200 ${
             isRefundPending
               ? 'bg-gray-400 cursor-not-allowed'
               : 'bg-indigo-600 hover:bg-indigo-700'

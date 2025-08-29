@@ -83,7 +83,7 @@ function SalesStep3Page(): React.JSX.Element {
               <div className="text-lg text-red-600">{t('salesStep3.errorLoadingCustomerDetails', { error: qrError?.message })}</div>
               <button
                 onClick={() => navigate('/sales/salesstep1')}
-                className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md transition duration-200"
+                className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-neutral-50 font-semibold py-2 px-4 rounded-md transition duration-200"
               >
                 {t('salesStep3.tryAgain')}
               </button>
@@ -104,7 +104,7 @@ function SalesStep3Page(): React.JSX.Element {
               <div className="text-lg text-red-600">{t('salesStep3.errorCreatingSale', { error: saleError?.message })}</div>
               <button
                 onClick={() => navigate('/sales/salesstep1')}
-                className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md transition duration-200"
+                className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-neutral-50 font-semibold py-2 px-4 rounded-md transition duration-200"
               >
                 {t('salesStep3.startOver')}
               </button>
@@ -125,7 +125,7 @@ function SalesStep3Page(): React.JSX.Element {
               <div className="text-lg text-gray-600">{t('salesStep3.invalidQrCode')}</div>
               <button
                 onClick={() => navigate('/sales/salesstep1')}
-                className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md transition duration-200"
+                className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-neutral-50 font-semibold py-2 px-4 rounded-md transition duration-200"
               >
                 {t('salesStep3.startOver')}
               </button>
@@ -157,7 +157,7 @@ function SalesStep3Page(): React.JSX.Element {
           <button
             onClick={handleConfirmTransaction}
             disabled={isCreatingSale}
-            className={`w-full py-3 px-4 rounded-md font-semibold text-white transition duration-200 ${
+            className={`w-full py-3 px-4 rounded-md font-semibold text-neutral-50 transition duration-200 ${
               isCreatingSale
                 ? 'bg-gray-400 cursor-not-allowed'
                 : 'bg-green-600 hover:bg-green-700'

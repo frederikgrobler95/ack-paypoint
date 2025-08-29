@@ -88,7 +88,7 @@ function BatchDetailsPage(): React.JSX.Element {
             className={`py-2 px-4 rounded-md font-medium transition duration-300 ${
               mutation.isPending
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                : 'bg-indigo-600 hover:bg-indigo-700 text-neutral-50'
             }`}
           >
             {mutation.isPending ? 'Generating PDF...' : 'Print Batch PDF'}

@@ -119,7 +119,7 @@ const TutorialOverlay: React.FC<TutorialOverlayProps> = ({
             
             <button
               onClick={onNext}
-              className="px-3 py-1 text-sm bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+              className="px-3 py-1 text-sm bg-indigo-600 text-neutral-50 rounded-md hover:bg-indigo-700"
             >
               {step === totalSteps ? 'Finish' : 'Next'}
             </button>

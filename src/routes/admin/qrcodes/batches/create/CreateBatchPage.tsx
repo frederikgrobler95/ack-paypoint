@@ -40,7 +40,7 @@ function CreateBatchPage(): React.JSX.Element {
           <div></div>
           <button
             onClick={() => navigate('/admin/qrcodes/batches')}
-            className="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-md transition duration-300 ease-in-out"
+            className="bg-gray-500 hover:bg-gray-600 text-neutral-50 font-medium py-2 px-4 rounded-md transition duration-300 ease-in-out"
           >
             Cancel
           </button>
@@ -120,7 +120,7 @@ function CreateBatchPage(): React.JSX.Element {
               <button
                 type="button"
                 onClick={() => navigate('/admin/qrcodes/batches')}
-                className="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-md transition duration-300 ease-in-out"
+                className="bg-gray-500 hover:bg-gray-600 text-neutral-50 font-medium py-2 px-4 rounded-md transition duration-300 ease-in-out"
               >
                 Cancel
               </button>
@@ -130,7 +130,7 @@ function CreateBatchPage(): React.JSX.Element {
                 className={`py-2 px-4 rounded-md font-medium transition duration-300 ${
                   mutation.isPending
                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                    : 'bg-indigo-600 hover:bg-indigo-700 text-neutral-50'
                 }`}
               >
                 {mutation.isPending ? 'Creating...' : 'Create QR Codes'}

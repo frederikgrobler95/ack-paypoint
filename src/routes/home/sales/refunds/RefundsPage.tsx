@@ -24,7 +24,7 @@ function RefundsPage(): React.JSX.Element {
         </p>
         <button
           onClick={handleStartRefund}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
+          className="bg-indigo-600 hover:bg-indigo-700 text-neutral-50 font-bold py-3 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
         >
           {t('refunds.startProcess')}
         </button>

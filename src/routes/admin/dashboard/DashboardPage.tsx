@@ -134,7 +134,7 @@ function DashboardPage(): React.JSX.Element {
                     </p>
                     <button
                       onClick={handleRefresh}
-                      className="mt-4 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none"
+                      className="mt-4 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-neutral-50 bg-red-600 hover:bg-red-700 focus:outline-none"
                     >
                       Try Again
                     </button>

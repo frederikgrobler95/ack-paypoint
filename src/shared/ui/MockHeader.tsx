@@ -36,12 +36,12 @@ function MockHeader({
   };
 
   return (
-    <div className="bg-gray-800 text-white py-3 px-4 flex justify-between items-center fixed top-0 left-0 right-0 z-50 h-16">
+    <div className="bg-gray-800 text-neutral-50 py-3 px-4 flex justify-between items-center fixed top-0 left-0 right-0 z-50 h-16">
       <div className="flex items-center">
         {shouldShowBack && (
           <button
             onClick={handleMockAction}
-            className="text-white cursor-default focus:outline-none mr-2 touch-target"
+            className="text-neutral-50 cursor-default focus:outline-none mr-2 touch-target"
             aria-label="Go back (disabled in tutorial)"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -90,7 +90,7 @@ function MockDropdownMenu({ autoOpen = false }: { autoOpen?: boolean }) {
   return (
     <div className="relative">
       <button
-        className="text-white focus:outline-none header-menu-button opacity-50 cursor-not-allowed"
+        className="text-neutral-50 focus:outline-none header-menu-button opacity-50 cursor-not-allowed"
         aria-label="User menu"
         disabled
       >

@@ -92,7 +92,7 @@ function RefundsStep2Page(): React.JSX.Element {
             </p>
             <button
               onClick={() => navigate(-1)}
-              className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md transition duration-200"
+              className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-neutral-50 font-semibold py-2 px-4 rounded-md transition duration-200"
             >
               {t('refundsStep2.goBack')}
             </button>

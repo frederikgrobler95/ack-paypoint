@@ -64,7 +64,7 @@ function SalesStep3PageTutorial() {
           
           <button
             onClick={handleConfirmTransaction}
-            className="confirm-button w-full py-3 px-4 rounded-md font-semibold text-white transition duration-200 bg-green-600 hover:bg-green-700"
+            className="confirm-button w-full py-3 px-4 rounded-md font-semibold text-neutral-50 transition duration-200 bg-green-600 hover:bg-green-700"
           >
             {t('tutorial.sales.step3.confirmTransactionButton')}
           </button>

@@ -44,7 +44,7 @@ function BatchesPage(): React.JSX.Element {
           <div></div>
           <button
             onClick={() => navigate('/admin/qrcodes/batches/create')}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md transition duration-300 ease-in-out"
+            className="bg-indigo-600 hover:bg-indigo-700 text-neutral-50 font-medium py-2 px-4 rounded-md transition duration-300 ease-in-out"
           >
             Create New Batch
           </button>

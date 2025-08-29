@@ -122,7 +122,7 @@ function CheckoutStep3Page(): React.JSX.Element {
       <button
         onClick={handleConfirmCheckout}
         disabled={isCheckoutLoading}
-        className={`w-full py-3 px-4 rounded-md font-semibold text-white transition duration-200 ${
+        className={`w-full py-3 px-4 rounded-md font-semibold text-neutral-50 transition duration-200 ${
           isCheckoutLoading
             ? 'bg-gray-400 cursor-not-allowed'
             : 'bg-green-600 hover:bg-green-700'

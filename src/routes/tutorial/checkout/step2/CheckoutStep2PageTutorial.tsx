@@ -145,7 +145,7 @@ function CheckoutStep2PageTutorial() {
         
         <button
           onClick={handleNext}
-          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-md transition duration-200"
+          className="w-full bg-indigo-600 hover:bg-indigo-700 text-neutral-50 font-semibold py-3 px-4 rounded-md transition duration-200"
         >
           {t('tutorial.checkout.step2.nextButton')}
         </button>

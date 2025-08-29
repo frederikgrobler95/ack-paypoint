@@ -51,7 +51,7 @@ function RegistrationStep3Page(): React.JSX.Element {
             </p>
             <button
               onClick={() => navigate('/registration/step1')}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md transition duration-200"
+              className="bg-indigo-600 hover:bg-indigo-700 text-neutral-50 font-semibold py-2 px-4 rounded-md transition duration-200"
             >
               {t('registration.step3.button.startOver')}
             </button>
@@ -87,7 +87,7 @@ function RegistrationStep3Page(): React.JSX.Element {
       <button
        onClick={handleConfirmRegistration}
        disabled={isPending}
-       className={`w-full py-3 px-4 rounded-md font-semibold text-white transition duration-200 ${
+       className={`w-full py-3 px-4 rounded-md font-semibold text-neutral-50 transition duration-200 ${
          isPending
            ? 'bg-gray-400 cursor-not-allowed'
            : 'bg-green-600 hover:bg-green-700'

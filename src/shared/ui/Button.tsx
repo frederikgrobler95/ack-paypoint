@@ -24,16 +24,16 @@ const Button: React.FC<ButtonProps> = ({
   // Variant classes based on design system with enhanced states
   switch (variant) {
     case 'primary':
-      baseClasses += 'bg-blue-600 text-white shadow-md hover:bg-blue-700 focus:ring-blue-500 focus:ring-offset-blue-100 active:bg-blue-800 active:shadow-inner disabled:bg-gray-300 disabled:text-gray-500 disabled:shadow-none disabled:opacity-70 ';
+      baseClasses += 'bg-blue-600 text-neutral-50 shadow-md hover:bg-blue-700 focus:ring-blue-500 focus:ring-offset-blue-100 active:bg-blue-800 active:shadow-inner disabled:bg-gray-300 disabled:text-gray-500 disabled:shadow-none disabled:opacity-70 ';
       break;
     case 'secondary':
       baseClasses += 'bg-gray-200 text-gray-700 hover:bg-gray-300 focus:ring-gray-500 focus:ring-offset-gray-100 active:bg-gray-400 active:shadow-inner disabled:bg-gray-100 disabled:text-gray-500 disabled:opacity-70 ';
       break;
     case 'danger':
-      baseClasses += 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 focus:ring-offset-red-100 active:bg-red-800 active:shadow-inner disabled:bg-gray-300 disabled:text-gray-500 disabled:opacity-70 ';
+      baseClasses += 'bg-red-600 text-neutral-50 hover:bg-red-700 focus:ring-red-500 focus:ring-offset-red-100 active:bg-red-800 active:shadow-inner disabled:bg-gray-300 disabled:text-gray-500 disabled:opacity-70 ';
       break;
     default:
-      baseClasses += 'bg-blue-600 text-white shadow-md hover:bg-blue-700 focus:ring-blue-500 focus:ring-offset-blue-100 active:bg-blue-800 active:shadow-inner disabled:bg-gray-300 disabled:text-gray-500 disabled:shadow-none disabled:opacity-70 ';
+      baseClasses += 'bg-blue-600 text-neutral-50 shadow-md hover:bg-blue-700 focus:ring-blue-500 focus:ring-offset-blue-100 active:bg-blue-800 active:shadow-inner disabled:bg-gray-300 disabled:text-gray-500 disabled:shadow-none disabled:opacity-70 ';
   }
 
   // Size classes based on design system with proper touch targets

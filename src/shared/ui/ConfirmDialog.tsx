@@ -33,7 +33,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           </button>
           <button
             onClick={onConfirm}
-            className={`px-4 py-2 rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+            className={`px-4 py-2 rounded-md shadow-sm text-sm font-medium text-neutral-50 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
               isDanger 
                 ? 'bg-red-600 hover:bg-red-700 focus:ring-red-500' 
                 : 'bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500'

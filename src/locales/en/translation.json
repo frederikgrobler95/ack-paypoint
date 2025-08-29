@@ -13,6 +13,12 @@
   "tutorial.sales.complete.continueToRefundsButton": "Continue to Refunds Tutorial",
   "tutorial.sales.complete.restartSalesTutorialButton": "Restart Sales Tutorial"
 ,
+  "tutorial.registration.complete.title": "Registration Tutorial Complete",
+  "tutorial.registration.complete.congratulationsMessage": "Congratulations! You have successfully completed the registration tutorial. ",
+  "tutorial.registration.complete.knowledgeConfirmation": "You now have the basic knowledge to register new customers.",
+  "tutorial.registration.complete.restartTutorialButton": "Restart Registration Tutorial",
+  "tutorial.registration.complete.restartPrompt": "Want to practice more? Restart the tutorial anytime."
+,
   "tutorial.refunds.step4.confirmationScreenContent": "This is the confirm refund screen showing all the details of the refund transaction.",
   "tutorial.refunds.step4.confirmButtonContent": "Click this button to confirm and process the refund transaction."
 ,

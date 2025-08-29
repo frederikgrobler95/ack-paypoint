@@ -74,7 +74,7 @@ const MobileOptimizedError = ({ error }: { error: Error }) => (
     </p>
     <button
       onClick={() => window.location.reload()}
-      className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+      className="bg-indigo-600 text-neutral-50 px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
     >
       Retry
     </button>

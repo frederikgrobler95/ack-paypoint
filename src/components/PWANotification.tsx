@@ -9,7 +9,7 @@ export function PWANotification() {
   }
 
   return (
-    <div className="fixed top-4 right-4 bg-indigo-600 text-white p-4 rounded-lg shadow-lg z-50 max-w-md">
+    <div className="fixed top-4 right-4 bg-indigo-600 text-neutral-50 p-4 rounded-lg shadow-lg z-50 max-w-md">
       <div className="flex justify-between items-start">
         <div>
           {offlineReady ? (
@@ -23,7 +23,7 @@ export function PWANotification() {
         </div>
         <button 
           onClick={close}
-          className="text-indigo-200 hover:text-white ml-4"
+          className="text-indigo-200 hover:text-neutral-50 ml-4"
           aria-label="Close notification"
         >
           &times;
@@ -40,7 +40,7 @@ export function PWANotification() {
           </button>
           <button
             onClick={close}
-            className="bg-indigo-700 text-white px-3 py-1 rounded text-sm font-medium hover:bg-indigo-800"
+            className="bg-indigo-700 text-neutral-50 px-3 py-1 rounded text-sm font-medium hover:bg-indigo-800"
           >
             Later
           </button>

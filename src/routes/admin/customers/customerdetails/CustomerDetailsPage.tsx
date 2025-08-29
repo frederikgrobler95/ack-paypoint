@@ -114,7 +114,7 @@ function CustomerDetailsPage(): React.JSX.Element {
           {customer && (
             <button
               onClick={() => navigate(`/admin/customers/reissue-qr-screen/${id}`)}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md transition duration-300 ease-in-out"
+              className="bg-indigo-600 hover:bg-indigo-700 text-neutral-50 font-medium py-2 px-4 rounded-md transition duration-300 ease-in-out"
             >
               Reissue QR Code
             </button>

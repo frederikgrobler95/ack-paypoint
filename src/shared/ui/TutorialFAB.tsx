@@ -57,7 +57,7 @@ const TutorialFAB: React.FC<TutorialFABProps> = ({
       {/* Exit Tutorial Button */}
       <button
         onClick={handleTutorialExit}
-        className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-3 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
+        className="bg-gray-600 hover:bg-gray-700 text-neutral-50 font-bold py-3 px-3 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
         title="Exit Tutorial"
       >
         <span className="text-lg">✕</span>
@@ -66,7 +66,7 @@ const TutorialFAB: React.FC<TutorialFABProps> = ({
       {/* Main FAB Button */}
       <button
         onClick={onClick}
-        className={`${getColorClasses()} text-white font-bold py-4 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105`}
+        className={`${getColorClasses()} text-neutral-50 font-bold py-4 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105`}
       >
         {icon}
       </button>

@@ -33,7 +33,7 @@ const TutorialInfo: React.FC<TutorialInfoProps> = ({
         </div>
         <button
           onClick={onStart}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 ease-in-out"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-neutral-50 font-bold py-3 px-4 rounded-lg transition duration-300 ease-in-out"
         >
           {t('tutorial.info.startTutorialButton')}
         </button>

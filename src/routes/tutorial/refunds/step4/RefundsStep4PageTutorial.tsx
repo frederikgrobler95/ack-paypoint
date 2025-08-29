@@ -85,7 +85,7 @@ function RefundsStep4PageTutorial() {
         <div className="mt-auto">
           <button
             onClick={handleConfirmRefund}
-            className="confirm-refund-button w-full py-3 px-4 rounded-md text-white font-semibold transition duration-200 bg-indigo-600 hover:bg-indigo-700"
+            className="confirm-refund-button w-full py-3 px-4 rounded-md text-neutral-50 font-semibold transition duration-200 bg-indigo-600 hover:bg-indigo-700"
           >
             {t('tutorial.refunds.step4.completeTutorialButton')}
           </button>

@@ -116,7 +116,7 @@ function StallStatsPage(): React.JSX.Element {
         <button
           onClick={handleExportReport}
           disabled={isCreatingReport}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md transition duration-300 ease-in-out disabled:opacity-50"
+          className="bg-indigo-600 hover:bg-indigo-700 text-neutral-50 font-medium py-2 px-4 rounded-md transition duration-300 ease-in-out disabled:opacity-50"
         >
           {isCreatingReport ? 'Generating...' : 'Export Report'}
         </button>

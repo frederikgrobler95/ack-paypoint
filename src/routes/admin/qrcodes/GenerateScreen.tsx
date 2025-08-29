@@ -130,7 +130,7 @@ function GenerateScreen(): React.JSX.Element {
           <div></div>
           <button
             onClick={() => navigate('/admin/qrcodes')}
-            className="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-md transition duration-300 ease-in-out"
+            className="bg-gray-500 hover:bg-gray-600 text-neutral-50 font-medium py-2 px-4 rounded-md transition duration-300 ease-in-out"
           >
             Back to QR Codes
           </button>
@@ -190,7 +190,7 @@ function GenerateScreen(): React.JSX.Element {
               className={`py-2 px-6 rounded-md font-medium transition duration-300 ${
                 isProcessing || !file
                   ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                  : 'bg-indigo-600 hover:bg-indigo-700 text-neutral-50'
               }`}
             >
               {isProcessing ? 'Generating...' : 'Generate QR Codes'}
@@ -202,7 +202,7 @@ function GenerateScreen(): React.JSX.Element {
               className={`py-2 px-6 rounded-md font-medium transition duration-300 ${
                 isProcessing
                   ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-gray-500 hover:bg-gray-600 text-white'
+                  : 'bg-gray-500 hover:bg-gray-600 text-neutral-50'
               }`}
             >
               Reset

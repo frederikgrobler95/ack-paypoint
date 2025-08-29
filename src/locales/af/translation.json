@@ -280,6 +280,12 @@
   "tutorial.sales.complete.continueToRefundsButton": "Gaan voort na Terugbetalings-tutoriaal",
   "tutorial.sales.complete.restartSalesTutorialButton": "Herbegin Verkope-tutoriaal"
 ,
+  "tutorial.registration.complete.title": "Registrasie-tutoriaal Voltooi",
+  "tutorial.registration.complete.congratulationsMessage": "Baie geluk! Jy het die registrasie-tutoriaal suksesvol voltooi. ",
+  "tutorial.registration.complete.knowledgeConfirmation": "Jy het nou die basiese kennis om nuwe kliënte te registreer.",
+  "tutorial.registration.complete.restartTutorialButton": "Herbegin Registrasie-tutoriaal",
+  "tutorial.registration.complete.restartPrompt": "Wil jy meer oefen? Herbegin die tutoriaal enige tyd."
+,
   "tutorial.refunds.step4.confirmationScreenContent": "Hierdie is die bevestig terugbetaling skerm wat al die besonderhede van die terugbetalingstransaksie wys.",
   "tutorial.refunds.step4.confirmButtonContent": "Klik hierdie knoppie om die terugbetalingstransaksie te bevestig en te verwerk."
 ,

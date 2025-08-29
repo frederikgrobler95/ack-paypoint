@@ -18,7 +18,7 @@ const PaymentActivityCard: React.FC<{ payment: Payment }> = ({ payment }) => {
     : 'N/A';
   
   return (
-    <Card className="p-3 mb-2 grid grid-cols-12 gap-2 items-center elevation-1 animate-fade-in" role="listitem">
+    <Card className="p-3 mb-2 grid  gap-2 items-center elevation-1 animate-fade-in" role="listitem">
       <div className="col-span-3 flex justify-start">
         <div className="px-1.5 py-0.5 rounded text-xs font-semibold bg-green-100 text-green-800" aria-label="Payment">
           Pay

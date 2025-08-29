@@ -54,7 +54,7 @@ const AmountKeypad: React.FC<AmountKeypadProps> = ({
       </div>
       <div className="mt-2">
         <button
-          className={`w-full py-3 rounded-lg font-bold ${submitDisabled ? 'bg-gray-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800'} text-white touch-target-lg`}
+          className={`w-full py-3 rounded-lg font-bold ${submitDisabled ? 'bg-gray-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800'} text-neutral-50 touch-target-lg`}
           onClick={onSubmitPress}
           disabled={submitDisabled}
         >
