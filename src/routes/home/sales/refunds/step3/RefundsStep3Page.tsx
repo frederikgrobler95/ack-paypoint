@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import AmountKeypad from '../../../../../shared/ui/AmountKeypad';
 import { useTransaction } from '../../../../../queries/transactions';
@@ -8,11 +8,9 @@ import { FlowContainer } from '@/shared/ui';
 import { useFlowStore } from '@/shared/stores/flowStore';
 function RefundsStep3Page(): React.JSX.Element {
   const navigate = useNavigate();
-  const location = useLocation();
+  const { flowData } = useFlowStore();
   
-  const { qrCode, idempotencyKey, transactionId: locationTransactionId } = location.state || {};
-  
-  const transactionId = locationTransactionId;
+  const { qrCode, idempotencyKey, transactionId } = flowData;
   
   const { data: transaction, isLoading, isError } = useTransaction(transactionId);
   const [amountString, setAmountString] = useState('0.00');
@@ -141,10 +139,8 @@ function RefundsStep3Page(): React.JSX.Element {
     }
 
     // Mark step 3 as complete
-    useFlowStore.getState().setFlowData({ step: 3 });
-    navigate('/sales/refunds/refundsstep4', {
-      state: { qrCode, idempotencyKey, transactionId, amountCents }
-    });
+    useFlowStore.getState().setFlowData({ step: 3, amountCents });
+    navigate('/sales/refunds/refundsstep4');
   };
   
   const { t } = useTranslation();

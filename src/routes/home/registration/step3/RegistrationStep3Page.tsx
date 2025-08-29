@@ -1,5 +1,5 @@
 import React from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { QRCodeCanvas } from 'qrcode.react'
 import { useCreateCustomerMutation } from '../../../../mutations/useCreateCustomerMutation'
@@ -10,8 +10,8 @@ import { useFlowStore } from '@/shared/stores/flowStore';
 function RegistrationStep3Page(): React.JSX.Element {
   const { t } = useTranslation();
   const navigate = useNavigate()
-  const location = useLocation()
-  const { name, phone, qrCodeId, qrCodeLabel, idempotencyKey } = location.state || {};
+  const { flowData } = useFlowStore();
+  const { name, phone, qrCodeId, qrCodeLabel, idempotencyKey } = flowData || {};
   const currentStallId = useWorkStore((state) => state.currentStallId)
   
 

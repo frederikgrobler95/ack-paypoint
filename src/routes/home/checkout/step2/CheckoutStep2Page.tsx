@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useQRCodeCustomer } from '../../../../queries/qrCodes'
 import { FlowContainer } from '@/shared/ui';
 import { useFlowStore } from '@/shared/stores/flowStore';
@@ -8,8 +8,8 @@ import { useTranslation } from 'react-i18next';
 
 function CheckoutStep2Page(): React.JSX.Element {
   const navigate = useNavigate()
-  const location = useLocation()
-  const { qrCode, idempotencyKey } = location.state || {};
+  const { flowData } = useFlowStore();
+  const { qrCode, idempotencyKey } = flowData;
   const { t } = useTranslation();
   
   const { data: qrData, isLoading, isError } = useQRCodeCustomer(qrCode)
@@ -26,10 +26,8 @@ function CheckoutStep2Page(): React.JSX.Element {
   
   const handlePaymentMethodSelect = (method: 'card' | 'cash' | 'eft') => {
     // Mark step 2 as complete
-    useFlowStore.getState().setFlowData({ step: 2, method });
-    navigate('/checkout/step3', {
-      state: { qrCode, idempotencyKey, method }
-    });
+    useFlowStore.getState().setFlowData({ step: 2, method, qrCode, idempotencyKey });
+    navigate('/checkout/step3');
   }
   
   // Format amount in Rands

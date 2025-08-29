@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import QrScanner, { QrScannerHandle } from '../../../../shared/ui/QrScanner';
 import { useQRCodeValidationForRegistration, useQRCodeValidationForRegistrationByLabel } from '../../../../queries/qrCodes';
@@ -8,13 +8,13 @@ import { useFlowStore } from '@/shared/stores/flowStore';
 function RegistrationStep2Page(): React.JSX.Element {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const location = useLocation();
-
+  const { flowData } = useFlowStore();
+  
   // Data from previous step
-  const { name, phone, idempotencyKey } = location.state || {};
+  const { name, phone, idempotencyKey } = flowData || {};
   
   
-  const [qrCodeInput, setQrCodeInput] = useState(location.state?.qrCodeId || '');
+  const [qrCodeInput, setQrCodeInput] = useState(flowData?.qrCodeId || '');
   const [error, setError] = useState('');
   const qrScannerRef = useRef<QrScannerHandle>(null);
   const [inputMethod, setInputMethod] = useState<'scan' | 'manual'>('scan');
@@ -70,15 +70,7 @@ function RegistrationStep2Page(): React.JSX.Element {
       setHasNavigated(true);
       // Mark step 2 as complete
       useFlowStore.getState().setFlowData({ step: 2, qrCodeId: qrCodeData.id, qrCodeLabel: qrCodeData.label });
-      navigate('/registration/step3', {
-        state: {
-          name,
-          phone,
-          idempotencyKey,
-          qrCodeId: qrCodeData.id,
-          qrCodeLabel: qrCodeData.label,
-        }
-      });
+      navigate('/registration/step3');
     } else if (isQrCodeError || (qrCodeInput && !isQrCodeLoading && !qrCodeData && !hasNavigated)) {
       setError(t('registration.step2.invalidQrCode'));
     }

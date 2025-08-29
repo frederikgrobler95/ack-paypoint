@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import QrScanner, { QrScannerHandle } from '../../../../shared/ui/QrScanner';
 import { useQRCodeValidationForCheckout, useQRCodeValidationForCheckoutByLabel, useQRCodeCustomer } from '../../../../queries/qrCodes';
@@ -10,11 +10,11 @@ import InfoDialog from '@/shared/ui/InfoDialog';
 
 function CheckoutStep1Page(): React.JSX.Element {
   const navigate = useNavigate();
-  const location = useLocation();
   const { t } = useTranslation();
+  const { flowData } = useFlowStore();
 
-  const [qrCodeInput, setQrCodeInput] = useState(location.state?.qrCode || '');
-  const [idempotencyKey, setIdempotencyKey] = useState(location.state?.idempotencyKey || '');
+  const [qrCodeInput, setQrCodeInput] = useState(flowData.qrCode || '');
+  const [idempotencyKey, setIdempotencyKey] = useState(flowData.idempotencyKey || '');
   const [error, setError] = useState('');
   const qrScannerRef = useRef<QrScannerHandle>(null);
   const [inputMethod, setInputMethod] = useState<'scan' | 'manual'>('scan');
@@ -82,12 +82,7 @@ function CheckoutStep1Page(): React.JSX.Element {
         setHasNavigated(true);
         // Set flow data and mark step 1 as complete
         useFlowStore.getState().setFlowData({ step: 1, qrCode: qrCodeData.id, idempotencyKey });
-        navigate('/checkout/step2', {
-          state: {
-            qrCode: qrCodeData.id,
-            idempotencyKey,
-          }
-        });
+        navigate('/checkout/step2');
       }
     } else if (isQrCodeError || (qrCodeInput && !isQrCodeLoading && !qrCodeData && !hasNavigated)) {
       setError(t('checkout.step1.error.invalidQrCode'));

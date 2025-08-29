@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
 import QrScanner, { QrScannerHandle } from '../../../../../shared/ui/QrScanner';
@@ -9,10 +9,10 @@ import { useFlowStore } from '@/shared/stores/flowStore';
 function RefundsStep1Page(): React.JSX.Element {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const location = useLocation();
-
-  const [qrCodeInput, setQrCodeInput] = useState(location.state?.qrCode || '');
-  const [idempotencyKey, setIdempotencyKey] = useState(location.state?.idempotencyKey || '');
+  const { flowData } = useFlowStore();
+  
+  const [qrCodeInput, setQrCodeInput] = useState(flowData.qrCode || '');
+  const [idempotencyKey, setIdempotencyKey] = useState(flowData.idempotencyKey || '');
   const [error, setError] = useState('');
   const qrScannerRef = useRef<QrScannerHandle>(null);
   const [inputMethod, setInputMethod] = useState<'scan' | 'manual'>('scan');
@@ -80,12 +80,7 @@ function RefundsStep1Page(): React.JSX.Element {
         setIsManualSubmit(false); // Reset the flag
         // Set flow data and mark step 1 as complete
         useFlowStore.getState().setFlowData({ step: 1, qrCode: qrCodeData.id, idempotencyKey });
-        navigate('/sales/refunds/refundsstep2', {
-          state: {
-            qrCode: qrCodeData.id,
-            idempotencyKey,
-          }
-        });
+        navigate('/sales/refunds/refundsstep2');
       }
     } else if (isQrCodeError || (qrCodeInput && !isQrCodeLoading && !qrCodeData && !hasNavigated)) {
       setError(t('refundsStep1.invalidQrCode'));

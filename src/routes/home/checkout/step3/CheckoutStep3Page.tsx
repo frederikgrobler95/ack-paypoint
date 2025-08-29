@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useQRCodeCustomer } from '../../../../queries/qrCodes';
 import { useCreatePaymentMutation } from '@/mutations/useCreatePaymentMutation';
 import { useAuth } from '@/contexts/AuthContext';
@@ -11,8 +11,8 @@ import { useTranslation } from 'react-i18next';
 
 function CheckoutStep3Page(): React.JSX.Element {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { qrCode, idempotencyKey, method: paymentMethod } = location.state || {};
+  const { flowData } = useFlowStore();
+  const { qrCode, idempotencyKey, method: paymentMethod } = flowData;
   const { t } = useTranslation();
   
   const { data: qrData, isLoading: isQrLoading, isError: isQrError } = useQRCodeCustomer(qrCode);

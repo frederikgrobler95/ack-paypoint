@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQRCodeCustomer } from '../../../../../queries/qrCodes';
 import { useTransaction } from '../../../../../queries/transactions';
@@ -11,15 +11,11 @@ import { FlowContainer } from '@/shared/ui';
 import { useFlowStore } from '@/shared/stores/flowStore';
 function RefundsStep4Page(): React.JSX.Element {
   const navigate = useNavigate();
-  const location = useLocation();
   const { showToast } = useToast();
+  const { flowData } = useFlowStore();
   
-  // Get URL parameters
-  const { qrCode: locationQrCode, idempotencyKey, transactionId: locationTransactionId, amountCents: locationRefundAmount } = location.state || {};
-  
-  const qrCode = locationQrCode;
-  const transactionId = locationTransactionId;
-  const refundAmount = locationRefundAmount;
+  // Get flow data
+  const { qrCode, idempotencyKey, transactionId, amountCents: refundAmount } = flowData;
   
   // Get current operator information
   const { assignment } = useMyAssignment();

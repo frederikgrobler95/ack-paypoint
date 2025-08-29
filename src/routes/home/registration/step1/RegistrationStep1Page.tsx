@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import { useTranslation } from 'react-i18next';
 import { FlowContainer } from '@/shared/ui';
@@ -7,12 +7,12 @@ import { useFlowStore } from '@/shared/stores/flowStore';
 function RegistrationStep1Page(): React.JSX.Element {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const location = useLocation();
-
-  // Initialize state from location state or with empty values
-  const [name, setName] = useState(location.state?.name || '');
-  const [phoneNumber, setPhoneNumber] = useState(location.state?.phone || '');
-  const [idempotencyKey, setIdempotencyKey] = useState(location.state?.idempotencyKey || '');
+  const { flowData } = useFlowStore();
+  
+  // Initialize state from flowData or with empty values
+  const [name, setName] = useState(flowData.name || '');
+  const [phoneNumber, setPhoneNumber] = useState(flowData.phone || '');
+  const [idempotencyKey, setIdempotencyKey] = useState(flowData.idempotencyKey || '');
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -39,10 +39,8 @@ function RegistrationStep1Page(): React.JSX.Element {
     
     // Set flow data and mark step 1 as complete
     useFlowStore.getState().setFlowData({ step: 1, name, phone: phoneNumber, idempotencyKey });
-    // Navigate to the next step with state
-    navigate('/registration/step2', {
-      state: { name, phone: phoneNumber, idempotencyKey }
-    });
+    // Navigate to the next step
+    navigate('/registration/step2');
   };
 
   return (
