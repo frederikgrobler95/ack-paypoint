@@ -172,8 +172,8 @@ function App(): React.JSX.Element {
       {location.pathname.startsWith('/tutorial') ? <MockHeader autoOpenDropdown={location.pathname === '/tutorial/refunds'} /> : <Header />}
       <PWANotification />
       
-      <div className={`pt-16 ${location.pathname.startsWith('/tutorial') ? 'pb-4' : 'pb-16'}`}> {/* Adjust padding based on tutorial mode */}
-        <Routes>
+      <div className={`pt-safe-header ${location.pathname.startsWith('/tutorial') ? 'pb-20' : 'pb-20'} container-mobile`}> {/* Dynamic padding with safe area support and responsive container */}
+         <Routes>
           {/* Tutorial Routes - Always accessible */}
           <Route path="/tutorial/sales" element={<SalesPageTutorial />} />
           <Route path="/tutorial/sales/step1" element={<SalesStep1PageTutorial />} />

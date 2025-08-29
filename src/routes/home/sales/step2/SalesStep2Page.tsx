@@ -116,8 +116,8 @@ function SalesStep2Page(): React.JSX.Element {
 
   return (
     <>
-      <FlowContainer withNoHeaderOffset withBottomOffset>
-        <div className="bg-white rounded-lg shadow-md p-6">
+      <FlowContainer withNoHeaderOffset withBottomOffset showCancelButton>
+        <div className="bg-white rounded-lg shadow-md p-6 flex flex-col h-full">
           
           <div className="text-center mb-6">
             <div className="text-4xl font-bold text-gray-900 mb-2">
@@ -126,14 +126,16 @@ function SalesStep2Page(): React.JSX.Element {
         
           </div>
           
-          <AmountKeypad
-            onNumberPress={handleNumberPress}
-            onBackspacePress={handleBackspacePress}
-            onClearPress={handleClearPress}
-            onSubmitPress={handleSubmitPress}
-            submitDisabled={parseFloat(amountString) <= 0}
-            submitText={t('salesStep2.confirmAmount')}
-          />
+          <div className="flex-grow flex flex-col">
+            <AmountKeypad
+              onNumberPress={handleNumberPress}
+              onBackspacePress={handleBackspacePress}
+              onClearPress={handleClearPress}
+              onSubmitPress={handleSubmitPress}
+              submitDisabled={parseFloat(amountString) <= 0}
+              submitText={t('salesStep2.confirmAmount')}
+            />
+          </div>
         </div>
       </FlowContainer>
     </>

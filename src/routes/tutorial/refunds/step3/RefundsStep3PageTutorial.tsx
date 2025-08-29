@@ -148,9 +148,9 @@ function RefundsStep3PageTutorial() {
     <FlowContainer withNoHeaderOffset withBottomOffset>
       <TutorialTour steps={refundsStep3TutorialSteps} />
       
-      <div className="flex-1 flex flex-col items-center justify-center p-4">
+      <div className="flex-1 flex flex-col h-full p-4">
         
-        <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6 mb-6 refund-amount-display">
+        <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6 mb-4 flex-shrink-0 refund-amount-display">
           <div className="text-center mb-4">
             <p className="text-gray-600">{t('tutorial.refunds.step3.originalTransactionAmountLabel')}</p>
             <p className="text-3xl font-bold text-indigo-600">R{formatAmount(mockRefundsData.originalAmountCents)}</p>
@@ -168,14 +168,13 @@ function RefundsStep3PageTutorial() {
           )}
         </div>
         
-        <div className="w-full max-w-md amount-keypad">
+        <div className="w-full max-w-md flex-grow flex flex-col amount-keypad">
           <AmountKeypad
             onNumberPress={handleNumberPress}
             onBackspacePress={handleBackspacePress}
             onClearPress={handleClearPress}
             onSubmitPress={handleSubmitPress}
             submitDisabled={amountCents <= 0 || amountCents > mockRefundsData.originalAmountCents}
-          
           />
         </div>
       </div>

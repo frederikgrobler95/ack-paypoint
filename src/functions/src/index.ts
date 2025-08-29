@@ -20,6 +20,7 @@ import { createTransaction } from "./createTransaction";
 import { onPaymentCreated } from "./onPaymentCreated";
 import { adminCreateCustomersReportPdf } from "./adminCreateCustomersReportPdf";
 import {adminCreateStallsReportPdf} from "./adminCreateStallsReportPdf";
+import { adminSignOutAllUsers } from "./adminSignOutAllUsers";
 
 // Start writing functions
 // https://firebase.google.com/docs/functions/typescript
@@ -38,5 +39,6 @@ export {
   createTransaction,
   onPaymentCreated,
   adminCreateCustomersReportPdf,
-    adminCreateStallsReportPdf
+  adminCreateStallsReportPdf,
+  adminSignOutAllUsers
 };

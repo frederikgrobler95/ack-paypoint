@@ -46,14 +46,14 @@ function RegistrationStep1Page(): React.JSX.Element {
   };
 
   return (
-    <FlowContainer withNoHeaderOffset withBottomOffset>
+    <FlowContainer withNoHeaderOffset withBottomOffset showCancelButton>
       {/* <div className="bg-white rounded-lg shadow-md p-6 mb-6">
         <h2 className="text-lg font-semibold text-gray-700 mb-2">Customer Information</h2>
         <p className="text-gray-600">Enter the customer's basic information to begin registration.</p>
       </div> */}
       
       <form onSubmit={handleNext}>
-        <div className="bg-white rounded-lg shadow-sm p-4 mb-3">
+        <div className="bg-white rounded-lg shadow-sm p-4 mb-2">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-lg font-bold text-gray-900">{t('registration.step1.label.name')}</p>
@@ -74,7 +74,7 @@ function RegistrationStep1Page(): React.JSX.Element {
           </div>
         </div>
         
-        <div className="bg-white rounded-lg shadow-sm p-4 mb-3">
+        <div className="bg-white rounded-lg shadow-sm p-4 mb-2">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-lg font-bold text-gray-900">{t('registration.step1.label.phoneNumber')}</p>

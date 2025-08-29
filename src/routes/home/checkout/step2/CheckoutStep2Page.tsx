@@ -4,11 +4,13 @@ import { useQRCodeCustomer } from '../../../../queries/qrCodes'
 import { FlowContainer } from '@/shared/ui';
 import { useFlowStore } from '@/shared/stores/flowStore';
 import InfoDialog from '@/shared/ui/InfoDialog';
+import { useTranslation } from 'react-i18next';
 
 function CheckoutStep2Page(): React.JSX.Element {
   const navigate = useNavigate()
   const location = useLocation()
   const { qrCode, idempotencyKey } = location.state || {};
+  const { t } = useTranslation();
   
   const { data: qrData, isLoading, isError } = useQRCodeCustomer(qrCode)
   const [showDialog, setShowDialog] = useState(false);
@@ -31,9 +33,9 @@ function CheckoutStep2Page(): React.JSX.Element {
   if (isLoading) {
     return (
       <FlowContainer withNoHeaderOffset withBottomOffset>
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">Checkout - Step 2</h1>
+        <h1 className="text-2xl font-bold text-gray-800 mb-6">{t('checkout.step2.title')}</h1>
         <div className="bg-white rounded-lg shadow-md p-6">
-          <p className="text-gray-600">Loading customer details...</p>
+          <p className="text-gray-600">{t('checkout.step2.loadingCustomerDetails')}</p>
         </div>
       </FlowContainer>
     )
@@ -42,9 +44,9 @@ function CheckoutStep2Page(): React.JSX.Element {
   if (isError || !qrData) {
     return (
       <FlowContainer withNoHeaderOffset withBottomOffset>
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">Checkout - Step 2</h1>
+        <h1 className="text-2xl font-bold text-gray-800 mb-6">{t('checkout.step2.title')}</h1>
         <div className="bg-white rounded-lg shadow-md p-6">
-          <p className="text-red-600">Error loading customer details. Please try again.</p>
+          <p className="text-red-600">{t('checkout.step2.error.loadingCustomerDetails')}</p>
         </div>
       </FlowContainer>
     )
@@ -61,25 +63,25 @@ function CheckoutStep2Page(): React.JSX.Element {
   
   return (
     <>
-    <FlowContainer withNoHeaderOffset withBottomOffset>
+    <FlowContainer withNoHeaderOffset withBottomOffset showCancelButton>
      
       
       {/* Customer Details */}
-      <div className="bg-white rounded-lg shadow-md p-4 mb-4">
-        <h2 className="text-lg font-semibold text-gray-700 mb-2">Customer Details</h2>
+      <div className="bg-white rounded-lg shadow-md p-4 mb-3">
+        <h2 className="text-lg font-semibold text-gray-700 mb-2">{t('checkout.step2.customerDetailsTitle')}</h2>
         <div className="flex justify-between items-center mb-2">
-          <p className="text-gray-600">Name</p>
+          <p className="text-gray-600">{t('checkout.step2.nameLabel')}</p>
           <p className="text-lg font-semibold text-gray-900">{customer.name}</p>
         </div>
         <div className="flex justify-between items-center">
-          <p className="text-gray-600">Outstanding Amount</p>
+          <p className="text-gray-600">{t('checkout.step2.outstandingAmountLabel')}</p>
           <p className="text-xl font-bold text-red-600">{formatAmount(customer.Account.balanceCents)}</p>
         </div>
       </div>
 
       {/* Payment Method */}
-      <div className="bg-white rounded-lg shadow-md p-4">
-        <h2 className="text-lg font-semibold text-gray-700 mb-2">Payment Method</h2>
+      <div className="bg-white rounded-lg shadow-md p-4 mt-3">
+        <h2 className="text-lg font-semibold text-gray-700 mb-2">{t('checkout.step2.paymentMethodTitle')}</h2>
         
         <div className="space-y-2">
           <button
@@ -87,9 +89,9 @@ function CheckoutStep2Page(): React.JSX.Element {
             className="w-full bg-white border border-gray-300 rounded-lg shadow-sm p-3 text-left hover:bg-gray-50 transition duration-200"
           >
             <div className="flex items-center justify-between">
-              <p className="text-lg font-bold text-gray-900">Card</p>
+              <p className="text-lg font-bold text-gray-900">{t('checkout.step2.cardLabel')}</p>
               <div className="text-lg font-semibold text-blue-600">
-                Select
+                {t('checkout.step2.selectButton')}
               </div>
             </div>
           </button>
@@ -99,9 +101,9 @@ function CheckoutStep2Page(): React.JSX.Element {
             className="w-full bg-white border border-gray-300 rounded-lg shadow-sm p-3 text-left hover:bg-gray-50 transition duration-200"
           >
             <div className="flex items-center justify-between">
-              <p className="text-lg font-bold text-gray-900">Cash</p>
+              <p className="text-lg font-bold text-gray-900">{t('checkout.step2.cashLabel')}</p>
               <div className="text-lg font-semibold text-blue-600">
-                Select
+                {t('checkout.step2.selectButton')}
               </div>
             </div>
           </button>
@@ -111,9 +113,9 @@ function CheckoutStep2Page(): React.JSX.Element {
             className="w-full bg-white border border-gray-300 rounded-lg shadow-sm p-3 text-left hover:bg-gray-50 transition duration-200"
           >
             <div className="flex items-center justify-between">
-              <p className="text-lg font-bold text-gray-900">EFT</p>
+              <p className="text-lg font-bold text-gray-900">{t('checkout.step2.eftLabel')}</p>
               <div className="text-lg font-semibold text-blue-600">
-                Select
+                {t('checkout.step2.selectButton')}
               </div>
             </div>
           </button>
@@ -122,8 +124,8 @@ function CheckoutStep2Page(): React.JSX.Element {
     </FlowContainer>
     {showDialog && (
       <InfoDialog
-        title="No Outstanding Amount"
-        message="This customer has no outstanding amount to pay."
+        title={t('checkout.step2.noOutstandingAmountTitle')}
+        message={t('checkout.step2.noOutstandingAmountMessage')}
         onConfirm={() => navigate('/')}
       />
     )}

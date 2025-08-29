@@ -1,6 +1,6 @@
 import { useQuery, useSuspenseQuery, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import { fetchDocument, fetchDocumentsPaginated } from '../services/queryService';
-import { where } from 'firebase/firestore';
+import { where, orderBy } from 'firebase/firestore';
 import { Registration } from '../shared/contracts/registration';
 
 // Query keys for registration-related queries
@@ -23,27 +23,27 @@ export const fetchRegistration = async (id: string): Promise<Registration | null
 
 // Fetch registrations by operator name with pagination
 export const fetchRegistrationsByOperator = async (operatorName: string, pageSize: number = 20, lastDocument?: any): Promise<{ data: Registration[]; lastDoc: any }> => {
-  return fetchDocumentsPaginated<Registration>('registrations', pageSize, lastDocument, [where('operatorName', '==', operatorName)]);
+  return fetchDocumentsPaginated<Registration>('registrations', pageSize, lastDocument, [where('operatorName', '==', operatorName)], 'createdAt');
 };
 
 // Fetch registrations by customer ID with pagination
 export const fetchRegistrationsByCustomer = async (customerId: string, pageSize: number = 20, lastDocument?: any): Promise<{ data: Registration[]; lastDoc: any }> => {
-  return fetchDocumentsPaginated<Registration>('registrations', pageSize, lastDocument, [where('customerId', '==', customerId)]);
+  return fetchDocumentsPaginated<Registration>('registrations', pageSize, lastDocument, [where('customerId', '==', customerId)], 'createdAt');
 };
 
 // Fetch registrations by QR code ID with pagination
 export const fetchRegistrationsByQRCode = async (qrCodeId: string, pageSize: number = 20, lastDocument?: any): Promise<{ data: Registration[]; lastDoc: any }> => {
-  return fetchDocumentsPaginated<Registration>('registrations', pageSize, lastDocument, [where('qrCodeId', '==', qrCodeId)]);
+  return fetchDocumentsPaginated<Registration>('registrations', pageSize, lastDocument, [where('qrCodeId', '==', qrCodeId)], 'createdAt');
 };
 
 // Fetch registrations by stall ID with pagination
 export const fetchRegistrationsByStall = async (stallId: string, pageSize: number = 20, lastDocument?: any): Promise<{ data: Registration[]; lastDoc: any }> => {
-  return fetchDocumentsPaginated<Registration>('registrations', pageSize, lastDocument, [where('stallId', '==', stallId)]);
+  return fetchDocumentsPaginated<Registration>('registrations', pageSize, lastDocument, [where('stallId', '==', stallId)], 'createdAt');
 };
 
 // Fetch all registrations with pagination
 export const fetchRegistrations = async (pageSize: number = 20, lastDocument?: any) => {
-  return fetchDocumentsPaginated<Registration>('registrations', pageSize, lastDocument);
+  return fetchDocumentsPaginated<Registration>('registrations', pageSize, lastDocument, [], 'createdAt');
 };
 
 // React Query hooks for registrations

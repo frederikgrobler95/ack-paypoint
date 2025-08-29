@@ -6,6 +6,9 @@ body {
   font-family: 'Inter', sans-serif;
   color: #1A202C; /* Text Primary */
   background-color: #F7FAFC; /* Background Light */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior-y: contain; /* Prevent overscroll on mobile */
 }
 
 /* Mobile-first responsive utilities */
@@ -23,6 +26,15 @@ body {
     padding-bottom: env(safe-area-inset-bottom);
   }
   
+  /* Header offset utilities */
+  .pt-header {
+    padding-top: 4rem; /* h-16 = 4rem = 64px */
+  }
+  
+  .pt-safe-header {
+    padding-top: calc(env(safe-area-inset-top) + 4rem); /* safe area + h-16 */
+  }
+  
   /* Touch target minimum sizes for better mobile usability */
   .touch-target {
     min-height: 44px;
@@ -32,6 +44,160 @@ body {
   .touch-target-lg {
     min-height: 48px;
     min-width: 48px;
+  }
+  
+  /* Native-like elevation utilities */
+  .elevation-1 {
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  }
+  
+  .elevation-2 {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  }
+  
+  .elevation-3 {
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  }
+  
+  .elevation-4 {
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  }
+  
+  /* Native-like card styles - using direct CSS instead of @apply */
+  .card-native {
+    background-color: #ffffff;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    transition: all 0.2s;
+  }
+  
+  .card-native-pressed {
+    transform: scale(0.98);
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  }
+  
+  /* Native-like list item styles */
+  .list-item-native {
+    background-color: #ffffff;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #f7fafc;
+    transition: background-color 0.15s;
+  }
+  
+  .list-item-native:active {
+    background-color: #f9fafb;
+  }
+  
+  .list-item-native-compact {
+    background-color: #ffffff;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid #f7fafc;
+    transition: background-color 0.15s;
+  }
+  
+  .list-item-native-compact:active {
+    background-color: #f9fafb;
+  }
+  
+  .list-item-native:first-child {
+    border-top-left-radius: 0.75rem;
+    border-top-right-radius: 0.75rem;
+  }
+  
+  .list-item-native:last-child {
+    border-bottom-left-radius: 0.75rem;
+    border-bottom-right-radius: 0.75rem;
+    border-bottom: 0;
+  }
+  
+  /* Native-like divider */
+  .divider-native {
+    height: 1px;
+    background-color: #e5e7eb;
+    margin: 0.5rem 0;
+  }
+  
+  /* Native-like header styles */
+  .header-native {
+    background-color: #ffffff;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    padding: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  
+  /* Native-like bottom sheet styles */
+  .bottom-sheet {
+    background-color: #ffffff;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    transition: transform 0.3s;
+  }
+  
+  /* Native-like modal styles */
+  .modal-native {
+    background-color: #ffffff;
+    border-radius: 1rem;
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    margin: 0 1rem;
+    transition: all 0.3s;
+  }
+  
+  /* Native-like input styles */
+  .input-native {
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    transition: all 0.2s;
+  }
+  
+  .input-native:focus {
+    outline: none;
+    ring: 2px solid #3b82f6;
+    border-color: transparent;
+  }
+  
+  /* Native-like button styles */
+  .btn-native {
+    font-weight: 600;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .btn-native:focus {
+    outline: none;
+    ring: 2px solid #3b82f6;
+    ring-offset: 2px;
+  }
+  
+  /* Native-like loading skeleton */
+  .skeleton-native {
+    background-color: #e5e7eb;
+    border-radius: 0.5rem;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  
+  /* Native-like pull to refresh indicator */
+  .pull-to-refresh-indicator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.5rem 0;
+  }
+  
+  /* Native-like swipeable item */
+  .swipeable-item {
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s;
   }
   
   /* Responsive spacing utilities */
@@ -64,6 +230,118 @@ body {
   .text-mobile-body {
     font-size: 0.875rem;
     line-height: 1.25rem;
+  }
+  
+  /* Native-like typography hierarchy */
+  .heading-1 {
+    font-family: 'Inter', sans-serif;
+    font-size: 2rem; /* 32px */
+    font-weight: 700; /* Bold */
+    line-height: 2.5rem; /* 40px */
+    color: #1A202C; /* Text Primary */
+  }
+  
+  .heading-2 {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.5rem; /* 24px */
+    font-weight: 700; /* Bold */
+    line-height: 2rem; /* 32px */
+    color: #1A202C; /* Text Primary */
+  }
+  
+  .heading-3 {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.25rem; /* 20px */
+    font-weight: 600; /* Semi-Bold */
+    line-height: 1.75rem; /* 28px */
+    color: #1A202C; /* Text Primary */
+  }
+  
+  .body-default {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem; /* 16px */
+    font-weight: 400; /* Regular */
+    line-height: 1.5rem; /* 24px */
+    color: #4A5568; /* Text Secondary */
+  }
+  
+  .body-small {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem; /* 14px */
+    font-weight: 400; /* Regular */
+    line-height: 1.25rem; /* 20px */
+    color: #4A5568; /* Text Secondary */
+  }
+  
+  .caption {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem; /* 12px */
+    font-weight: 400; /* Regular */
+    line-height: 1rem; /* 16px */
+    color: #A0AEC0; /* Text Tertiary */
+  }
+  
+  .button-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem; /* 16px */
+    font-weight: 600; /* Semi-Bold */
+    line-height: 1.5rem; /* 24px */
+    color: inherit;
+  }
+  
+  .label-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem; /* 14px */
+    font-weight: 500; /* Medium */
+    line-height: 1.25rem; /* 20px */
+    color: #4A5568; /* Text Secondary */
+  }
+  
+  /* Native-like text alignment utilities */
+  .text-native-left {
+    text-align: left;
+  }
+  
+  .text-native-center {
+    text-align: center;
+  }
+  
+  .text-native-right {
+    text-align: right;
+  }
+  
+  /* Native-like font weight utilities */
+  .font-native-light {
+    font-weight: 300;
+  }
+  
+  .font-native-normal {
+    font-weight: 400;
+  }
+  
+  .font-native-medium {
+    font-weight: 500;
+  }
+  
+  .font-native-semibold {
+    font-weight: 600;
+  }
+  
+  .font-native-bold {
+    font-weight: 700;
+  }
+  
+  /* Native-like line height utilities */
+  .leading-native-tight {
+    line-height: 1.25;
+  }
+  
+  .leading-native-normal {
+    line-height: 1.5;
+  }
+  
+  .leading-native-relaxed {
+    line-height: 1.75;
   }
   
   /* Mobile card styles */
@@ -141,4 +419,96 @@ body {
       max-width: 1280px;
     }
   }
+}
+
+/* Native-like animations */
+@keyframes ripple {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+.animate-ripple {
+  animation: ripple 0.6s linear;
+}
+
+/* Native-like transitions */
+.transition-native {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-native-bounce {
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.transition-native-slow {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-native-fast {
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Native-like haptic feedback simulation */
+.haptic-feedback {
+  animation: haptic-pulse 0.1s ease-in-out;
+}
+
+@keyframes haptic-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.98); }
+  100% { transform: scale(1); }
+}
+
+/* Subtle entrance animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Scale animations for interactive elements */
+.scale-on-press {
+  transition: transform 0.1s ease-in-out;
+}
+
+.scale-on-press:active {
+  transform: scale(0.98);
+}
+
+/* Smooth loading animations */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse-smooth {
+  animation: pulse 1.5s ease-in-out infinite;
 }

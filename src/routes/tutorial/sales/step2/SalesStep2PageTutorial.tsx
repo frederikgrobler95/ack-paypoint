@@ -135,23 +135,24 @@ function SalesStep2PageTutorial() {
     <FlowContainer withHeaderOffset>
       <TutorialTour steps={salesStep2TutorialSteps} />
       
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+      <div className="bg-white rounded-lg shadow-md p-6 mb-6 flex flex-col h-full">
        
-        
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-lg shadow-md p-6 flex-grow flex flex-col">
           <div className="text-center mb-6">
             <div className="text-4xl font-bold text-gray-900 mb-2 amount-display">
               R {amountString}
             </div>
           </div>
           
-          <AmountKeypad
-            onNumberPress={handleNumberPress}
-            onBackspacePress={handleBackspacePress}
-            onClearPress={handleClearPress}
-            onSubmitPress={handleSubmitPress}
-            submitDisabled={parseFloat(amountString) <= 0}
-          />
+          <div className="flex-grow flex flex-col">
+            <AmountKeypad
+              onNumberPress={handleNumberPress}
+              onBackspacePress={handleBackspacePress}
+              onClearPress={handleClearPress}
+              onSubmitPress={handleSubmitPress}
+              submitDisabled={parseFloat(amountString) <= 0}
+            />
+          </div>
         </div>
       </div>
       

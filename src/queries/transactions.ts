@@ -24,7 +24,7 @@ export const fetchTransaction = async (id: string): Promise<Transaction | null> 
 
 // Fetch transactions by stall ID with pagination
 export const fetchTransactionsByStall = async (stallId: string, pageSize: number = 20, lastDocument?: any): Promise<{ data: Transaction[]; lastDoc: any }> => {
-  return fetchDocumentsPaginated<Transaction>('transactions', pageSize, lastDocument, [where('stallId', '==', stallId)]);
+  return fetchDocumentsPaginated<Transaction>('transactions', pageSize, lastDocument, [where('stallId', '==', stallId)], 'createdAt');
 };
 
 // Fetch transactions by operator ID with pagination
@@ -39,17 +39,17 @@ export const fetchTransactionsByCustomer = async (customerId: string, pageSize: 
 
 // Fetch refund transactions
 export const fetchRefundTransactions = async (): Promise<Transaction[]> => {
-  return fetchDocuments<Transaction>('transactions', [where('type', '==', 'refund')]);
+  return fetchDocuments<Transaction>('transactions', [where('type', '==', 'refund'), orderBy('createdAt', 'desc')]);
 };
 
 // Fetch sale transactions
 export const fetchSaleTransactions = async (): Promise<Transaction[]> => {
-  return fetchDocuments<Transaction>('transactions', [where('type', '==', 'sale')]);
+  return fetchDocuments<Transaction>('transactions', [where('type', '==', 'sale'), orderBy('createdAt', 'desc')]);
 };
 
 // Fetch all transactions with pagination
 export const fetchTransactions = async (pageSize: number = 20, lastDocument?: any) => {
-  return fetchDocumentsPaginated<Transaction>('transactions', pageSize, lastDocument);
+  return fetchDocumentsPaginated<Transaction>('transactions', pageSize, lastDocument, [], 'createdAt');
 };
 
 

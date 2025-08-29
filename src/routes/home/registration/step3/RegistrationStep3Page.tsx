@@ -41,7 +41,7 @@ function RegistrationStep3Page(): React.JSX.Element {
   // Error state for missing data
   if (!name || !phone || !qrCodeId || !idempotencyKey) {
     return (
-      <FlowContainer withNoHeaderOffset withBottomOffset>
+      <FlowContainer withNoHeaderOffset withBottomOffset showCancelButton>
         <h1 className="text-2xl font-bold text-gray-800 mb-6">{t('registration.step3.title')}</h1>
         <div className="bg-white rounded-lg shadow-sm p-4 mb-3">
           <div className="text-center">
@@ -83,21 +83,7 @@ function RegistrationStep3Page(): React.JSX.Element {
           <p className="text-lg font-bold text-gray-900">{qrCodeLabel}</p>
         </div>
       </div>
-
-      {/* Loading indicator */}
-      {isPending && (
-        <div className="mb-4 p-3 bg-blue-100 text-blue-700 rounded-md">
-          {t('registration.step3.status.registering')}
-        </div>
-      )}
-
-      {/* Error message */}
-      {isError && (
-        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">
-          {t('registration.step3.error.registrationFailed')} {error?.message || t('unknownError')}
-        </div>
-      )}
-
+      
       <div className="fixed bottom-20 right-6">
         <button
           onClick={handleConfirmRegistration}

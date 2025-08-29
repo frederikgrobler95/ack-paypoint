@@ -2,6 +2,7 @@ import React from 'react';
 import { Timestamp } from 'firebase/firestore';
 import { TransactionType } from '@/shared/contracts/transaction';
 import { timestampToDate } from '@/shared/utils';
+import { Card } from '@/shared/ui';
 
 // Define types for our data
 interface Transaction {
@@ -39,26 +40,26 @@ const StallTransactionCard: React.FC<{ transaction: Transaction }> = ({ transact
   };
   
   return (
-    <div className="bg-white rounded-md shadow-sm p-3 mb-2 grid grid-cols-12 gap-2 items-center">
+    <Card className="p-3 mb-2 grid grid-cols-12 gap-2 items-center elevation-1 animate-fade-in" role="listitem">
       <div className="col-span-3 flex justify-start">
-        <div className={`px-1.5 py-0.5 rounded text-xs font-semibold ${getTypeColor()}`}>
+        <div className={`px-1.5 py-0.5 rounded text-xs font-semibold ${getTypeColor()}`} aria-label={getTypeText()}>
           {getTypeText()}
         </div>
       </div>
       <div className="col-span-6 overflow-hidden">
-        <p className="text-sm font-bold text-gray-900 truncate">{transaction.customerName}</p>
-        <div className="flex items-center text-xs text-gray-500 truncate">
+        <p className="body-small font-bold text-gray-900 truncate">{transaction.customerName}</p>
+        <div className="flex items-center caption text-gray-500 truncate">
           <span className="truncate">{transaction.operatorName}</span>
           <span className="mx-1 flex-shrink-0">•</span>
           <span className="flex-shrink-0">{formattedTime}</span>
         </div>
       </div>
       <div className="col-span-3 flex justify-end">
-        <div className={`text-sm font-semibold ${isRefund ? 'text-red-600' : 'text-green-600'}`}>
+        <div className={`text-sm font-semibold ${isRefund ? 'text-red-600' : 'text-green-600'}`} aria-label={isRefund ? `Refund amount: R${formattedAmount}` : `Sale amount: R${formattedAmount}`}>
           {isRefund ? '-R' : 'R'}{formattedAmount}
         </div>
       </div>
-    </div>
+    </Card>
   );
 };
 

@@ -85,11 +85,11 @@ function RegistrationStep2Page(): React.JSX.Element {
   }, [qrCodeData, isQrCodeError, qrCodeInput, isQrCodeLoading, navigate, name, phone, idempotencyKey, hasNavigated]);
   
   return (
-    <FlowContainer withNoHeaderOffset withBottomOffset>
+    <FlowContainer withNoHeaderOffset withBottomOffset showCancelButton>
       
       {/* QR Scanner Section - Show only when inputMethod is 'scan' */}
       {inputMethod === 'scan' && (
-        <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+        <div className="bg-white rounded-lg shadow-md p-4 mb-4">
           
         
             <QrScanner
@@ -116,7 +116,7 @@ function RegistrationStep2Page(): React.JSX.Element {
       
       {/* Manual Entry - Show only when inputMethod is 'manual' */}
       {inputMethod === 'manual' && (
-        <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+        <div className="bg-white rounded-lg shadow-md p-4 mb-4">
           <h3 className="text-md font-semibold text-gray-800 mb-3">{t('registration.step2.enterQrCodeManually')}</h3>
           <form onSubmit={handleManualSubmit}>
             <input

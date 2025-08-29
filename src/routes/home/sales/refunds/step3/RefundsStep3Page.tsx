@@ -151,7 +151,7 @@ function RefundsStep3Page(): React.JSX.Element {
   
   if (isLoading) {
     return (
-      <FlowContainer withNoHeaderOffset withBottomOffset>
+      <FlowContainer withNoHeaderOffset withBottomOffset showCancelButton>
         <div className="bg-white rounded-lg shadow-md p-6">
           <p className="text-gray-600">{t('refundsStep3.loadingTransactionDetails')}</p>
         </div>
@@ -173,9 +173,9 @@ function RefundsStep3Page(): React.JSX.Element {
   
   return (
     <FlowContainer withNoHeaderOffset withBottomOffset>
-      <div className="flex-1 flex flex-col items-center justify-center">
+      <div className="flex-1 flex flex-col h-full">
         
-        <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6 mb-6">
+        <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6 mb-4 flex-shrink-0">
           <div className="text-center mb-4">
             <p className="text-gray-600">{t('refundsStep3.originalTransactionAmount')}</p>
             <p className="text-3xl font-bold text-indigo-600">R {formatAmount(transaction?.amountCents || 0)}</p>
@@ -193,7 +193,7 @@ function RefundsStep3Page(): React.JSX.Element {
           )}
         </div>
         
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-md flex-grow flex flex-col">
           <AmountKeypad
             onNumberPress={handleNumberPress}
             onBackspacePress={handleBackspacePress}

@@ -93,7 +93,7 @@ function RefundsStep4Page(): React.JSX.Element {
   // Error state
   if (isQrError || isTransactionError || !qrData || !transaction) {
     return (
-      <FlowContainer withNoHeaderOffset withBottomOffset>
+      <FlowContainer withNoHeaderOffset withBottomOffset showCancelButton>
         <div className="flex flex-col items-center justify-center h-full">
           <div className="text-red-500 text-5xl mb-4">⚠️</div>
           <p className="text-red-600 font-semibold text-center mb-4">

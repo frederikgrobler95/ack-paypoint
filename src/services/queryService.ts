@@ -85,7 +85,7 @@ export const fetchDocumentsPaginated = async <T>(
     
     // Add orderBy constraint if specified
     if (orderByField) {
-      baseConstraints.push(orderBy(orderByField));
+      baseConstraints.push(orderBy(orderByField, 'desc'));
     }
     
     let q = query(

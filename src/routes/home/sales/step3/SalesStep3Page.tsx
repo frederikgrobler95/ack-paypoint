@@ -77,7 +77,7 @@ function SalesStep3Page(): React.JSX.Element {
   if (isQrError) {
     return (
       <>
-        <FlowContainer withNoHeaderOffset withBottomOffset>
+        <FlowContainer withNoHeaderOffset withBottomOffset showCancelButton>
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="text-center">
               <div className="text-lg text-red-600">{t('salesStep3.errorLoadingCustomerDetails', { error: qrError?.message })}</div>
@@ -165,12 +165,6 @@ function SalesStep3Page(): React.JSX.Element {
           >
             {isCreatingSale ? t('salesStep3.processingTransaction') : t('salesStep3.confirmTransaction')}
           </button>
-          
-          {isCreatingSale && (
-            <div className="mt-4 text-center text-gray-600">
-              {t('salesStep3.processingTransaction')}
-            </div>
-          )}
         </div>
       </FlowContainer>
     </>

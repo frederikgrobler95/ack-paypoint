@@ -18,7 +18,50 @@ export default defineConfig({
       },
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg', 'logo-192x192.png', 'logo-512x512.png'],
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg}']
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        // Mobile-specific caching strategies
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365 // <1 year
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          {
+            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'gstatic-fonts-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365 // <1 year
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          {
+            urlPattern: /^https:\/\/.*\.firebaseio\.com\/.*/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'firebase-cache',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24 // 1 day
+              },
+              networkTimeoutSeconds: 10 // 10 second timeout for mobile networks
+            }
+          }
+        ]
       },
       manifest: {
         name: 'Paypoint',
@@ -26,6 +69,9 @@ export default defineConfig({
         description: 'Paypoint application',
         display: 'standalone',
         theme_color: '#ffffff',
+        background_color: '#ffffff',
+        // Mobile-specific settings
+        orientation: 'portrait',
         icons: [
           {
             src: 'logo-192x192.png',
@@ -42,7 +88,18 @@ export default defineConfig({
     })
   ],
   build: {
-    outDir: 'dist'
+    outDir: 'dist',
+    // Mobile-specific build optimizations
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Split vendor chunks for better caching on mobile
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/functions'],
+          utils: ['@tanstack/react-query', 'i18next', 'react-i18next', 'zustand']
+        }
+      }
+    }
   },
   resolve: {
     alias: {

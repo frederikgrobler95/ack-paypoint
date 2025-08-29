@@ -5,10 +5,12 @@ import QrScanner, { QrScannerHandle } from '../../../../shared/ui/QrScanner';
 import { useQRCodeValidationForCheckout, useQRCodeValidationForCheckoutByLabel } from '../../../../queries/qrCodes';
 import { FlowContainer } from '@/shared/ui';
 import { useFlowStore } from '@/shared/stores/flowStore';
+import { useTranslation } from 'react-i18next';
 
 function CheckoutStep1Page(): React.JSX.Element {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
 
   const [qrCodeInput, setQrCodeInput] = useState(location.state?.qrCode || '');
   const [idempotencyKey, setIdempotencyKey] = useState(location.state?.idempotencyKey || '');
@@ -44,7 +46,7 @@ function CheckoutStep1Page(): React.JSX.Element {
         const scannedCode = await qrScannerRef.current.captureQRCode();
         validateQrCode(scannedCode);
       } catch (err) {
-        setError('Failed to scan QR code. Please try again.');
+        setError(t('checkout.step1.error.scanFailed'));
       }
     }
   };
@@ -54,7 +56,7 @@ function CheckoutStep1Page(): React.JSX.Element {
     if (qrCodeInput.trim()) {
       validateQrCode(qrCodeInput);
     } else {
-      setError('Please enter a QR code');
+      setError(t('checkout.step1.error.qrCodeRequired'));
     }
   };
   
@@ -78,18 +80,18 @@ function CheckoutStep1Page(): React.JSX.Element {
         }
       });
     } else if (isQrCodeError || (qrCodeInput && !isQrCodeLoading && !qrCodeData && !hasNavigated)) {
-      setError('Invalid QR code. Please try again.');
+      setError(t('checkout.step1.error.invalidQrCode'));
     }
   }, [qrCodeData, isQrCodeError, qrCodeInput, isQrCodeLoading, navigate, idempotencyKey, hasNavigated]);
   
   return (
-    <FlowContainer withNoHeaderOffset withBottomOffset>
+    <FlowContainer withNoHeaderOffset withBottomOffset showCancelButton>
       
       
       {/* QR Scanner Section - Show only when inputMethod is 'scan' */}
       {inputMethod === 'scan' && (
-        <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-          <h3 className="text-md font-semibold text-gray-800 mb-3">Scan QR Code</h3>
+        <div className="bg-white rounded-lg shadow-md p-4 mb-4">
+          <h3 className="text-md font-semibold text-gray-800 mb-3">{t('checkout.step1.scanQrCodeTitle')}</h3>
           <QrScanner
             ref={qrScannerRef}
             onCodeScanned={validateQrCode}
@@ -99,13 +101,13 @@ function CheckoutStep1Page(): React.JSX.Element {
             onClick={handleScanPress}
             className="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-md transition duration-200"
           >
-            Scan QR Code
+            {t('checkout.step1.scanQrCodeButton')}
           </button>
           <button
             onClick={() => setInputMethod('manual')}
             className="mt-2 w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-4 rounded-md transition duration-200"
           >
-            Enter Manually
+            {t('checkout.step1.enterManuallyButton')}
           </button>
         </div>
       )}
@@ -113,8 +115,8 @@ function CheckoutStep1Page(): React.JSX.Element {
       
       {/* Manual Entry - Show only when inputMethod is 'manual' */}
       {inputMethod === 'manual' && (
-        <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-          <h3 className="text-md font-semibold text-gray-800 mb-3">Enter QR Code Manually</h3>
+        <div className="bg-white rounded-lg shadow-md p-4 mb-4">
+          <h3 className="text-md font-semibold text-gray-800 mb-3">{t('checkout.step1.manualEntryTitle')}</h3>
           <form onSubmit={handleManualSubmit}>
             <input
               type="text"
@@ -124,20 +126,20 @@ function CheckoutStep1Page(): React.JSX.Element {
                 setError('');
               }}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-3"
-              placeholder="Enter QR code"
+              placeholder={t('checkout.step1.qrCodeInputPlaceholder')}
             />
             <button
               type="submit"
               className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-md transition duration-200"
             >
-              Submit QR Code
+              {t('checkout.step1.submitQrCodeButton')}
             </button>
             <button
               type="button"
               onClick={() => setInputMethod('scan')}
               className="mt-2 w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-4 rounded-md transition duration-200"
             >
-              Back to Scan
+              {t('checkout.step1.backToScanButton')}
             </button>
           </form>
         </div>
@@ -153,7 +155,7 @@ function CheckoutStep1Page(): React.JSX.Element {
       {/* Loading indicator */}
       {isQrCodeLoading && (
         <div className="mb-4 p-3 bg-blue-100 text-blue-700 rounded-md">
-          Validating QR code...
+          {t('checkout.step1.validatingQrCode')}
         </div>
       )}
     </FlowContainer>

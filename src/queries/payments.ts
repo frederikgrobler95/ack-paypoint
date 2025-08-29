@@ -1,6 +1,6 @@
 import { useQuery, useSuspenseQuery, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import { fetchDocument, fetchDocumentsPaginated } from '../services/queryService';
-import { where } from 'firebase/firestore';
+import { where, orderBy } from 'firebase/firestore';
 import { Payment } from '../shared/contracts/payment';
 
 // Query keys for payment-related queries
@@ -22,22 +22,22 @@ export const fetchPayment = async (id: string): Promise<Payment | null> => {
 
 // Fetch payments by operator ID with pagination
 export const fetchPaymentsByOperator = async (operatorId: string, pageSize: number = 20, lastDocument?: any): Promise<{ data: Payment[]; lastDoc: any }> => {
-  return fetchDocumentsPaginated<Payment>('payments', pageSize, lastDocument, [where('operatorId', '==', operatorId)]);
+  return fetchDocumentsPaginated<Payment>('payments', pageSize, lastDocument, [where('operatorId', '==', operatorId)], 'createdAt');
 };
 
 // Fetch payments by customer ID with pagination
 export const fetchPaymentsByCustomer = async (customerId: string, pageSize: number = 20, lastDocument?: any): Promise<{ data: Payment[]; lastDoc: any }> => {
-  return fetchDocumentsPaginated<Payment>('payments', pageSize, lastDocument, [where('customerId', '==', customerId)]);
+  return fetchDocumentsPaginated<Payment>('payments', pageSize, lastDocument, [where('customerId', '==', customerId)], 'createdAt');
 };
 
 // Fetch payments by stall ID with pagination
 export const fetchPaymentsByStall = async (stallId: string, pageSize: number = 20, lastDocument?: any): Promise<{ data: Payment[]; lastDoc: any }> => {
-  return fetchDocumentsPaginated<Payment>('payments', pageSize, lastDocument, [where('stallId', '==', stallId)]);
+  return fetchDocumentsPaginated<Payment>('payments', pageSize, lastDocument, [where('stallId', '==', stallId)], 'createdAt');
 };
 
 // Fetch all payments with pagination
 export const fetchPayments = async (pageSize: number = 20, lastDocument?: any) => {
-  return fetchDocumentsPaginated<Payment>('payments', pageSize, lastDocument);
+  return fetchDocumentsPaginated<Payment>('payments', pageSize, lastDocument, [], 'createdAt');
 };
 
 // React Query hooks for payments

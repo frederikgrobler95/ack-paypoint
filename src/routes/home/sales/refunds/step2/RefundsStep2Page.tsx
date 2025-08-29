@@ -81,7 +81,7 @@ function RefundsStep2Page(): React.JSX.Element {
   // Error state
   if (isQrError || isTransactionsError || !qrData || !stallId) {
     return (
-      <FlowContainer withNoHeaderOffset withBottomOffset>
+      <FlowContainer withNoHeaderOffset withBottomOffset showCancelButton>
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="text-center">
             <div className="text-red-500 text-5xl mb-4">⚠️</div>

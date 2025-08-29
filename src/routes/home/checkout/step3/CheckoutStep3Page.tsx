@@ -7,11 +7,13 @@ import { PaymentMethod } from '@/shared/contracts/payment';
 import { useMyAssignment } from '@/contexts/MyAssignmentContext';
 import { FlowContainer } from '@/shared/ui';
 import { useFlowStore } from '@/shared/stores/flowStore';
+import { useTranslation } from 'react-i18next';
 
 function CheckoutStep3Page(): React.JSX.Element {
   const navigate = useNavigate();
   const location = useLocation();
   const { qrCode, idempotencyKey, method: paymentMethod } = location.state || {};
+  const { t } = useTranslation();
   
   const { data: qrData, isLoading: isQrLoading, isError: isQrError } = useQRCodeCustomer(qrCode);
   const { currentUser } = useAuth();
@@ -27,10 +29,10 @@ function CheckoutStep3Page(): React.JSX.Element {
   // Get payment method display name
   const getPaymentMethodName = (method: PaymentMethod) => {
     switch (method) {
-      case 'card': return 'Card';
-      case 'cash': return 'Cash';
-      case 'eft': return 'EFT';
-      default: return 'Unknown';
+      case 'card': return t('paymentMethod.card');
+      case 'cash': return t('paymentMethod.cash');
+      case 'eft': return t('paymentMethod.eft');
+      default: return t('paymentMethod.unknown');
     }
   };
   
@@ -63,9 +65,9 @@ function CheckoutStep3Page(): React.JSX.Element {
   if (isQrLoading) {
     return (
       <FlowContainer withNoHeaderOffset withBottomOffset>
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">Checkout - Step 3</h1>
+        <h1 className="text-2xl font-bold text-gray-800 mb-6">{t('checkout.step3.title')}</h1>
         <div className="bg-white rounded-lg shadow-md p-6">
-          <p className="text-gray-600">Loading customer details...</p>
+          <p className="text-gray-600">{t('checkout.step3.loadingCustomerDetails')}</p>
         </div>
       </FlowContainer>
     );
@@ -74,10 +76,10 @@ function CheckoutStep3Page(): React.JSX.Element {
   // Error state for QR code
   if (isQrError || !qrData) {
     return (
-      <FlowContainer withNoHeaderOffset withBottomOffset>
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">Checkout - Step 3</h1>
+      <FlowContainer withNoHeaderOffset withBottomOffset showCancelButton>
+        <h1 className="text-2xl font-bold text-gray-800 mb-6">{t('checkout.step3.title')}</h1>
         <div className="bg-white rounded-lg shadow-md p-6">
-          <p className="text-red-600">Error loading customer details. Please try again.</p>
+          <p className="text-red-600">{t('checkout.step3.error.loadingCustomerDetails')}</p>
         </div>
       </FlowContainer>
     );
@@ -87,41 +89,34 @@ function CheckoutStep3Page(): React.JSX.Element {
   
   return (
     <FlowContainer withNoHeaderOffset withBottomOffset>
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Checkout - Step 3</h1>
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">{t('checkout.step3.title')}</h1>
       
       {/* Customer Details */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h2 className="text-lg font-semibold text-gray-700 mb-4">Customer Details</h2>
+      <div className="bg-white rounded-lg shadow-md p-5 mb-4">
+        <h2 className="text-lg font-semibold text-gray-700 mb-4">{t('checkout.step3.customerDetailsTitle')}</h2>
         <div className="mb-4">
-          <p className="text-gray-600">Name</p>
+          <p className="text-gray-600">{t('checkout.step3.nameLabel')}</p>
           <p className="text-lg font-semibold text-gray-900">{customer.name}</p>
         </div>
         <div>
-          <p className="text-gray-600">Outstanding Amount</p>
+          <p className="text-gray-600">{t('checkout.step3.outstandingAmountLabel')}</p>
           <p className="text-xl font-bold text-red-600">{formatAmount(customer.Account.balanceCents)}</p>
         </div>
       </div>
       
       {/* Payment Method */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h2 className="text-lg font-semibold text-gray-700 mb-4">Payment Method</h2>
+      <div className="bg-white rounded-lg shadow-md p-5 mb-4">
+        <h2 className="text-lg font-semibold text-gray-700 mb-4">{t('checkout.step3.paymentMethodTitle')}</h2>
         <div className="flex items-center justify-between">
           <div>
             <p className="text-lg font-bold text-gray-900">{getPaymentMethodName(paymentMethod)}</p>
-            <p className="text-sm text-gray-500">Selected payment method</p>
+            <p className="text-sm text-gray-500">{t('checkout.step3.selectedPaymentMethodLabel')}</p>
           </div>
           <div className="text-lg font-semibold text-green-600">
-            Confirmed
+            {t('checkout.step3.confirmedLabel')}
           </div>
         </div>
       </div>
-      
-      {/* Error Message */}
-      {isCheckoutError && (
-        <div className="mt-4 p-3 bg-red-100 text-red-700 rounded-md">
-          {checkoutError?.message || 'Error processing checkout. Please try again.'}
-        </div>
-      )}
       
       {/* Confirm Button */}
       <div className="fixed bottom-20 left-0 right-0 p-4 bg-white border-t border-gray-200">
@@ -140,10 +135,10 @@ function CheckoutStep3Page(): React.JSX.Element {
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              Processing...
+              {t('checkout.step3.processingMessage')}
             </span>
           ) : (
-            <span className="text-xl">Confirm Checkout</span>
+            <span className="text-xl">{t('checkout.step3.confirmCheckoutButton')}</span>
           )}
         </button>
       </div>

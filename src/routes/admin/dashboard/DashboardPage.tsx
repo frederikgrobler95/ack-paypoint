@@ -75,7 +75,7 @@ function DashboardPage(): React.JSX.Element {
                 <p className="text-gray-500 text-sm">Welcome to your admin dashboard</p>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-5">
                 <StatCard
                   title="Total Sales"
                   value={statsData ? formatCurrency(statsData.totalSales) : 'Loading...'}

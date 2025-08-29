@@ -50,7 +50,7 @@ function Header({
   return (
     <>
       {/* Top navigation for larger screens - hidden on mobile */}
-      <nav className="bg-gray-800 text-white py-2 px-4 hidden md:flex fixed top-0 left-0 right-0 z-50">
+      <nav className="bg-gray-800 text-white py-3 px-4 hidden md:flex fixed top-0 left-0 right-0 z-50 h-16">
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center space-x-4">
             <Link to="/" className="text-xl font-bold">{displayTitle}</Link>
@@ -83,7 +83,7 @@ function Header({
             {shouldShowBack && (
               <button
                 onClick={handleBack}
-                className="text-white hover:text-gray-300 focus:outline-none"
+                className="text-white hover:text-gray-300 focus:outline-none touch-target"
                 aria-label="Go back"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -118,12 +118,12 @@ function Header({
       </nav>
       
       {/* Mobile-friendly top bar for smaller screens */}
-      <div className="bg-gray-800 text-white py-2 px-4 md:hidden flex justify-between items-center fixed top-0 left-0 right-0 z-50">
+      <div className="bg-gray-800 text-white py-3 px-4 md:hidden flex justify-between items-center fixed top-0 left-0 right-0 z-50 h-16">
         <div className="flex items-center">
           {shouldShowBack && (
             <button
               onClick={handleBack}
-              className="text-white hover:text-gray-300 focus:outline-none mr-2"
+              className="text-white hover:text-gray-300 focus:outline-none mr-2 touch-target"
               aria-label="Go back"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
