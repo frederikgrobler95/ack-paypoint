@@ -108,7 +108,6 @@ function RefundsStep2Page(): React.JSX.Element {
   
   return (
     <FlowContainer withNoHeaderOffset withBottomOffset>
-      <p className="text-gray-600 mb-6">{t('refundsStep2.selectTransaction', { customerName: qrData?.customer.name })}</p>
       
       {/* Customer Info */}
       <div className="bg-white rounded-lg shadow-md p-4 mb-6">

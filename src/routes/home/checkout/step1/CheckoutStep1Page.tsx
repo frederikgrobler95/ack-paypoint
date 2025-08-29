@@ -2,10 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import QrScanner, { QrScannerHandle } from '../../../../shared/ui/QrScanner';
-import { useQRCodeValidationForCheckout, useQRCodeValidationForCheckoutByLabel } from '../../../../queries/qrCodes';
+import { useQRCodeValidationForCheckout, useQRCodeValidationForCheckoutByLabel, useQRCodeCustomer } from '../../../../queries/qrCodes';
 import { FlowContainer } from '@/shared/ui';
 import { useFlowStore } from '@/shared/stores/flowStore';
 import { useTranslation } from 'react-i18next';
+import InfoDialog from '@/shared/ui/InfoDialog';
 
 function CheckoutStep1Page(): React.JSX.Element {
   const navigate = useNavigate();
@@ -18,15 +19,19 @@ function CheckoutStep1Page(): React.JSX.Element {
   const qrScannerRef = useRef<QrScannerHandle>(null);
   const [inputMethod, setInputMethod] = useState<'scan' | 'manual'>('scan');
   const [hasNavigated, setHasNavigated] = useState(false);
+  const [showNoBalanceDialog, setShowNoBalanceDialog] = useState(false);
   
   // For scanning, we validate by ID and by label
   const { data: qrCodeDataById, isLoading: isQrCodeLoadingById, isError: isQrCodeErrorById } = useQRCodeValidationForCheckout(qrCodeInput);
   const { data: qrCodeDataByLabel, isLoading: isQrCodeLoadingByLabel, isError: isQrCodeErrorByLabel } = useQRCodeValidationForCheckoutByLabel(qrCodeInput);
   
-  // Use the appropriate data based on what's available
+  // Fetch customer details after QR code validation
   const qrCodeData = qrCodeDataById || qrCodeDataByLabel;
-  const isQrCodeLoading = isQrCodeLoadingById || isQrCodeLoadingByLabel;
-  const isQrCodeError = isQrCodeErrorById && isQrCodeErrorByLabel;
+  const { data: qrCodeCustomerData, isLoading: isQrCodeCustomerLoading, isError: isQrCodeCustomerError } = useQRCodeCustomer(qrCodeData?.id || '');
+  
+  // Use the appropriate data based on what's available
+  const isQrCodeLoading = isQrCodeLoadingById || isQrCodeLoadingByLabel || isQrCodeCustomerLoading;
+  const isQrCodeError = (isQrCodeErrorById && isQrCodeErrorByLabel) || isQrCodeCustomerError;
   
   // Reset QR code input when switching input methods
   React.useEffect(() => {
@@ -69,20 +74,25 @@ function CheckoutStep1Page(): React.JSX.Element {
   
   // When qrCodeData changes, check if it's valid
   useEffect(() => {
-    if (qrCodeData && !hasNavigated && idempotencyKey) {
-      setHasNavigated(true);
-      // Set flow data and mark step 1 as complete
-      useFlowStore.getState().setFlowData({ step: 1, qrCode: qrCodeData.id, idempotencyKey });
-      navigate('/checkout/step2', {
-        state: {
-          qrCode: qrCodeData.id,
-          idempotencyKey,
-        }
-      });
+    if (qrCodeData && qrCodeCustomerData && !hasNavigated && idempotencyKey) {
+      // Check if customer has no outstanding balance
+      if (qrCodeCustomerData.customer.Account.balanceCents === 0) {
+        setShowNoBalanceDialog(true);
+      } else {
+        setHasNavigated(true);
+        // Set flow data and mark step 1 as complete
+        useFlowStore.getState().setFlowData({ step: 1, qrCode: qrCodeData.id, idempotencyKey });
+        navigate('/checkout/step2', {
+          state: {
+            qrCode: qrCodeData.id,
+            idempotencyKey,
+          }
+        });
+      }
     } else if (isQrCodeError || (qrCodeInput && !isQrCodeLoading && !qrCodeData && !hasNavigated)) {
       setError(t('checkout.step1.error.invalidQrCode'));
     }
-  }, [qrCodeData, isQrCodeError, qrCodeInput, isQrCodeLoading, navigate, idempotencyKey, hasNavigated]);
+  }, [qrCodeData, qrCodeCustomerData, isQrCodeError, qrCodeInput, isQrCodeLoading, navigate, idempotencyKey, hasNavigated]);
   
   return (
     <FlowContainer withNoHeaderOffset withBottomOffset showCancelButton smallCancelButton>
@@ -157,6 +167,15 @@ function CheckoutStep1Page(): React.JSX.Element {
         <div className="mb-4 p-3 bg-blue-100 text-blue-700 rounded-md">
           {t('checkout.step1.validatingQrCode')}
         </div>
+      )}
+      
+      {/* No outstanding balance dialog */}
+      {showNoBalanceDialog && (
+        <InfoDialog
+          title={t('checkout.step2.noOutstandingAmountTitle')}
+          message={t('checkout.step2.noOutstandingAmountMessage')}
+          onConfirm={() => navigate('/')}
+        />
       )}
     </FlowContainer>
   );
