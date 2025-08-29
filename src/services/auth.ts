@@ -57,12 +57,13 @@ export const signInWithUsernameAndPassword = async (username: string, password: 
     // Sign in with the retrieved email and password
     const userCredential = await firebaseSignIn(auth, email, password);
     
-    // Update the signedIn property in Firestore to true
+    // Update the signedIn property in Firestore to true and tutorialEnabled to false
     if (userCredential.user) {
       const firestore = getFirestore(app);
       const userDocRef = doc(firestore, 'users', userCredential.user.uid);
       await updateDoc(userDocRef, {
-        signedIn: true
+        signedIn: true,
+        tutorialEnabled: false
       });
     }
     
@@ -97,9 +98,9 @@ export const signInWithEmailAndPassword = async (email: string, password: string
 export const signOut = async () => {
   try {
     const currentUser = auth.currentUser;
-    await firebaseSignOut(auth);
     
-    // Update the signedIn property in Firestore to false
+    // Update the signedIn property in Firestore to false BEFORE signing out from Firebase
+    // This ensures we still have authentication to update the document
     if (currentUser) {
       const firestore = getFirestore(app);
       const userDocRef = doc(firestore, 'users', currentUser.uid);
@@ -107,6 +108,9 @@ export const signOut = async () => {
         signedIn: false
       });
     }
+    
+    // Now sign out from Firebase Authentication
+    await firebaseSignOut(auth);
   } catch (error) {
     console.error('Error signing out:', error);
     throw error;

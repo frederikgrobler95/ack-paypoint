@@ -60,6 +60,31 @@ const AuthPage: React.FC = () => {
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           {isSignIn ? t('auth.signInTitle') : t('auth.signUpTitle')}
         </h2>
+        <p className="mt-2 text-center text-sm text-gray-600">
+          {isSignIn ? (
+            <>
+              {t('auth.orSignUp')}
+              <button
+                type="button"
+                onClick={() => setIsSignIn(false)}
+                className="ml-1 font-medium text-blue-600 hover:text-blue-500 focus:outline-none focus:underline transition ease-in-out duration-150"
+              >
+                {t('auth.signUp')}
+              </button>
+            </>
+          ) : (
+            <>
+              {t('auth.orSignIn')}
+              <button
+                type="button"
+                onClick={() => setIsSignIn(true)}
+                className="ml-1 font-medium text-blue-600 hover:text-blue-500 focus:outline-none focus:underline transition ease-in-out duration-150"
+              >
+                {t('auth.signIn')}
+              </button>
+            </>
+          )}
+        </p>
        
       </div>
 
